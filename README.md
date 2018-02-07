@@ -10,7 +10,7 @@ The awesome-pages plugin allows you to customize how your pages show up the navi
 
 ## Installation
 
-> **Note:** This package requires MkDown version 0.17 or higher. 
+> **Note:** This package requires MkDocs version 0.17 or higher. 
 
 Install the package with pip:
 
@@ -70,6 +70,8 @@ arrange:
 ```
 
 In this example `introduction.md` is positioned at the beginning, `summary.md` at the end, and any other pages in between.
+
+If you have a page with filename `index.*` and don't specify an `arrange` attribute (or have no `.pages` file at all), the index page will be positioned at the beginning automatically.
 
 <br/>
 
