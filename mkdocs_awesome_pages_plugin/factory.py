@@ -6,12 +6,7 @@ from typing import List, Union, Optional, Dict
 from . import markdown
 from .page import Page, RootPage
 from .pagesfile import PagesFile
-
-
-class Options:
-    def __init__(self, *, filename: str, disable_auto_arrange_index: bool):
-        self.filename = filename
-        self.disable_auto_arrange_index = disable_auto_arrange_index
+from .options import Options
 
 
 class PageNotFoundError(Exception):
@@ -31,8 +26,8 @@ class Factory:
 
     INDEX_PAGE_NAME = 'index'
 
-    def __init__(self, **kwargs):
-        self.options = Options(**kwargs)
+    def __init__(self, options: Options):
+        self.options = options
 
     def create(self, config: List) -> RootPage:
         """ Creates a root page containing the whole tree of pages from the mkdocs config """

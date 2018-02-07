@@ -5,16 +5,21 @@ from .file_mock import FileMock
 from ..pagesfile import PagesFile
 from ..page import Page
 from ..factory import Factory, PageNotFoundError, TitleInRootPagesFileWarning
+from ..options import Options
 
 
-@mock.patch('builtins.open', new_callable=FileMock)
-class TestCreate(TestCase):
+class FactoryTestCase(TestCase):
 
     def setUp(self):
-        self.factory = Factory(
+        self.options = Options(
             filename='.pages',
             disable_auto_arrange_index=False
         )
+        self.factory = Factory(self.options)
+
+
+@mock.patch('builtins.open', new_callable=FileMock)
+class TestCreate(FactoryTestCase):
 
     def test_one_level(self, file_mock: FileMock):
         config = [
@@ -199,13 +204,7 @@ class TestCreate(TestCase):
 
 
 @mock.patch('builtins.open', new_callable=FileMock)
-class TestCreatePage(TestCase):
-
-    def setUp(self):
-        self.factory = Factory(
-            filename='.pages',
-            disable_auto_arrange_index=False
-        )
+class TestCreatePage(FactoryTestCase):
 
     def test_leaf_page(self, file_mock: FileMock):
         page = self.factory.create_page({
@@ -347,12 +346,7 @@ class TestCreatePage(TestCase):
         self.assertEqual(page.path, 'foo')
 
 
-class TestCommonDirname(TestCase):
-    def setUp(self):
-        self.factory = Factory(
-            filename='.pages',
-            disable_auto_arrange_index=False
-        )
+class TestCommonDirname(FactoryTestCase):
 
     def test_same_common_dirname(self):
         dirname = self.factory.common_dirname([
@@ -408,12 +402,7 @@ class TestCommonDirname(TestCase):
         self.assertIsNone(self.factory.common_dirname([]))
 
 
-class TestArrangePages(TestCase):
-    def setUp(self):
-        self.factory = Factory(
-            filename='.pages',
-            disable_auto_arrange_index=False
-        )
+class TestArrangePages(FactoryTestCase):
 
     def test_no_pages_no_pages_file(self):
         self.assertEqual(self.factory.arrange_pages([], PagesFile()), [])

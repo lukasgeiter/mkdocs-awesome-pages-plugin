@@ -4,6 +4,7 @@ from mkdocs.plugins import BasePlugin
 
 from . import utils
 from .factory import Factory
+from .options import Options
 
 
 class AwesomePagesPlugin(BasePlugin):
@@ -18,7 +19,8 @@ class AwesomePagesPlugin(BasePlugin):
     def on_config(self, config):
 
         with utils.cd(config['docs_dir']):
-            pages = Factory(**self.config).create(config['pages'])
+            options = Options(**self.config)
+            pages = Factory(options).create(config['pages'])
             config['pages'] = pages.to_config()
 
         return config
