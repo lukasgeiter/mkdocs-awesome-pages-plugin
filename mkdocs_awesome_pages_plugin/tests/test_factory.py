@@ -41,7 +41,7 @@ class TestCreate(FactoryTestCase):
         self.assertEqual(tree.children[1].title, 'Bar')
         self.assertEqual(tree.children[1].path, 'bar.md')
 
-        self.assertEqual(tree.to_config(), config)
+        self.assertEqual(tree.to_mkdocs(), config)
 
     def test_two_levels(self, file_mock: FileMock):
         config = [
@@ -76,7 +76,7 @@ class TestCreate(FactoryTestCase):
         self.assertEqual(tree.children[1].children[1].title, 'BarBar')
         self.assertEqual(tree.children[1].children[1].path, 'bar/bar.md')
 
-        self.assertEqual(tree.to_config(), config)
+        self.assertEqual(tree.to_mkdocs(), config)
 
     def test_pages_file_in_root_title(self, file_mock: FileMock):
         file_mock['.pages'].read_data = (
@@ -164,7 +164,7 @@ class TestCreate(FactoryTestCase):
             }
         ]
 
-        self.assertEqual(self.factory.create(config).to_config(), [
+        self.assertEqual(self.factory.create(config).to_mkdocs(), [
             {
                 'Home': 'index.md'
             },

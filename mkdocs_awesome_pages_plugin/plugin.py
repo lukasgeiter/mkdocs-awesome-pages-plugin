@@ -21,6 +21,6 @@ class AwesomePagesPlugin(BasePlugin):
         with utils.cd(config['docs_dir']):
             options = Options(**self.config)
             pages = Factory(options).create(config['pages'])
-            config['pages'] = pages.to_config()
+            config['pages'] = pages.to_mkdocs()
 
         return config

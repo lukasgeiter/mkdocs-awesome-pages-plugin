@@ -11,13 +11,13 @@ class Page:
         self.basename = os.path.basename(path) if path else None
         self.children = children or []
 
-    def _children_to_config(self) -> List:
-        return list(map(lambda child: child.to_config(), self.children))
+    def _children_to_mkdocs(self) -> List:
+        return list(map(lambda child: child.to_mkdocs(), self.children))
 
-    def to_config(self) -> Union[List, Dict, str]:
+    def to_mkdocs(self) -> Union[List, Dict, str]:
         if self.children:
             return {
-                self.title: self._children_to_config()
+                self.title: self._children_to_mkdocs()
             }
         elif self.title:
             return {
@@ -32,5 +32,5 @@ class RootPage(Page):
     def __init__(self, children: List[Page]):
         super().__init__(None, '', children)
 
-    def to_config(self) -> List:
-        return self._children_to_config()
+    def to_mkdocs(self) -> List:
+        return self._children_to_mkdocs()

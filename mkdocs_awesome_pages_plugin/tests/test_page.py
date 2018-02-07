@@ -21,22 +21,22 @@ class TestPage(TestCase):
         page = Page('Foo', 'foo/foo.md')
         self.assertEqual(page.dirname, 'foo')
 
-    def test_to_config(self):
+    def test_to_mkdocs(self):
         page = Page('Foo', 'foo.md')
-        self.assertEqual(page.to_config(), {
+        self.assertEqual(page.to_mkdocs(), {
             'Foo': 'foo.md'
         })
 
-    def test_to_config_no_title(self):
+    def test_to_mkdocs_no_title(self):
         page = Page(None, 'foo.md')
-        self.assertEqual(page.to_config(), 'foo.md')
+        self.assertEqual(page.to_mkdocs(), 'foo.md')
 
-    def test_to_config_root(self):
+    def test_to_mkdocs_root(self):
         page = RootPage([
             Page('Foo', 'foo.md'),
             Page('Bar', 'bar.md')
         ])
-        self.assertEqual(page.to_config(), [
+        self.assertEqual(page.to_mkdocs(), [
             {
                 'Foo': 'foo.md'
             },
@@ -45,11 +45,11 @@ class TestPage(TestCase):
             }
         ])
 
-    def test_to_config_empty_root(self):
+    def test_to_mkdocs_empty_root(self):
         page = RootPage([])
-        self.assertEqual(page.to_config(), [])
+        self.assertEqual(page.to_mkdocs(), [])
 
-    def test_to_config_tree(self):
+    def test_to_mkdocs_tree(self):
         tree = RootPage([
             Page('Foo', 'foo.md'),
             Page('Bar', 'bar', [
@@ -57,7 +57,7 @@ class TestPage(TestCase):
                 Page('BarBar', 'bar/bar.md')
             ])
         ])
-        self.assertEqual(tree.to_config(), [
+        self.assertEqual(tree.to_mkdocs(), [
             {
                 'Foo': 'foo.md'
             },
