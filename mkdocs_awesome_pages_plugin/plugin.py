@@ -13,7 +13,8 @@ class AwesomePagesPlugin(BasePlugin):
 
     config_scheme = (
         ('filename', config_options.Type(mkdocs_utils.string_types, default=DEFAULT_PAGES_FILENAME)),
-        ('disable_auto_arrange_index', config_options.Type(bool, default=False))
+        ('disable_auto_arrange_index', config_options.Type(bool, default=False)),
+        ('disable_collapse_single_pages', config_options.Type(bool, default=False))
     )
 
     def on_config(self, config):
@@ -21,6 +22,6 @@ class AwesomePagesPlugin(BasePlugin):
         with utils.cd(config['docs_dir']):
             options = Options(**self.config)
             pages = Factory(options).create(config['pages'])
-            config['pages'] = pages.to_mkdocs()
+            config['pages'] = pages.to_mkdocs(not options.disable_collapse_single_pages)
 
         return config

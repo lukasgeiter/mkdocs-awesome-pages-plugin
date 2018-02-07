@@ -11,14 +11,18 @@ class Page:
         self.basename = os.path.basename(path) if path else None
         self.children = children or []
 
-    def _children_to_mkdocs(self) -> List:
-        return list(map(lambda child: child.to_mkdocs(), self.children))
+    def _children_to_mkdocs(self, collapse_single_children: bool = False) -> List:
+        return list(map(lambda child: child.to_mkdocs(collapse_single_children), self.children))
 
-    def to_mkdocs(self) -> Union[List, Dict, str]:
+    def to_mkdocs(self, collapse_single_pages: bool = False) -> Union[List, Dict, str]:
         if self.children:
-            return {
-                self.title: self._children_to_mkdocs()
-            }
+            children = self._children_to_mkdocs(collapse_single_pages)
+            if collapse_single_pages and len(children) == 1:
+                return children[0]
+            else:
+                return {
+                    self.title: children
+                }
         elif self.title:
             return {
                 self.title: self.path
@@ -32,5 +36,5 @@ class RootPage(Page):
     def __init__(self, children: List[Page]):
         super().__init__(None, '', children)
 
-    def to_mkdocs(self) -> List:
-        return self._children_to_mkdocs()
+    def to_mkdocs(self, collapse_single_pages: bool = False) -> List:
+        return self._children_to_mkdocs(collapse_single_pages)

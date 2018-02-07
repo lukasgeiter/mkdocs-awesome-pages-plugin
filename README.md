@@ -38,6 +38,30 @@ More information about plugins in the [MkDocs documentation][mkdocs-plugins]
 
 The plugin extracts the H1 title (only `#` syntax is supported) from every page and uses it for the title in the navigation.
 
+### Collapse Single Nested Pages
+
+If you have directories that only contain a single page, awesome-pages will automatically "collapse" them, so the folder doesn't show up in the navigation.
+
+For example if you have the following file structure:
+
+```yaml
+docs/
+├─ section1/
+│  ├─ img/
+│  │  ├─ image1.png
+│  │  └─ image2.png
+│  └─ index.md # Section 1
+└─ section2/
+   └─ index.md # Section 2
+```
+
+The pages will appear in your navigation at the root level:
+
+- Section 1
+- Section 2
+
+> **Note:** This feature works recursively. That means it will also collapse multiple levels of single pages.
+
 ### Set Directory Title
 
 Create a YAML file named `.pages` in a directory and set the `title` to override the title of that directory in the navigation:
@@ -84,6 +108,7 @@ plugins:
     - awesome-pages:
         filename: .index
         disable_auto_arrange_index: true
+        disable_collapse_single_pages: true
 ```
 
 ### `filename`
@@ -93,6 +118,10 @@ Name of the file used to configure pages of a directory. Default is `.pages`
 ### `disable_auto_arrange_index`
 
 Disable the behavior of automatically putting the page with filename `index.*` at the beginning if there is no order specified in `arrange`. Default is `false`
+
+### `disable_collapse_single_pages`
+
+Disable the collapsing of single nested pages. Default is `false`
 
 <br/>
 
