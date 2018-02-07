@@ -14,7 +14,7 @@ class FactoryTestCase(TestCase):
         self.options = Options(
             filename='.pages',
             disable_auto_arrange_index=False,
-            disable_collapse_single_pages=False
+            collapse_single_pages=False
         )
         self.factory = Factory(self.options)
 

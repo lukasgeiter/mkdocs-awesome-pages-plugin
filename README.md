@@ -40,7 +40,9 @@ The plugin extracts the H1 title (only `#` syntax is supported) from every page 
 
 ### Collapse Single Nested Pages
 
-If you have directories that only contain a single page, awesome-pages will automatically "collapse" them, so the folder doesn't show up in the navigation.
+> **Note:** This features needs to be enabled explicitly by setting the [`collapse_single_pages` option](#collapse_single_pages).
+
+If you have directories that only contain a single page, awesome-pages can "collapse" them, so the folder doesn't show up in the navigation.
 
 For example if you have the following file structure:
 
@@ -108,7 +110,7 @@ plugins:
     - awesome-pages:
         filename: .index
         disable_auto_arrange_index: true
-        disable_collapse_single_pages: true
+        collapse_single_pages: true
 ```
 
 ### `filename`
@@ -119,9 +121,9 @@ Name of the file used to configure pages of a directory. Default is `.pages`
 
 Disable the behavior of automatically putting the page with filename `index.*` at the beginning if there is no order specified in `arrange`. Default is `false`
 
-### `disable_collapse_single_pages`
+### `collapse_single_pages`
 
-Disable the collapsing of single nested pages. Default is `false`
+Enable the collapsing of single nested pages. Default is `false`
 
 <br/>
 
