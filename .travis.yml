@@ -1,0 +1,25 @@
+language: python
+python:
+  - 3.5
+  - 3.6
+
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/ # version tags
+
+script:
+  - pytest
+
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  on:
+    tags: true
+    python: 3.6
+
+notifications:
+  email:
+    on_success: never
