@@ -64,7 +64,7 @@ class Factory:
     def _create_leaf_page(self, title: Optional[str], path: str) -> Page:
         """ Creates a leaf page, a page pointing to an actual markdown file """
         try:
-            with open(path) as file:
+            with open(path, encoding='utf-8') as file:
                 title = markdown.extract_h1(file)
         except FileNotFoundError:
             pass

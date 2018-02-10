@@ -24,7 +24,7 @@ class PagesFile:
 
     @staticmethod
     def load_from(path: str) -> 'PagesFile':
-        with open(path) as file:
+        with open(path, encoding='utf-8') as file:
             contents = yaml.load(file) or {}
             title = contents.get(PagesFile.TITLE_ATTRIBUTE)
             arrange = contents.get(PagesFile.ARRANGE_ATTRIBUTE)
