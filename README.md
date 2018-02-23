@@ -14,7 +14,7 @@ The awesome-pages plugin allows you to customize how your pages show up the navi
 
 Install the package with pip:
 
-```yaml
+```bash
 pip install mkdocs-awesome-pages-plugin
 ```
 

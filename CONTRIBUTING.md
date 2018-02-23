@@ -11,13 +11,13 @@ Thank you for considering to contribute to this project. These guidelines will h
 ##### Prerequisites
 
 - [Python 3]
-- virtualenv
+- [virtualenv]
 
 ##### Steps
 
 1. Clone the (forked) repository
 1. Create a virtualenv with `virtualenv env`
-1. Activate virtualenv `source env/Scripts/activate`
+1. Activate virtualenv `source env/bin/activate` or `env/Scripts/activate` on Windows
 1. Run `pip install -r requirements.txt` in the project directory
 
 #### Running Tests
