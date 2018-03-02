@@ -47,24 +47,6 @@ class TestPage(TestCase):
             ]
         })
 
-    def test_to_mkdocs_collapse_single_pages(self):
-        page = Page('Foo', 'foo', [
-            Page('FooBar', 'foo/foo.md')
-        ])
-        self.assertEqual(page.to_mkdocs(collapse_single_pages=True), {
-            'FooBar': 'foo/foo.md'
-        })
-
-    def test_to_mkdocs_collapse_single_pages_recursive(self):
-        page = Page('Foo', 'foo', [
-            Page('FooBar', 'foo/bar', [
-                Page('FooBarFoo', 'foo/bar/foo.md')
-            ])
-        ])
-        self.assertEqual(page.to_mkdocs(collapse_single_pages=True), {
-            'FooBarFoo': 'foo/bar/foo.md'
-        })
-
     def test_to_mkdocs_collapse_single_pages_disabled(self):
         page = Page('Foo', 'foo', [
             Page('FooBar', 'foo/foo.md')
@@ -73,6 +55,226 @@ class TestPage(TestCase):
             'Foo': [
                 {
                     'FooBar': 'foo/foo.md'
+                }
+            ]
+        })
+
+    def test_to_mkdocs_collapse_recursive_inherited(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar.md')
+        ])
+        self.assertEqual(page.to_mkdocs(collapse_single_pages=True), {
+            'FooBar': 'foo/bar.md'
+        })
+
+    def test_to_mkdocs_collapse_recursive_inherited_complex(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar', [
+                Page('FooBarFoo', 'foo/bar/foo', [
+                    Page('FooBarFooIndex', 'foo/bar/foo/index.md')
+                ]),
+                Page('FooBarBar', 'foo/bar/bar', [
+                    Page('FooBarBarIndex', 'foo/bar/bar/index.md')
+                ])
+            ])
+        ])
+        self.assertEqual(page.to_mkdocs(collapse_single_pages=True), {
+            'FooBar': [
+                {
+                    'FooBarFooIndex': 'foo/bar/foo/index.md'
+                },
+                {
+                    'FooBarBarIndex': 'foo/bar/bar/index.md'
+                }
+            ]
+        })
+
+    def test_to_mkdocs_collapse_recursive_local(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar.md')
+        ], collapse_single_pages=True)
+        self.assertEqual(page.to_mkdocs(), {
+            'FooBar': 'foo/bar.md'
+        })
+
+    def test_to_mkdocs_collapse_recursive_local_complex(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar', [
+                Page('FooBarFoo', 'foo/bar/foo', [
+                    Page('FooBarFooIndex', 'foo/bar/foo/index.md')
+                ]),
+                Page('FooBarBar', 'foo/bar/bar', [
+                    Page('FooBarBarIndex', 'foo/bar/bar/index.md')
+                ])
+            ])
+        ], collapse_single_pages=True)
+        self.assertEqual(page.to_mkdocs(), {
+            'FooBar': [
+                {
+                    'FooBarFooIndex': 'foo/bar/foo/index.md'
+                },
+                {
+                    'FooBarBarIndex': 'foo/bar/bar/index.md'
+                }
+            ]
+        })
+
+    def test_to_mkdocs_collapse_non_recursive(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar.md')
+        ], collapse=True)
+        self.assertEqual(page.to_mkdocs(), {
+            'FooBar': 'foo/bar.md'
+        })
+
+    def test_to_mkdocs_collapse_non_recursive_complex(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar', [
+                Page('FooBarFoo', 'foo/bar/foo', [
+                    Page('FooBarFooIndex', 'foo/bar/foo/index.md')
+                ]),
+                Page('FooBarBar', 'foo/bar/bar', [
+                    Page('FooBarBarIndex', 'foo/bar/bar/index.md')
+                ], collapse=True)
+            ])
+        ], collapse=True)
+        self.assertEqual(page.to_mkdocs(), {
+            'FooBar': [
+                {
+                    'FooBarFoo': [
+                        {
+                            'FooBarFooIndex': 'foo/bar/foo/index.md'
+                        }
+                    ]
+                },
+                {
+                    'FooBarBarIndex': 'foo/bar/bar/index.md'
+                }
+            ]
+        })
+
+    def test_to_mkdocs_collapse_recursive_local_overrides_inherited(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar', [
+                Page('FooBarFoo', 'foo/bar/foo', [
+                    Page('FooBarFooIndex', 'foo/bar/foo/index.md')
+                ]),
+                Page('FooBarBar', 'foo/bar/bar', [
+                    Page('FooBarBarIndex', 'foo/bar/bar/index.md')
+                ])
+            ])
+        ], collapse_single_pages=False)
+        self.assertEqual(page.to_mkdocs(collapse_single_pages=True), {
+            'Foo': [
+                {
+                    'FooBar': [
+                        {
+                            'FooBarFoo': [
+                                {
+                                    'FooBarFooIndex': 'foo/bar/foo/index.md'
+                                }
+                            ]
+                        },
+                        {
+                            'FooBarBar': [
+                                {
+                                    'FooBarBarIndex': 'foo/bar/bar/index.md'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+    def test_to_mkdocs_collapse_non_recursive_overrides_recursive(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar.md')
+        ], collapse_single_pages=True, collapse=False)
+        self.assertEqual(page.to_mkdocs(), {
+            'Foo': [
+                {
+                    'FooBar': 'foo/bar.md'
+                }
+            ]
+        })
+
+    def test_to_mkdocs_collapse_superfluous_local_non_recursive(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar', [
+                Page('FooBarIndex', 'foo/bar/index.md')
+            ])
+        ], collapse_single_pages=True, collapse=True)
+        self.assertEqual(page.to_mkdocs(), {
+            'FooBarIndex': 'foo/bar/index.md'
+        })
+
+    def test_to_mkdocs_collapse_example(self):
+        page = Page('Foo', 'foo', [
+            Page('FooBar', 'foo/bar', [
+                Page('FooBarFoo', 'foo/bar/foo', [
+                    Page('FooBarFooFoo', 'foo/bar/foo/foo', [
+                        Page('FooBarFooFooFoo', 'foo/bar/foo/foo/foo', [
+                            Page('FooBarFooFooFooIndex', 'foo/bar/foo/foo/foo/index.md')
+                        ])
+                    ], collapse=False),
+                    Page('FooBarFooBar', 'foo/bar/foo/bar', [
+                        Page('FooBarFooBarFoo', 'foo/bar/foo/bar/foo', [
+                            Page('FooBarFooBarFooIndex', 'foo/bar/foo/bar/foo/index.md')
+                        ])
+                    ])
+                ]),
+                Page('FooBarBar', 'foo/bar/bar', [
+                    Page('FooBarBarFoo', 'foo/bar/bar/foo', [
+                        Page('FooBarBarFooFoo', 'foo/bar/bar/foo/foo', [
+                            Page('FooBarBarFooFooIndex', 'foo/bar/bar/foo/foo/index.md')
+                        ])
+                    ]),
+                    Page('FooBarBarBar', 'foo/bar/bar/bar', [
+                        Page('FooBarBarBarFoo', 'foo/bar/bar/bar/foo', [
+                            Page('FooBarBarBarFooIndex', 'foo/bar/bar/bar/foo/index.md')
+                        ])
+                    ], collapse=True)
+                ], collapse_single_pages=False)
+            ])
+        ])
+        self.assertEqual(page.to_mkdocs(collapse_single_pages=True), {
+            'FooBar': [
+                {
+                    'FooBarFoo': [
+                        {
+                            'FooBarFooFoo': [
+                                {
+                                    'FooBarFooFooFooIndex': 'foo/bar/foo/foo/foo/index.md'
+                                }
+                            ]
+                        },
+                        {
+                            'FooBarFooBarFooIndex': 'foo/bar/foo/bar/foo/index.md'
+                        }
+                    ]
+                },
+                {
+                    'FooBarBar': [
+                        {
+                            'FooBarBarFoo': [
+                                {
+                                    'FooBarBarFooFoo': [
+                                        {
+                                            'FooBarBarFooFooIndex': 'foo/bar/bar/foo/foo/index.md'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'FooBarBarBarFoo': [
+                                {
+                                    'FooBarBarBarFooIndex': 'foo/bar/bar/bar/foo/index.md'
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         })
@@ -88,6 +290,34 @@ class TestPage(TestCase):
             },
             {
                 'Bar': 'bar.md'
+            }
+        ])
+
+    def test_to_mkdocs_collapse_root(self):
+        page = RootPage([
+            Page('Foo', 'foo', [
+                Page('FooBar', 'foo/bar.md')
+            ])
+        ], collapse_single_pages=True)
+        self.assertEqual(page.to_mkdocs(), [
+            {
+                'FooBar': 'foo/bar.md'
+            }
+        ])
+
+    def test_to_mkdocs_collapse_root_argument_override(self):
+        page = RootPage([
+            Page('Foo', 'foo', [
+                Page('FooBar', 'foo/bar.md')
+            ])
+        ], collapse_single_pages=True)
+        self.assertEqual(page.to_mkdocs(collapse_single_pages=False), [
+            {
+                'Foo': [
+                    {
+                        'FooBar': 'foo/bar.md'
+                    }
+                ]
             }
         ])
 

@@ -79,3 +79,19 @@ class TestPagesFile(TestCase):
 
         with self.assertRaises(DuplicateRestTokenError):
             PagesFile.load_from('.pages')
+
+    def test_invalid_collapse_type(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'collapse: foo\n'
+        )
+
+        with self.assertRaises(TypeError):
+            PagesFile.load_from('.pages')
+
+    def test_invalid_collapse_single_pages_type(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'collapse_single_pages: foo\n'
+        )
+
+        with self.assertRaises(TypeError):
+            PagesFile.load_from('.pages')

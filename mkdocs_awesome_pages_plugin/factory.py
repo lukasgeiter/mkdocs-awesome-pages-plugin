@@ -41,8 +41,10 @@ class Factory:
                 TitleInRootPagesFileWarning)
 
         children = self.arrange_pages(children, pages_file)
+        collapse_single_pages = (pages_file.collapse_single_pages if pages_file.collapse_single_pages is not None
+                                 else self.options.collapse_single_pages)
 
-        return RootPage(children)
+        return RootPage(children, collapse_single_pages)
 
     def create_page(self, config_entry: Union[Dict, str]) -> Page:
         """ Creates a page from an entry in the mkdocs config """
@@ -81,7 +83,8 @@ class Factory:
 
         children = self.arrange_pages(children, pages_file)
 
-        return Page(title, path, children)
+        return Page(title, path, children,
+                    collapse_single_pages=pages_file.collapse_single_pages, collapse=pages_file.collapse)
 
     def _load_pages_file(self, path: str):
         """ Loads and parses the pages file for a given path """

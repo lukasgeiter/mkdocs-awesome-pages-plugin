@@ -79,6 +79,24 @@ class TestCreate(FactoryTestCase):
 
         self.assertEqual(tree.to_mkdocs(), config)
 
+    def test_collapse_single_pages_option(self, file_mock: FileMock):
+        self.options.collapse_single_pages = True
+
+        root = self.factory.create([])
+
+        self.assertEqual(root.collapse_single_pages, True)
+
+    def test_collapse_single_pages_option_and_pages_file_in_root(self, file_mock: FileMock):
+        self.options.collapse_single_pages = True
+
+        file_mock['.pages'].read_data = (
+            'collapse_single_pages: False\n'
+        )
+
+        root = self.factory.create([])
+
+        self.assertEqual(root.collapse_single_pages, False)
+
     def test_pages_file_in_root_title(self, file_mock: FileMock):
         file_mock['.pages'].read_data = (
             'title: Root\n'
@@ -213,11 +231,15 @@ class TestCreatePage(FactoryTestCase):
         })
         self.assertEqual(page.title, 'Foo')
         self.assertEqual(page.path, 'foo.md')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_leaf_page_without_title(self, file_mock: FileMock):
         page = self.factory.create_page('foo.md')
         self.assertIsNone(page.title)
         self.assertEqual(page.path, 'foo.md')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_leaf_page_extracted_title(self, file_mock: FileMock):
         file_mock['foo.md'].read_data = (
@@ -229,6 +251,8 @@ class TestCreatePage(FactoryTestCase):
         })
         self.assertEqual(page.title, 'Foo title')
         self.assertEqual(page.path, 'foo.md')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_leaf_page_without_title_extracted_title(self, file_mock: FileMock):
         file_mock['foo.md'].read_data = (
@@ -238,6 +262,8 @@ class TestCreatePage(FactoryTestCase):
         page = self.factory.create_page('foo.md')
         self.assertEqual(page.title, 'Foo title')
         self.assertEqual(page.path, 'foo.md')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page(self, file_mock: FileMock):
         page = self.factory.create_page({
@@ -250,6 +276,8 @@ class TestCreatePage(FactoryTestCase):
         self.assertEqual(page.title, 'Foo')
         self.assertEqual(page.path, 'foo')
         self.assertEqual(len(page.children), 1)
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page_without_children(self, file_mock: FileMock):
         page = self.factory.create_page({
@@ -258,6 +286,8 @@ class TestCreatePage(FactoryTestCase):
         self.assertEqual(page.title, 'Foo')
         self.assertIsNone(page.path)
         self.assertEqual(len(page.children), 0)
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page_without_common_dirname(self, file_mock: FileMock):
         page = self.factory.create_page({
@@ -269,6 +299,8 @@ class TestCreatePage(FactoryTestCase):
         self.assertEqual(page.title, 'Foo')
         self.assertIsNone(page.path)
         self.assertEqual(len(page.children), 2)
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page_with_path_none_child(self, file_mock: FileMock):
         page = self.factory.create_page({
@@ -285,6 +317,8 @@ class TestCreatePage(FactoryTestCase):
         self.assertEqual(page.title, 'Foo')
         self.assertIsNone(page.path)
         self.assertEqual(len(page.children), 2)
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page_with_duplicate_path_children(self, file_mock: FileMock):
         page = self.factory.create_page({
@@ -296,6 +330,8 @@ class TestCreatePage(FactoryTestCase):
         self.assertEqual(page.title, 'Foo')
         self.assertEqual(page.path, 'foo')
         self.assertEqual(len(page.children), 2)
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page_title(self, file_mock: FileMock):
         file_mock[os.path.join('foo', '.pages')].read_data = (
@@ -311,6 +347,8 @@ class TestCreatePage(FactoryTestCase):
         })
         self.assertEqual(page.title, 'Foo title')
         self.assertEqual(page.path, 'foo')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
     def test_branch_page_arrange(self, file_mock: FileMock):
         file_mock[os.path.join('foo', '.pages')].read_data = (
@@ -328,6 +366,76 @@ class TestCreatePage(FactoryTestCase):
         self.assertEqual(page.title, 'Foo')
         self.assertEqual(page.children[0].path, 'foo/foo.md')
         self.assertEqual(page.children[1].path, 'foo/bar.md')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
+
+    def test_branch_page_collapse_true(self, file_mock: FileMock):
+        file_mock[os.path.join('foo', '.pages')].read_data = (
+            'collapse: true\n'
+        )
+
+        page = self.factory.create_page({
+            'Foo': [
+                {
+                    'Bar': 'foo/bar.md'
+                }
+            ]
+        })
+        self.assertEqual(page.title, 'Foo')
+        self.assertEqual(page.path, 'foo')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertEqual(page.collapse, True)
+
+    def test_branch_page_collapse_false(self, file_mock: FileMock):
+        file_mock[os.path.join('foo', '.pages')].read_data = (
+            'collapse: false\n'
+        )
+
+        page = self.factory.create_page({
+            'Foo': [
+                {
+                    'Bar': 'foo/bar.md'
+                }
+            ]
+        })
+        self.assertEqual(page.title, 'Foo')
+        self.assertEqual(page.path, 'foo')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertEqual(page.collapse, False)
+
+    def test_branch_page_collapse_single_pages_true(self, file_mock: FileMock):
+        file_mock[os.path.join('foo', '.pages')].read_data = (
+            'collapse_single_pages: true\n'
+        )
+
+        page = self.factory.create_page({
+            'Foo': [
+                {
+                    'Bar': 'foo/bar.md'
+                }
+            ]
+        })
+        self.assertEqual(page.title, 'Foo')
+        self.assertEqual(page.path, 'foo')
+        self.assertEqual(page.collapse_single_pages, True)
+        self.assertIsNone(page.collapse)
+
+    def test_branch_page_collapse_single_pages_false(self, file_mock: FileMock):
+        file_mock[os.path.join('foo', '.pages')].read_data = (
+            'collapse_single_pages: false\n'
+        )
+
+        page = self.factory.create_page({
+            'Foo': [
+                {
+                    'Bar': 'foo/bar.md'
+                }
+            ]
+        })
+        self.assertEqual(page.title, 'Foo')
+        self.assertEqual(page.path, 'foo')
+        self.assertEqual(page.collapse_single_pages, False)
+        self.assertIsNone(page.collapse)
 
     def test_branch_pages_filename_option(self, file_mock: FileMock):
         self.factory.options.filename = '.index'
@@ -345,6 +453,8 @@ class TestCreatePage(FactoryTestCase):
         })
         self.assertEqual(page.title, 'Foo title')
         self.assertEqual(page.path, 'foo')
+        self.assertIsNone(page.collapse_single_pages)
+        self.assertIsNone(page.collapse)
 
 
 class TestCommonDirname(FactoryTestCase):

@@ -40,7 +40,7 @@ The plugin extracts the H1 title (only `#` syntax is supported) from every page 
 
 ### Collapse Single Nested Pages
 
-> **Note:** This features needs to be enabled explicitly by setting the [`collapse_single_pages` option](#collapse_single_pages).
+> **Note:** This feature is disabled by default. More on how to use it below
 
 If you have directories that only contain a single page, awesome-pages can "collapse" them, so the folder doesn't show up in the navigation.
 
@@ -62,7 +62,36 @@ The pages will appear in your navigation at the root level:
 - Section 1
 - Section 2
 
+Instead of how MkDocs would display them by default:
+
+- Section 1
+  - Index
+- Section 2
+  - Index
+
+#### For all pages
+
+Collapsing can be enabled globally using the [`collapse_single_pages` option](#collapse_single_pages) in `mkdocs.yml`
+
+#### For a sub-section
+
+If you only want to collapse certain pages, create a YAML file called `.pages` in the directory and set `collapse_single_pages` to `true`:
+
+```yaml
+collapse_single_pages: true
+```
+
+You may also enable collapsing globally using the plugin option and then use the `.pages` file to prevent certain sub-sections from being collapsed by setting `collapse_single_pages` to `false`.
+
 > **Note:** This feature works recursively. That means it will also collapse multiple levels of single pages.
+
+#### For a single page
+
+If you want to enable or disable collapsing of a single page, without applying the setting recursively, create a YAML file called `.pages` in the directory and set `collapse` to `true` or `false`:
+
+```yaml
+collapse: true
+```
 
 ### Set Directory Title
 
