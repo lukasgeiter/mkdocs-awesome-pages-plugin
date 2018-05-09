@@ -10,7 +10,7 @@ The awesome-pages plugin allows you to customize how your pages show up the navi
 
 ## Installation
 
-> **Note:** This package requires MkDocs version 0.17 or higher. 
+> **Note:** This package requires Python >=3.5 and MkDocs version 0.17 or higher.
 
 Install the package with pip:
 
