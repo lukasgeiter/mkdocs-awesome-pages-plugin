@@ -1,5 +1,5 @@
 from .base import E2ETestCase
-from ...factory import TitleInRootPagesFileWarning
+from ...navigation import TitleInRootWarning
 
 
 class TestPageTitle(E2ETestCase):
@@ -31,7 +31,7 @@ class TestSectionTitle(E2ETestCase):
         ])
 
     def test_in_root(self):
-        with self.assertWarns(TitleInRootPagesFileWarning):
+        with self.assertWarns(TitleInRootWarning):
             navigation = self.mkdocs(self.config, [
                 'page.md',
                 self.pagesFile(title='Root Title')

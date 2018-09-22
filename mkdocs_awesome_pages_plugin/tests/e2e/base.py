@@ -52,7 +52,7 @@ class E2ETestCase(TestCase):
             'plugins': [
                 plugins_entry
             ],
-            'pages': mkdocs_nav
+            'nav': mkdocs_nav
         }
 
     def mkdocs(self, config: dict, files: List[Union[str, Tuple[str, Union[str, list]]]]):
@@ -116,7 +116,9 @@ class E2ETestCase(TestCase):
 
         if ul is None:
             raise Exception(
-                'Navigation not found, make sure the site contains at least {} top-level navigation entries'.format(self.MIN_ROOT_ITEMS))
+                'Navigation not found, make sure the site contains at least {} top-level navigation entries'
+                .format(self.MIN_ROOT_ITEMS)
+            )
 
         return self._parseNav(ul)
 
@@ -127,6 +129,9 @@ class E2ETestCase(TestCase):
                 contents = self._parseNav(li.find('ul'))
             else:
                 contents = li.a['href'].strip('/')
+                if contents == '.':
+                    # normalize index url
+                    contents = ''
 
             pages.append(
                 (li.a.text.strip(), contents)

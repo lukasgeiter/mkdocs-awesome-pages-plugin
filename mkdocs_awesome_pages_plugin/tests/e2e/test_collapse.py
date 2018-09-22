@@ -155,6 +155,27 @@ class TestCollapseGlobalEnabled(E2ETestCase):
             ('Page', 'section/page')
         ])
 
+    def test_links(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            {
+                'Section': [
+                    {'Page': 'section/page.md'},
+                    {'Link': 'https://example.com'}
+                ]
+            }
+        ]), [
+            ('section', [
+                'page.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('Section', [
+                ('Page', 'section/page'),
+                ('Link', 'https://example.com')
+            ])
+        ])
+
     def test_arrange_duplicate(self):
         navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
             {

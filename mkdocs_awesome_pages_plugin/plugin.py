@@ -1,27 +1,21 @@
 from mkdocs import utils as mkdocs_utils
-from mkdocs.config import config_options
+from mkdocs.config import config_options, Config
 from mkdocs.plugins import BasePlugin
+from mkdocs.structure.files import Files
+from mkdocs.structure.nav import Navigation as MkDocsNavigation
 
-from . import utils
-from .factory import Factory
+from .navigation import AwesomeNavigation
 from .options import Options
 
 
 class AwesomePagesPlugin(BasePlugin):
 
-    DEFAULT_PAGES_FILENAME = '.pages'
+    DEFAULT_META_FILENAME = '.pages'
 
     config_scheme = (
-        ('filename', config_options.Type(mkdocs_utils.string_types, default=DEFAULT_PAGES_FILENAME)),
-        ('disable_auto_arrange_index', config_options.Type(bool, default=False)),
+        ('filename', config_options.Type(mkdocs_utils.string_types, default=DEFAULT_META_FILENAME)),
         ('collapse_single_pages', config_options.Type(bool, default=False))
     )
 
-    def on_config(self, config):
-
-        with utils.cd(config['docs_dir']):
-            options = Options(**self.config)
-            pages = Factory(options).create(config['pages'])
-            config['pages'] = pages.to_mkdocs()
-
-        return config
+    def on_nav(self, nav: MkDocsNavigation, config: Config, files: Files):
+        return AwesomeNavigation(nav, Options(**self.config)).to_mkdocs()

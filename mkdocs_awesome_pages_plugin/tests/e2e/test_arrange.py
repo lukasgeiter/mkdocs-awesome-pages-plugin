@@ -1,5 +1,5 @@
 from .base import E2ETestCase
-from ...factory import PageNotFoundError
+from ...navigation import ArrangeEntryNotFound
 
 
 class TestArrange(E2ETestCase):
@@ -218,6 +218,27 @@ class TestArrange(E2ETestCase):
             ])
         ])
 
+    def test_links(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            {'Link 1': 'https://example.com'},
+            {'Page 1': '1.md'},
+            {'Link 2': 'https://example.com'},
+            {'Page 2': '2.md'}
+        ]), [
+            '1.md',
+            '2.md',
+            self.pagesFile(arrange=[
+                '2.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('Page 2', '2'),
+            ('Link 1', 'https://example.com'),
+            ('Page 1', '1'),
+            ('Link 2', 'https://example.com')
+        ])
+
     def test_collapsed(self):
         navigation = self.mkdocs(self.createConfig(
             collapse_single_pages=True
@@ -305,7 +326,7 @@ class TestArrange(E2ETestCase):
         ])
 
     def test_entry_not_found(self):
-        with self.assertRaises(PageNotFoundError):
+        with self.assertRaises(ArrangeEntryNotFound):
             self.mkdocs(self.config, [
                 *self.pages123,
                 self.pagesFile(arrange=[
