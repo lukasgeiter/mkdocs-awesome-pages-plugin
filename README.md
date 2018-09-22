@@ -2,17 +2,16 @@
 
 *An MkDocs plugin that simplifies configuring page titles and their order*
 
-The awesome-pages plugin allows you to customize how your pages show up the navigation of your MkDocs without having to configure the full structure in your `mkdocs.yml`. It extracts the title from your markdown files and gives you detailed control using a small configuration file directly placed in the relevant directory of your documentation.
+The awesome-pages plugin allows you to customize how your pages show up the navigation of your MkDocs without having to configure the full structure in your `mkdocs.yml`. It gives you detailed control using a small configuration file directly placed in the relevant directory of your documentation.
 
-> **Note:** This plugin works best without a `pages` entry in your `mkdocs.yml`. Having a `pages` entry is supported, but you might not get the results you expect, especially if your `pages` structure doesn't match the file structure.
+> **Note:** This plugin works best without a `nav` or `pages` entry in your `mkdocs.yml`. Having a `nav` entry is supported, but you might not get the results you expect, especially if your `nav` structure doesn't match the file structure.
 
 <br/>
 
 ## Installation
 
-> **Note:** This package requires Python >=3.5 and MkDocs version 0.17 or higher.
-
-> **MkDocs version 1.0 is not supported yet.** Check out issue [#7](https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues/7) to follow the progress.
+> **Note:** This package requires Python >=3.5 and MkDocs version 1.0 or higher.  
+> If you're still on MkDocs 0.17 use [version 1 of this plugin][github-v1].
 
 Install the package with pip:
 
@@ -35,10 +34,6 @@ More information about plugins in the [MkDocs documentation][mkdocs-plugins]
 <br/>
 
 ## Features
-
-### Extract Page Titles from Markdown
-
-The plugin extracts the H1 title (only `#` syntax is supported) from every page and uses it for the title in the navigation.
 
 ### Collapse Single Nested Pages
 
@@ -128,8 +123,6 @@ arrange:
 
 In this example `introduction.md` is positioned at the beginning, `summary.md` at the end, and any other pages in between.
 
-If you have a page with filename `index.*` and don't specify an `arrange` attribute (or have no `.pages` file at all), the index page will be positioned at the beginning automatically.
-
 <br/>
 
 ## Options
@@ -140,17 +133,12 @@ You may customize the plugin by passing options in `mkdocs.yml`:
 plugins:
     - awesome-pages:
         filename: .index
-        disable_auto_arrange_index: true
         collapse_single_pages: true
 ```
 
 ### `filename`
 
 Name of the file used to configure pages of a directory. Default is `.pages`
-
-### `disable_auto_arrange_index`
-
-Disable the behavior of automatically putting the page with filename `index.*` at the beginning if there is no order specified in `arrange`. Default is `false`
 
 ### `collapse_single_pages`
 
@@ -167,5 +155,6 @@ If you want to contribute to the code of this project, please read the [Contribu
 [travis-status]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin.svg?branch=master
 [travis-link]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin
 [mkdocs-plugins]: http://www.mkdocs.org/user-guide/plugins/
+[github-v1]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/tree/v1
 [github-issues]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues
 [contributing]: CONTRIBUTING.md

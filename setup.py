@@ -6,11 +6,10 @@ setup(
     version='1.2.1',
     description='An MkDocs plugin that simplifies configuring page titles and their order',
     long_description='The awesome-pages plugin allows you to customize how your pages show up the navigation of your '
-                     'MkDocs without having to configure the full structure in your ``mkdocs.yml``. It extracts the '
-                     'title from your markdown files and gives you detailed control using a small configuration file '
-                     'directly placed in the relevant directory of your documentation. See `Github '
-                     '<https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin>`_ or the README.md for more '
-                     'details.',
+                     'MkDocs without having to configure the full structure in your ``mkdocs.yml``. It gives you '
+                     'detailed control using a small configuration file directly placed in the relevant directory of '
+                     'your documentation. See `Github <https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin>`_ '
+                     'or the README.md for more details.',
     keywords='mkdocs python markdown wiki',
     url='https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/',
     author='Lukas Geiter',
