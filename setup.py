@@ -18,7 +18,7 @@ setup(
     license='MIT',
     python_requires='>=3.5',
     install_requires=[
-        'mkdocs>=0.17'
+        'mkdocs>=1'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
