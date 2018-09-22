@@ -68,7 +68,7 @@ class Factory:
         try:
             with open(path, encoding='utf-8') as file:
                 title = markdown.extract_h1(file)
-        except (FileNotFoundError, IOError):
+        except FileNotFoundError:
             pass
 
         return Page(title, path)
