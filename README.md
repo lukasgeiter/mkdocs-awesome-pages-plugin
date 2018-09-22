@@ -10,14 +10,13 @@ The awesome-pages plugin allows you to customize how your pages show up the navi
 
 ## Installation
 
-> **Note:** This package requires Python >=3.5 and MkDocs version 0.17 or higher.
-
-> **MkDocs version 1.0 is not supported yet.** Check out issue [#7](https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues/7) to follow the progress.
+> **Note:** This package requires Python >=3.5 and MkDocs version 0.17.  
+> If you're on MkDocs 1 or higher use the [latest version of this plugin][github-master].
 
 Install the package with pip:
 
 ```bash
-pip install mkdocs-awesome-pages-plugin
+pip install mkdocs-awesome-pages-plugin==1.*
 ```
 
 Enable the plugin in your `mkdocs.yml`:
@@ -164,8 +163,9 @@ From reporting a bug to submitting a pull request: every contribution is appreci
 Report bugs, ask questions and request features using [Github issues][github-issues].
 If you want to contribute to the code of this project, please read the [Contribution Guidelines][contributing].
 
-[travis-status]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin.svg?branch=master
+[travis-status]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin.svg?branch=v1
 [travis-link]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin
 [mkdocs-plugins]: http://www.mkdocs.org/user-guide/plugins/
+[github-master]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin
 [github-issues]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues
 [contributing]: CONTRIBUTING.md
