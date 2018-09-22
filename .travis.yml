@@ -6,6 +6,7 @@ python:
 branches:
   only:
   - master
+  - v1
   - /^v\d+\.\d+(\.\d+)?(-\S*)?$/ # version tags
 
 script:
