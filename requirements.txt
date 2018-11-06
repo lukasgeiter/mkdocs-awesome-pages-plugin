@@ -18,7 +18,7 @@ pluggy==0.7.1
 py==1.6.0
 pytest==3.8.1
 PyYAML==3.13
-requests==2.19.1
+requests==2.20.0
 requests-toolbelt==0.8.0
 six==1.11.0
 tornado==5.1.1
