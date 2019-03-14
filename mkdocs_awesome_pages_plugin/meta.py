@@ -36,7 +36,7 @@ class Meta:
     @staticmethod
     def load_from(path: str) -> 'Meta':
         with open(path, encoding='utf-8') as file:
-            contents = yaml.load(file) or {}
+            contents = yaml.safe_load(file) or {}
             title = contents.get(Meta.TITLE_ATTRIBUTE)
             arrange = contents.get(Meta.ARRANGE_ATTRIBUTE)
             collapse = contents.get(Meta.COLLAPSE_ATTRIBUTE)
