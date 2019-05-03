@@ -14,15 +14,17 @@ class Meta:
     ARRANGE_REST_TOKEN = '...'
     COLLAPSE_ATTRIBUTE = 'collapse'
     COLLAPSE_SINGLE_PAGES_ATTRIBUTE = 'collapse_single_pages'
+    HIDE_ATTRIBUTE = 'hide'
 
     def __init__(self, *, title: Optional[str] = None, arrange: Optional[List[str]] = None, path: Optional[str] = None,
-                 collapse: bool = None, collapse_single_pages: bool = None):
+                 collapse: bool = None, collapse_single_pages: bool = None, hide: bool = None):
 
         self.title = title
         self.arrange = arrange or []
         self.path = path
         self.collapse = collapse
         self.collapse_single_pages = collapse_single_pages
+        self.hide = hide
 
     @staticmethod
     def try_load_from(path: Optional[str]) -> 'Meta':
@@ -41,6 +43,7 @@ class Meta:
             arrange = contents.get(Meta.ARRANGE_ATTRIBUTE)
             collapse = contents.get(Meta.COLLAPSE_ATTRIBUTE)
             collapse_single_pages = contents.get(Meta.COLLAPSE_SINGLE_PAGES_ATTRIBUTE)
+            hide = contents.get(Meta.HIDE_ATTRIBUTE)
 
             if title is not None:
                 if not isinstance(title, str):
@@ -76,6 +79,14 @@ class Meta:
                                 type=type(collapse_single_pages),
                                 context=path)
                     )
+            if hide is not None:
+                if not isinstance(hide, bool):
+                    raise TypeError(
+                        'Expected "{attribute}" attribute to be a boolean - got {type} [{context}]'
+                        .format(attribute=Meta.COLLAPSE_ATTRIBUTE,
+                                type=type(hide),
+                                context=path)
+                    )
 
             return Meta(title=title, arrange=arrange, path=path,
-                        collapse=collapse, collapse_single_pages=collapse_single_pages)
+                        collapse=collapse, collapse_single_pages=collapse_single_pages, hide=hide)

@@ -78,6 +78,31 @@ class TestCollapseGlobalDisabled(NavigationTestCase):
         ])
         self.assertValidNavigation(navigation.to_mkdocs())
 
+    def test_local_with_hide(self):
+        navigation = self.createAwesomeNavigation([
+            self.section('A', [
+                self.section('B', [
+                    self.section('C', [
+                        self.page('1', 'a/b/c/1.md')
+                    ]),
+                    self.section('D', [
+                        self.page('2', 'a/b/d/2.md'),
+                        Meta(path='a/b/d/.pages', hide=True)
+                    ]),
+                    Meta(path='a/b/.pages', collapse=True)
+                ])
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.section('A', [
+                self.section('C', [
+                    self.page('1', 'a/b/c/1.md')
+                ])
+            ])
+        ])
+        self.assertValidNavigation(navigation.to_mkdocs())
+
 
 class TestCollapseGlobalEnabled(NavigationTestCase):
     def test(self):
@@ -207,3 +232,23 @@ class TestCollapseGlobalEnabled(NavigationTestCase):
             ])
         ])
         self.assertValidNavigation(navigation.to_mkdocs(), assert_previous_next=False)
+
+    def test_local_with_hide(self):
+        navigation = self.createAwesomeNavigation([
+            self.section('A', [
+                self.section('B', [
+                    self.section('C', [
+                        self.page('1', 'a/b/c/1.md')
+                    ]),
+                    self.section('D', [
+                        self.page('2', 'a/b/d/2.md'),
+                        Meta(path='a/b/d/.pages', hide=True)
+                    ])
+                ])
+            ])
+        ], collapse_single_pages=True)
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('1', 'a/b/c/1.md')
+        ])
+        self.assertValidNavigation(navigation.to_mkdocs())

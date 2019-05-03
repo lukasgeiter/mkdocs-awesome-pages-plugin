@@ -90,6 +90,16 @@ If you want to enable or disable collapsing of a single page, without applying t
 collapse: true
 ```
 
+### Hide Directory
+
+Create a YAML file named `.pages` in a directory and set the `hide` attribute to `true` to hide the directory, including all sub-pages and sub-sections, from the navigation:
+
+```yaml
+hide: true
+```
+
+> **Note:** This option only hides the section from the navigation. It will still be included in the build and can be accessed under its URL.
+
 ### Set Directory Title
 
 Create a YAML file named `.pages` in a directory and set the `title` to override the title of that directory in the navigation:

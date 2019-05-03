@@ -73,6 +73,30 @@ class TestCollapseGlobalDisabled(E2ETestCase):
             ])
         ])
 
+    def test_local_with_hide(self):
+        navigation = self.mkdocs(self.config, [
+            ('a', [
+                ('b', [
+                    ('c', [
+                        '1.md'
+                    ]),
+                    ('d', [
+                        '2.md',
+                        self.pagesFile(hide=True)
+                    ]),
+                    self.pagesFile(collapse=True)
+                ])
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('A', [
+                ('C', [
+                    ('1', 'a/b/c/1')
+                ])
+            ])
+        ])
+
 
 class TestCollapseGlobalEnabled(E2ETestCase):
 
@@ -195,4 +219,23 @@ class TestCollapseGlobalEnabled(E2ETestCase):
                 ('Page', 'section/page'),
                 ('Page', 'section/page')
             ])
+        ])
+
+    def test_local_with_hide(self):
+        navigation = self.mkdocs(self.config, [
+            ('a', [
+                ('b', [
+                    ('c', [
+                        '1.md'
+                    ]),
+                    ('d', [
+                        '2.md',
+                        self.pagesFile(hide=True)
+                    ])
+                ])
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('1', 'a/b/c/1')
         ])

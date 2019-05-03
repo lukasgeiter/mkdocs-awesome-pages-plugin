@@ -96,6 +96,14 @@ class TestLoadFrom(TestCase):
         with self.assertRaises(TypeError):
             Meta.load_from('.pages')
 
+    def test_invalid_hide_type(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'hide: 1.md\n'
+        )
+
+        with self.assertRaises(TypeError):
+            Meta.load_from('.pages')
+
     def test_file_not_found(self, file_mock: FileMock):
         with self.assertRaises(FileNotFoundError):
             Meta.load_from('.pages')

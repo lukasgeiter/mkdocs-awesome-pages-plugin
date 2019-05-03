@@ -19,13 +19,14 @@ class E2ETestCase(TestCase):
         self.config = self.createConfig()
 
     def pagesFile(self, title: Optional[str] = None, arrange: Optional[List[str]] = None,
-                  collapse: bool = None, collapse_single_pages: bool = None) -> Tuple[str, str]:
+                  collapse: bool = None, collapse_single_pages: bool = None, hide: bool = None) -> Tuple[str, str]:
 
         data = self._removeDictNoneValues({
             'title': title,
             'arrange': arrange,
             'collapse': collapse,
-            'collapse_single_pages': collapse_single_pages
+            'collapse_single_pages': collapse_single_pages,
+            'hide': hide
         })
 
         return '.pages', yaml.dump(data)
@@ -56,11 +57,9 @@ class E2ETestCase(TestCase):
         }
 
     def mkdocs(self, config: dict, files: List[Union[str, Tuple[str, Union[str, list]]]]):
-        # .pages files don't count for mkdocs, so we won't count them either
-        number_of_root_items = sum(f[0] != '.pages' for f in files)
         # mkdocs requires a minimum amount of top-level items to render the navigation properly
         # ensure that this requirement is met by adding dummy pages
-        self._addDummyPages(files, self.MIN_ROOT_ITEMS - number_of_root_items)
+        self._addDummyPages(files, self.MIN_ROOT_ITEMS)
 
         with tempfile.TemporaryDirectory() as temp_directory, cd(temp_directory):
             self._writeToFile('mkdocs.yml', yaml.dump(config))

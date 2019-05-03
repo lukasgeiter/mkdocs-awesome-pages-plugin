@@ -22,6 +22,10 @@ class TitleInRootWarning(Warning):
     pass
 
 
+class HideInRootWarning(Warning):
+    pass
+
+
 class AwesomeNavigation:
 
     def __init__(self, navigation: MkDocsNavigation, options: Options):
@@ -33,6 +37,10 @@ class AwesomeNavigation:
             warnings.warn('Using the "title" attribute in the {filename} file of the doc root has no effect'
                           .format(filename=self.options.filename), category=TitleInRootWarning)
 
+        if self.meta.root.hide is not None:
+            warnings.warn('Using the "hide" attribute in the {filename} file of the doc root has no effect'
+                          .format(filename=self.options.filename), category=HideInRootWarning)
+
         self.items = self._process_children(
             navigation.items,
             self.options.collapse_single_pages,
@@ -41,12 +49,16 @@ class AwesomeNavigation:
 
     def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
         children = self._arrange_items(children, meta)
+        result = []
 
-        for index, item in enumerate(children):
+        for item in children:
             if isinstance(item, Section):
-                children[index] = self._process_section(item, collapse)
+                item = self._process_section(item, collapse)
+                if item is None:
+                    continue
+            result.append(item)
 
-        return children
+        return result
 
     def _arrange_items(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
         if meta.arrange is not None:
@@ -56,8 +68,11 @@ class AwesomeNavigation:
                 raise ArrangeEntryNotFound(e.value, meta.path)
         return items
 
-    def _process_section(self, section: Section, collapse_recursive: bool) -> NavigationItem:
+    def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:
         meta = self.meta.sections[section]
+
+        if meta.hide is True:
+            return None
 
         if meta.collapse_single_pages is not None:
             collapse_recursive = meta.collapse_single_pages
@@ -65,6 +80,9 @@ class AwesomeNavigation:
         self._set_title(section, meta)
 
         section.children = self._process_children(section.children, collapse_recursive, meta)
+
+        if not section.children:
+            return None
 
         return self._collapse(section, meta.collapse, collapse_recursive)
 
