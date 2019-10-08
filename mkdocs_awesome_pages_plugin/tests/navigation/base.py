@@ -53,7 +53,8 @@ class NavigationTestCase(TestCase):
         return MkDocsNavigation(items, pages)
 
     def createAwesomeNavigation(self, items: List[NavigationItem], *,
-                                collapse_single_pages: bool = False) -> AwesomeNavigation:
+                                collapse_single_pages: bool = False,
+                                hide_not_arranged_pages: bool = False) -> AwesomeNavigation:
 
         children = []
         meta = None
@@ -68,7 +69,10 @@ class NavigationTestCase(TestCase):
 
         return AwesomeNavigation(
             self.createNavigation(children),
-            Options(filename='.pages', collapse_single_pages=collapse_single_pages)
+            Options(filename='.pages',
+                    collapse_single_pages=collapse_single_pages,
+                    hide_not_arranged_pages=hide_not_arranged_pages
+                    )
         )
 
     def assertNavigationEqual(self, actual: List[NavigationItem], expected: List[NavigationItem]):
