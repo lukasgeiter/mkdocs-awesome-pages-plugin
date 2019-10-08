@@ -136,7 +136,7 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], Options(filename='.index', collapse_single_pages=False))
+        ], Options(filename='.index', collapse_single_pages=False, hide_not_arranged_pages=False))
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path='section/.index')
