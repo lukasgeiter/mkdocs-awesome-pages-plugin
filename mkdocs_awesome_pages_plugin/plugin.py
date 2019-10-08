@@ -14,7 +14,8 @@ class AwesomePagesPlugin(BasePlugin):
 
     config_scheme = (
         ('filename', config_options.Type(mkdocs_utils.string_types, default=DEFAULT_META_FILENAME)),
-        ('collapse_single_pages', config_options.Type(bool, default=False))
+        ('collapse_single_pages', config_options.Type(bool, default=False)),
+        ('hide_not_arranged_pages', config_options.Type(bool, default=False))
     )
 
     def on_nav(self, nav: MkDocsNavigation, config: Config, files: Files):

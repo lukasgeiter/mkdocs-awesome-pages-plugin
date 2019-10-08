@@ -43,33 +43,34 @@ class AwesomeNavigation:
 
         self.items = self._process_children(
             navigation.items,
-            self.options.collapse_single_pages,
+            self.options,
             self.meta.root
         )
 
-    def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
-        children = self._arrange_items(children, meta)
+    def _process_children(self, children: List[NavigationItem], options: Options, meta: Meta) -> List[NavigationItem]:
+        children = self._arrange_items(children, options, meta)
         result = []
 
         for item in children:
             if isinstance(item, Section):
-                item = self._process_section(item, collapse)
+                item = self._process_section(item, options)
                 if item is None:
                     continue
             result.append(item)
 
         return result
 
-    def _arrange_items(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
+    def _arrange_items(self, items: List[NavigationItem], options: Options, meta: Meta) -> List[NavigationItem]:
         if meta.arrange is not None:
             try:
-                return arrange(items, meta.arrange, lambda item: basename(self._get_item_path(item)))
+                return arrange(items, meta.arrange, options, lambda item: basename(self._get_item_path(item)))
             except InvalidArrangeEntry as e:
                 raise ArrangeEntryNotFound(e.value, meta.path)
         return items
 
-    def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:
+    def _process_section(self, section: Section, options: Options) -> Optional[NavigationItem]:
         meta = self.meta.sections[section]
+        collapse_recursive = options.collapse_single_pages
 
         if meta.hide is True:
             return None
@@ -79,7 +80,7 @@ class AwesomeNavigation:
 
         self._set_title(section, meta)
 
-        section.children = self._process_children(section.children, collapse_recursive, meta)
+        section.children = self._process_children(section.children, options, meta)
 
         if not section.children:
             return None

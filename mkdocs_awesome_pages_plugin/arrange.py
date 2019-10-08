@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import TypeVar, List, Callable, Dict, Optional
 
+from mkdocs_awesome_pages_plugin.options import Options
 from .meta import Meta
 
 
@@ -14,7 +15,7 @@ T = TypeVar('T')
 GetKeyCallable = Callable[[T], Optional[str]]
 
 
-def arrange(entries: List[T], config: List[str], get_key: GetKeyCallable = lambda x: x) -> List[T]:
+def arrange(entries: List[T], config: List[str], options: Options, get_key: GetKeyCallable = lambda x: x) -> List[T]:
     grouped = _group(entries, get_key)
     rest_index = None
     result = []
@@ -33,7 +34,8 @@ def arrange(entries: List[T], config: List[str], get_key: GetKeyCallable = lambd
         rest_index = len(result)
 
     # Add entries not already part of the result at the rest_index
-    result[rest_index:rest_index] = [entry for entry in entries if entry not in result]
+    if len(config) == 0 or not options.hide_not_arranged_pages:
+        result[rest_index:rest_index] = [entry for entry in entries if entry not in result]
 
     return result
 
