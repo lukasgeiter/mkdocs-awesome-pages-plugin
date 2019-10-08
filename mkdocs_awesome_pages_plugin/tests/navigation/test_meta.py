@@ -64,7 +64,7 @@ class TestMeta(NavigationTestCase):
 
     def setUp(self):
         super(TestMeta, self).setUp()
-        self.options = Options(filename='.pages', collapse_single_pages=False)
+        self.options = Options(filename='.pages', collapse_single_pages=False, hide_not_arranged_pages=False)
 
     def test_empty(self):
         meta = NavigationMeta([], self.options)
