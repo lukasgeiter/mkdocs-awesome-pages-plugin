@@ -14,7 +14,9 @@ class AwesomePagesPlugin(BasePlugin):
 
     config_scheme = (
         ('filename', config_options.Type(mkdocs_utils.string_types, default=DEFAULT_META_FILENAME)),
-        ('collapse_single_pages', config_options.Type(bool, default=False))
+        ('collapse_single_pages', config_options.Type(bool, default=False)),
+        ('maximum_file_homepage', config_options.Type(int, default=100)),
+        ('maximum_days_ahead', config_options.Type(int, default=30))
     )
 
     def on_nav(self, nav: MkDocsNavigation, config: Config, files: Files):

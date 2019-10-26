@@ -1,3 +1,21 @@
+# This is a repo forked from MkDocs Awesome Pages Plugin
+
+Now, we are able to provided a sorted list of pages with this plugin.
+
+Now, Clone this repo, run
+
+```bash
+python3 setup.py install --user
+```
+
+Enable the plugin in your `mkdocs.yml`:
+
+```yaml
+plugins:
+    - search
+    - modified-awesome-pages
+```
+
 # MkDocs Awesome Pages Plugin [![Build Status][travis-status]][travis-link]
 
 *An MkDocs plugin that simplifies configuring page titles and their order*

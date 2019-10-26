@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='mkdocs-awesome-pages-plugin',
+    name='modified-mkdocs-awesome-pages-plugin',
     version='2.1.0',
     description='An MkDocs plugin that simplifies configuring page titles and their order',
     long_description='The awesome-pages plugin allows you to customize how your pages show up the navigation of your '
@@ -33,7 +33,7 @@ setup(
     packages=find_packages(exclude=['*.tests', '*.tests.*']),
     entry_points={
         'mkdocs.plugins': [
-            'awesome-pages = mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin'
+            'modified-awesome-pages = mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin'
         ]
     }
 )

@@ -10,6 +10,9 @@ from .meta import Meta
 from .options import Options
 from .utils import dirname, basename, join_paths
 
+import io
+from mkdocs.utils import meta as mkdocs_meta
+
 NavigationItem = Union[Page, Section, Link]
 
 
@@ -30,7 +33,9 @@ class AwesomeNavigation:
 
     def __init__(self, navigation: MkDocsNavigation, options: Options):
         self.options = options
-
+        self.Allpages = []
+        self.maximum_file_homepage = int(float(options.maximum_file_homepage))
+        self.maximum_days_ahead = int(float(options.maximum_days_ahead))
         self.meta = NavigationMeta(navigation.items, options)
 
         if self.meta.root.title is not None:
@@ -106,11 +111,53 @@ class AwesomeNavigation:
             return section.children[0]
         return section
 
+    def _get_meta(self, page_):
+        with io.open(page_.file.abs_src_path, 'r', encoding='utf-8-sig', errors='strict') as f:
+            source = f.read()
+        
+        _, page_.meta = mkdocs_meta.get_data(source)
+
     def to_mkdocs(self) -> MkDocsNavigation:
         pages = _get_by_type(self.items, Page)
         _add_previous_and_next_links(pages)
         _add_parent_links(self.items)
-        return MkDocsNavigation(self.items, pages)
+
+        from datetime import datetime
+
+        date_time = datetime.today()
+        diff_day_list = []
+        page_list = []
+        for page in pages:
+            self._get_meta(page)
+            if 'time' in page.meta:
+                page_time = page.meta['time']
+                print(page_time)
+                year = int(page_time[0:4])
+                month = int(page_time[4:6])
+                day = int(page_time[6:8])
+                page_datetime = datetime(year, month, day)
+                time_delta = date_time - page_datetime
+                total_seconds = time_delta.total_seconds()
+                total_days = total_seconds / 3600 / 24
+            else:
+                total_days = 999999
+            diff_day_list.append(total_days)
+        
+        import numpy as np
+        argsorted = np.argsort(diff_day_list)
+        for index in argsorted:
+            if pages[index].is_homepage:
+                page_list.insert(0, pages[index])
+            else:
+                page_list.append(pages[index])
+            if diff_day_list[index] < self.maximum_days_ahead:
+                if len(page_list) <= self.maximum_file_homepage:
+                    pages[index].shown_in_homepage = True
+                    continue
+            pages[index].shown_in_homepage = False
+        # _add_previous_and_next_links(page_list)
+        print('Finishing daytime processing')
+        return MkDocsNavigation(self.items, page_list)
 
 
 class NavigationMeta:
