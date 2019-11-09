@@ -131,7 +131,6 @@ class AwesomeNavigation:
             self._get_meta(page)
             if 'time' in page.meta:
                 page_time = page.meta['time']
-                print(page_time)
                 year = int(page_time[0:4])
                 month = int(page_time[4:6])
                 day = int(page_time[6:8])
