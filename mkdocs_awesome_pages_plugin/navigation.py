@@ -18,12 +18,20 @@ class ArrangeEntryNotFound(Exception):
         super().__init__('Arrange entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
 
 
-class TitleInRootWarning(Warning):
-    pass
+class TitleInRootHasNoEffect(Warning):
+    def __init__(self, filename: str):
+        super().__init__(
+            'Using the "title" attribute in the {filename} file of the doc root has no effect'
+            .format(filename=filename)
+        )
 
 
-class HideInRootWarning(Warning):
-    pass
+class HideInRootHasNoEffect(Warning):
+    def __init__(self, filename: str):
+        super().__init__(
+            'Using the "hide" attribute in the {filename} file of the doc root has no effect'
+            .format(filename=filename)
+        )
 
 
 class AwesomeNavigation:
@@ -34,12 +42,10 @@ class AwesomeNavigation:
         self.meta = NavigationMeta(navigation.items, options)
 
         if self.meta.root.title is not None:
-            warnings.warn('Using the "title" attribute in the {filename} file of the doc root has no effect'
-                          .format(filename=self.options.filename), category=TitleInRootWarning)
+            warnings.warn(TitleInRootHasNoEffect(self.options.filename))
 
         if self.meta.root.hide is not None:
-            warnings.warn('Using the "hide" attribute in the {filename} file of the doc root has no effect'
-                          .format(filename=self.options.filename), category=HideInRootWarning)
+            warnings.warn(HideInRootHasNoEffect(self.options.filename))
 
         self.items = self._process_children(
             navigation.items,
