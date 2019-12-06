@@ -32,11 +32,13 @@ class E2ETestCase(TestCase):
         return '.pages', yaml.dump(data)
 
     def createConfig(self, filename: Optional[str] = None, collapse_single_pages: Optional[bool] = None,
-                     mkdocs_nav: Optional[List[Union[str, Dict[str, Union[str, list]]]]] = None) -> dict:
+                     mkdocs_nav: Optional[List[Union[str, Dict[str, Union[str, list]]]]] = None,
+                     strict: Optional[bool] = None) -> dict:
 
         plugin_options = self._removeDictNoneValues({
             'filename': filename,
-            'collapse_single_pages': collapse_single_pages
+            'collapse_single_pages': collapse_single_pages,
+            'strict': strict
         })
         plugins_entry = 'awesome-pages'
         if plugin_options:

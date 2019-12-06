@@ -13,7 +13,7 @@ from .utils import dirname, basename, join_paths
 NavigationItem = Union[Page, Section, Link]
 
 
-class ArrangeEntryNotFound(Exception):
+class ArrangeEntryNotFound(Warning):
     def __init__(self, entry: str, context: str):
         super().__init__('Arrange entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
 
@@ -71,7 +71,11 @@ class AwesomeNavigation:
             try:
                 return arrange(items, meta.arrange, lambda item: basename(self._get_item_path(item)))
             except InvalidArrangeEntry as e:
-                raise ArrangeEntryNotFound(e.value, meta.path)
+                warning = ArrangeEntryNotFound(e.value, meta.path)
+                if self.options.strict:
+                    raise warning
+                else:
+                    warnings.warn(warning)
         return items
 
     def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:

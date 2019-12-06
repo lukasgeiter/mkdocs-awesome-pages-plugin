@@ -144,6 +144,7 @@ plugins:
     - awesome-pages:
         filename: .index
         collapse_single_pages: true
+        strict: false
 ```
 
 ### `filename`
@@ -153,6 +154,14 @@ Name of the file used to configure pages of a directory. Default is `.pages`
 ### `collapse_single_pages`
 
 Enable the collapsing of single nested pages. Default is `false`
+
+### `strict`
+
+Raise errors instead of warnings when:
+
+- `arrange` entries cannot be found
+
+Default is `true`
 
 <br/>
 
