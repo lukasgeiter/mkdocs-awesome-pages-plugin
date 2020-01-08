@@ -1,0 +1,10 @@
+# action.yml
+name: 'Deploy MkDocs with customed awesome plugin'
+description: 'Deploys MkDocs site with a customed awesome plugin'
+author: 'Owen Liu, yliuhb@connect.ust.hk'
+branding:
+  icon: 'arrow-up-circle'  
+  color: 'orange'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
