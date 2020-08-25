@@ -1,6 +1,6 @@
 from .base import NavigationTestCase
 from ...meta import Meta
-from ...navigation import HideInRootWarning
+from ...navigation import HideInRootHasNoEffect
 
 
 class TestHide(NavigationTestCase):
@@ -72,7 +72,7 @@ class TestHide(NavigationTestCase):
         self.assertValidNavigation(navigation.to_mkdocs())
 
     def test_in_root(self):
-        with self.assertWarns(HideInRootWarning):
+        with self.assertWarns(HideInRootHasNoEffect):
             navigation = self.createAwesomeNavigation([
                 self.page('Page', 'page.md'),
                 Meta(path='.pages', hide=True)

@@ -16,17 +16,25 @@ from mkdocs.utils import meta as mkdocs_meta
 NavigationItem = Union[Page, Section, Link]
 
 
-class ArrangeEntryNotFound(Exception):
+class ArrangeEntryNotFound(Warning):
     def __init__(self, entry: str, context: str):
         super().__init__('Arrange entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
 
 
-class TitleInRootWarning(Warning):
-    pass
+class TitleInRootHasNoEffect(Warning):
+    def __init__(self, filename: str):
+        super().__init__(
+            'Using the "title" attribute in the {filename} file of the doc root has no effect'
+            .format(filename=filename)
+        )
 
 
-class HideInRootWarning(Warning):
-    pass
+class HideInRootHasNoEffect(Warning):
+    def __init__(self, filename: str):
+        super().__init__(
+            'Using the "hide" attribute in the {filename} file of the doc root has no effect'
+            .format(filename=filename)
+        )
 
 
 class AwesomeNavigation:
@@ -39,12 +47,10 @@ class AwesomeNavigation:
         self.meta = NavigationMeta(navigation.items, options)
 
         if self.meta.root.title is not None:
-            warnings.warn('Using the "title" attribute in the {filename} file of the doc root has no effect'
-                          .format(filename=self.options.filename), category=TitleInRootWarning)
+            warnings.warn(TitleInRootHasNoEffect(self.options.filename))
 
         if self.meta.root.hide is not None:
-            warnings.warn('Using the "hide" attribute in the {filename} file of the doc root has no effect'
-                          .format(filename=self.options.filename), category=HideInRootWarning)
+            warnings.warn(HideInRootHasNoEffect(self.options.filename))
 
         self.items = self._process_children(
             navigation.items,
@@ -70,7 +76,11 @@ class AwesomeNavigation:
             try:
                 return arrange(items, meta.arrange, lambda item: basename(self._get_item_path(item)))
             except InvalidArrangeEntry as e:
-                raise ArrangeEntryNotFound(e.value, meta.path)
+                warning = ArrangeEntryNotFound(e.value, meta.path)
+                if self.options.strict:
+                    raise warning
+                else:
+                    warnings.warn(warning)
         return items
 
     def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:

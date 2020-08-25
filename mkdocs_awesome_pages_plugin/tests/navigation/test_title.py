@@ -1,6 +1,6 @@
 from .base import NavigationTestCase
 from ...meta import Meta
-from ...navigation import TitleInRootWarning
+from ...navigation import TitleInRootHasNoEffect
 
 
 class TestTitle(NavigationTestCase):
@@ -20,7 +20,7 @@ class TestTitle(NavigationTestCase):
         self.assertValidNavigation(navigation.to_mkdocs())
 
     def test_in_root(self):
-        with self.assertWarns(TitleInRootWarning):
+        with self.assertWarns(TitleInRootHasNoEffect):
             navigation = self.createAwesomeNavigation([
                 self.page('Page', 'page.md'),
                 Meta(path='.pages', title='Root Title')

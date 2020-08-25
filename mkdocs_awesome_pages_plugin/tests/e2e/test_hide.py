@@ -1,4 +1,4 @@
-from mkdocs_awesome_pages_plugin.navigation import HideInRootWarning
+from mkdocs_awesome_pages_plugin.navigation import HideInRootHasNoEffect
 from .base import E2ETestCase
 
 
@@ -67,7 +67,7 @@ class TestHide(E2ETestCase):
         ])
 
     def test_in_root(self):
-        with self.assertWarns(HideInRootWarning):
+        with self.assertWarns(HideInRootHasNoEffect):
             navigation = self.mkdocs(self.config, [
                 'page.md',
                 self.pagesFile(hide=True)

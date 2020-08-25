@@ -337,6 +337,30 @@ class TestArrange(E2ETestCase):
                 ])
             ])
 
+    def test_entry_not_found_strict(self):
+        with self.assertRaises(ArrangeEntryNotFound):
+            self.mkdocs(self.createConfig(strict=True), [
+                *self.pages123,
+                self.pagesFile(arrange=[
+                    '2.md',
+                    '3.md',
+                    '1.md',
+                    'd.md'
+                ])
+            ])
+
+    def test_entry_not_found_not_strict(self):
+        with self.assertWarns(ArrangeEntryNotFound):
+            self.mkdocs(self.createConfig(strict=False), [
+                *self.pages123,
+                self.pagesFile(arrange=[
+                    '2.md',
+                    '3.md',
+                    '1.md',
+                    'd.md'
+                ])
+            ])
+
     def test_auto_index(self):
         navigation = self.mkdocs(self.config, [
             'before_index.md',

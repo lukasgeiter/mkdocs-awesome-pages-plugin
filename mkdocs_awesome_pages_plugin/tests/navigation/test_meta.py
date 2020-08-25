@@ -64,7 +64,7 @@ class TestMeta(NavigationTestCase):
 
     def setUp(self):
         super(TestMeta, self).setUp()
-        self.options = Options(filename='.pages', collapse_single_pages=False)
+        self.options = Options(filename='.pages', collapse_single_pages=False, strict=True)
 
     def test_empty(self):
         meta = NavigationMeta([], self.options)
@@ -136,7 +136,7 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], Options(filename='.index', collapse_single_pages=False))
+        ], Options(filename='.index', collapse_single_pages=False, strict=True))
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path='section/.index')

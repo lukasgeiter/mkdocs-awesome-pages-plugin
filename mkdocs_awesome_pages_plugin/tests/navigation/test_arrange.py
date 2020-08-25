@@ -213,3 +213,15 @@ class TestArrange(NavigationTestCase):
                     '3.md'
                 ])
             ])
+
+    def test_entry_not_found_not_strict(self):
+        with self.assertWarns(ArrangeEntryNotFound):
+            self.createAwesomeNavigation([
+                self.page('1', '1.md'),
+                self.page('2', '2.md'),
+                Meta(path='.pages', arrange=[
+                    '1.md',
+                    '...',
+                    '3.md'
+                ])
+            ], strict=False)
