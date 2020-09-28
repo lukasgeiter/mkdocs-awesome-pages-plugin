@@ -1,6 +1,6 @@
 from .base import NavigationTestCase
 from ...meta import Meta
-from ...navigation import ArrangeEntryNotFound
+from ...navigation import NavEntryNotFound
 
 
 class TestArrange(NavigationTestCase):
@@ -203,7 +203,7 @@ class TestArrange(NavigationTestCase):
         self.assertEqual(page1.next_page, page3)
 
     def test_entry_not_found(self):
-        with self.assertRaises(ArrangeEntryNotFound):
+        with self.assertRaises(NavEntryNotFound):
             self.createAwesomeNavigation([
                 self.page('1', '1.md'),
                 self.page('2', '2.md'),
@@ -215,7 +215,7 @@ class TestArrange(NavigationTestCase):
             ])
 
     def test_entry_not_found_not_strict(self):
-        with self.assertWarns(ArrangeEntryNotFound):
+        with self.assertWarns(NavEntryNotFound):
             self.createAwesomeNavigation([
                 self.page('1', '1.md'),
                 self.page('2', '2.md'),

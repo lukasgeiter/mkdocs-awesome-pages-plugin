@@ -1,5 +1,5 @@
 from .base import E2ETestCase
-from ...navigation import ArrangeEntryNotFound
+from ...navigation import NavEntryNotFound
 
 
 class TestArrange(E2ETestCase):
@@ -304,7 +304,6 @@ class TestArrange(E2ETestCase):
         self.assertEqual(navigation, [
             ('2', '2'),
             ('1', '1'),
-            ('1', '1'),
             ('3', '3')
         ])
 
@@ -326,7 +325,7 @@ class TestArrange(E2ETestCase):
         ])
 
     def test_entry_not_found(self):
-        with self.assertRaises(ArrangeEntryNotFound):
+        with self.assertRaises(NavEntryNotFound):
             self.mkdocs(self.config, [
                 *self.pages123,
                 self.pagesFile(arrange=[
@@ -338,7 +337,7 @@ class TestArrange(E2ETestCase):
             ])
 
     def test_entry_not_found_strict(self):
-        with self.assertRaises(ArrangeEntryNotFound):
+        with self.assertRaises(NavEntryNotFound):
             self.mkdocs(self.createConfig(strict=True), [
                 *self.pages123,
                 self.pagesFile(arrange=[
@@ -350,7 +349,7 @@ class TestArrange(E2ETestCase):
             ])
 
     def test_entry_not_found_not_strict(self):
-        with self.assertWarns(ArrangeEntryNotFound):
+        with self.assertWarns(NavEntryNotFound):
             self.mkdocs(self.createConfig(strict=False), [
                 *self.pages123,
                 self.pagesFile(arrange=[

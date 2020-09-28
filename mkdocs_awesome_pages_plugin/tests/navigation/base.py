@@ -1,5 +1,5 @@
 import os
-from typing import List, Union, Optional, Dict
+from typing import List, Union, Optional
 from unittest import TestCase, mock
 
 from mkdocs.structure.files import File
@@ -21,8 +21,8 @@ class NavigationMetaMock:
 class NavigationTestCase(TestCase):
 
     @staticmethod
-    def page(title: str, path: str) -> Page:
-        return Page(title, File(path, '', '', False), {})
+    def page(title: str, path: Optional[str] = None) -> Page:
+        return Page(title, File(path or title + '.md', '', '', False), {})
 
     @staticmethod
     def link(title: str, url: Optional[str] = None):

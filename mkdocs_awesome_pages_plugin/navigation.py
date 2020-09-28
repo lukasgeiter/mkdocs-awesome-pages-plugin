@@ -1,11 +1,10 @@
 import warnings
-from typing import List, Optional, Union, Dict
+from typing import List, Optional, Union
 
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
     _get_by_type, _add_parent_links, _add_previous_and_next_links
 from mkdocs.structure.pages import Page
 
-from .arrange import arrange, InvalidArrangeEntry
 from .meta import Meta
 from .options import Options
 from .utils import dirname, basename, join_paths
@@ -13,9 +12,9 @@ from .utils import dirname, basename, join_paths
 NavigationItem = Union[Page, Section, Link]
 
 
-class ArrangeEntryNotFound(Warning):
+class NavEntryNotFound(Warning):
     def __init__(self, entry: str, context: str):
-        super().__init__('Arrange entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
+        super().__init__('Nav entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
 
 
 class TitleInRootHasNoEffect(Warning):
@@ -54,7 +53,8 @@ class AwesomeNavigation:
         )
 
     def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
-        children = self._arrange_items(children, meta)
+        children = self._nav(children, meta)
+
         result = []
 
         for item in children:
@@ -66,17 +66,39 @@ class AwesomeNavigation:
 
         return result
 
-    def _arrange_items(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
-        if meta.arrange is not None:
-            try:
-                return arrange(items, meta.arrange, lambda item: basename(self._get_item_path(item)))
-            except InvalidArrangeEntry as e:
-                warning = ArrangeEntryNotFound(e.value, meta.path)
-                if self.options.strict:
-                    raise warning
+    def _nav(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
+        if meta.nav is None:
+            return items
+
+        items_by_basename = {basename(self._get_item_path(item)): item for item in items}
+
+        result = []
+        rest_index = None
+
+        for index, meta_item in enumerate(meta.nav):
+            if meta_item == Meta.NAV_REST_TOKEN:
+                rest_index = index
+            else:
+                if meta_item.value in items_by_basename:
+                    item = items_by_basename[meta_item.value]
+                    if meta_item.title is not None:
+                        item.title = meta_item.title
+                    result.append(item)
+
+                elif meta_item.title is not None:
+                    result.append(Link(meta_item.title, meta_item.value))
+
                 else:
-                    warnings.warn(warning)
-        return items
+                    warning = NavEntryNotFound(meta_item.value, meta.path)
+                    if self.options.strict:
+                        raise warning
+                    else:
+                        warnings.warn(warning)
+
+        if rest_index is not None:
+            result[rest_index:rest_index] = [item for item in items if item not in result]
+
+        return result
 
     def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:
         meta = self.meta.sections[section]
