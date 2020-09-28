@@ -78,7 +78,8 @@ class E2ETestCase(TestCase):
             # extract from 404 page because it's always generated and contains the navigation as well
             nav = self._extractNav('dist/404.html')
             # filter out dummy pages
-            return [item for item in nav if not (isinstance(item[1], str) and item[1].startswith(self.DUMMY_NAME))]
+            return [item for item in nav
+                    if not (isinstance(item[1], str) and item[1].startswith('/' + self.DUMMY_NAME))]
 
     def _addDummyPages(self, items: list, number_of_pages: int):
         items.extend(['{}{}.md'.format(self.DUMMY_NAME, i) for i in range(number_of_pages)])
@@ -129,10 +130,10 @@ class E2ETestCase(TestCase):
             if li.has_attr('class') and ('dropdown' in li['class'] or 'dropdown-submenu' in li['class']):
                 contents = self._parseNav(li.find('ul'))
             else:
-                contents = li.a['href'].strip('/')
-                if contents == '.':
+                contents = li.a['href'].rstrip('/')
+                if contents == '/.':
                     # normalize index url
-                    contents = ''
+                    contents = '/'
 
             pages.append(
                 (li.a.text.strip(), contents)

@@ -11,7 +11,7 @@ class TestPageTitle(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Page Title', 'page')
+            ('Page Title', '/page')
         ])
 
 
@@ -26,7 +26,7 @@ class TestSectionTitle(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section Title', [
-                ('Page', 'section/page')
+                ('Page', '/section/page')
             ])
         ])
 
@@ -38,7 +38,7 @@ class TestSectionTitle(E2ETestCase):
             ])
 
         self.assertEqual(navigation, [
-            ('Page', 'page')
+            ('Page', '/page')
         ])
 
     def test_deep(self):
@@ -55,7 +55,7 @@ class TestSectionTitle(E2ETestCase):
         self.assertEqual(navigation, [
             ('Section A Title', [
                 ('Section B Title', [
-                    ('Page', 'a/b/page')
+                    ('Page', '/a/b/page')
                 ])
             ])
         ])
@@ -76,6 +76,6 @@ class TestSectionTitle(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section Title', [
-                ('Page', 'section/page')
+                ('Page', '/section/page')
             ])
         ])

@@ -17,7 +17,7 @@ class TestHide(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('B', [
-                ('2', 'b/2')
+                ('2', '/b/2')
             ])
         ])
 
@@ -61,7 +61,7 @@ class TestHide(E2ETestCase):
         self.assertEqual(navigation, [
             ('A', [
                 ('D', [
-                    ('2', 'a/d/2')
+                    ('2', '/a/d/2')
                 ])
             ])
         ])
@@ -74,5 +74,5 @@ class TestHide(E2ETestCase):
             ])
 
         self.assertEqual(navigation, [
-            ('Page', 'page')
+            ('Page', '/page')
         ])
