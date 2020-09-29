@@ -19,11 +19,13 @@ class E2ETestCase(TestCase):
         self.config = self.createConfig()
 
     def pagesFile(self, title: Optional[str] = None, arrange: Optional[List[str]] = None,
-                  collapse: bool = None, collapse_single_pages: bool = None, hide: bool = None) -> Tuple[str, str]:
+                  nav: Optional[List[Union[str, dict]]] = None, collapse: bool = None,
+                  collapse_single_pages: bool = None, hide: bool = None) -> Tuple[str, str]:
 
         data = self._removeDictNoneValues({
             'title': title,
             'arrange': arrange,
+            'nav': nav,
             'collapse': collapse,
             'collapse_single_pages': collapse_single_pages,
             'hide': hide
