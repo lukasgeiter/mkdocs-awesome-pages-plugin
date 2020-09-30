@@ -53,6 +53,7 @@ class AwesomeNavigation:
         )
 
     def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
+        self._order(children, meta)
         children = self._nav(children, meta)
 
         result = []
@@ -65,6 +66,13 @@ class AwesomeNavigation:
             result.append(item)
 
         return result
+
+    def _order(self, items: List[NavigationItem], meta: Meta):
+        if meta.order is not None:
+            items.sort(
+                key=lambda i: basename(self._get_item_path(i)),
+                reverse=meta.order == Meta.ORDER_DESC
+            )
 
     def _nav(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
         if meta.nav is None:

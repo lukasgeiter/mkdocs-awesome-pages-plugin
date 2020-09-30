@@ -20,7 +20,8 @@ class E2ETestCase(TestCase):
 
     def pagesFile(self, title: Optional[str] = None, arrange: Optional[List[str]] = None,
                   nav: Optional[List[Union[str, dict]]] = None, collapse: bool = None,
-                  collapse_single_pages: bool = None, hide: bool = None) -> Tuple[str, str]:
+                  collapse_single_pages: bool = None, hide: bool = None,
+                  order: Optional[str] = None) -> Tuple[str, str]:
 
         data = self._removeDictNoneValues({
             'title': title,
@@ -28,7 +29,8 @@ class E2ETestCase(TestCase):
             'nav': nav,
             'collapse': collapse,
             'collapse_single_pages': collapse_single_pages,
-            'hide': hide
+            'hide': hide,
+            'order': order
         })
 
         return '.pages', yaml.dump(data)

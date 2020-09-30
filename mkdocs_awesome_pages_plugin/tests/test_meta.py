@@ -148,6 +148,30 @@ class TestLoadFrom(TestCase):
             MetaNavItem('1.md', 'One')
         ])
 
+    def test_order_none(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            '\n'
+        )
+
+        meta = Meta.load_from('.pages')
+        self.assertIsNone(meta.order)
+
+    def test_order_asc(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'order: asc\n'
+        )
+
+        meta = Meta.load_from('.pages')
+        self.assertEqual(meta.order, Meta.ORDER_ASC)
+
+    def test_order_desc(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'order: desc\n'
+        )
+
+        meta = Meta.load_from('.pages')
+        self.assertEqual(meta.order, Meta.ORDER_DESC)
+
     def test_invalid_title_type(self, file_mock: FileMock):
         file_mock['.pages'].read_data = (
             'title:\n'
@@ -196,6 +220,14 @@ class TestLoadFrom(TestCase):
     def test_invalid_hide_type(self, file_mock: FileMock):
         file_mock['.pages'].read_data = (
             'hide: 1.md\n'
+        )
+
+        with self.assertRaises(TypeError):
+            Meta.load_from('.pages')
+
+    def test_invalid_order(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'order: foo\n'
         )
 
         with self.assertRaises(TypeError):
