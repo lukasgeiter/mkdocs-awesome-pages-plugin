@@ -14,7 +14,6 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.path, '.pages')
         self.assertIsNone(meta.title)
-        self.assertEqual(meta.arrange, [])
         self.assertIsNone(meta.nav)
 
     def test_title(self, file_mock: FileMock):
@@ -25,7 +24,6 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.path, '.pages')
         self.assertEqual(meta.title, 'Section Title')
-        self.assertEqual(meta.arrange, [])
         self.assertIsNone(meta.nav)
 
     def test_arrange(self, file_mock: FileMock):
@@ -38,7 +36,6 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.path, '.pages')
         self.assertIsNone(meta.title)
-        self.assertEqual(meta.arrange, ['2.md', '1.md'])
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
             MetaNavItem('1.md'),
@@ -56,7 +53,6 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.path, '.pages')
         self.assertIsNone(meta.title)
-        self.assertEqual(meta.arrange, ['2.md', '...', '1.md'])
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
             Meta.NAV_REST_TOKEN,
@@ -74,7 +70,6 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.path, '.pages')
         self.assertEqual(meta.title, 'Section Title')
-        self.assertEqual(meta.arrange, ['2.md', '1.md'])
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
             MetaNavItem('1.md'),
@@ -94,7 +89,6 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.path, '.pages')
         self.assertIsNone(meta.title)
-        self.assertEqual(meta.arrange, ['2.md', '1.md'])
         self.assertEqual(meta.nav, [
             MetaNavItem('1.md'),
             MetaNavItem('2.md')

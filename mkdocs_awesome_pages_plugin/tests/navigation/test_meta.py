@@ -55,7 +55,6 @@ class TestMeta(NavigationTestCase):
 
         self.assertEqual(actual.collapse_single_pages, expected.collapse_single_pages)
         self.assertEqual(actual.collapse, expected.collapse)
-        self.assertEqual(actual.arrange, expected.arrange)
         self.assertEqual(actual.title, expected.title)
         self.assertEqual(normpath(actual.path), normpath(expected.path))
 

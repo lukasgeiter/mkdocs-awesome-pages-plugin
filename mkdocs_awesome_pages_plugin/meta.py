@@ -50,7 +50,6 @@ class Meta:
                 nav.append(Meta.NAV_REST_TOKEN)
 
         self.title = title
-        self.arrange = arrange or []
         self.nav = nav
         self.path = path
         self.collapse = collapse
