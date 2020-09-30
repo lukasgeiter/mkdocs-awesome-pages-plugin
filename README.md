@@ -35,6 +35,60 @@ More information about plugins in the [MkDocs documentation][mkdocs-plugins]
 
 ## Features
 
+### Customize Navigation
+
+Create a YAML file named `.pages` in a directory and use the `nav` attribute to customize the navigation on that level. List the files and subdirectories in the order that they should appear in the navigation.
+
+```yaml
+nav:
+    - subdirectory
+    - page1.md
+    - page2.md
+```
+
+#### Rest
+
+Pages or sections that are not mentioned in the list will not appear in the navigation. However, you may include a `...`  entry to specify where all remaining items should be inserted.
+
+```yaml
+nav:
+    - introduction.md
+    - ...
+    - summary.md
+```
+
+#### Titles
+
+You can optionally specify a title for the navigation entry.
+
+```yaml
+nav:
+    - ...
+    - First page: page1.md
+```
+
+> **Note:** Specifying a title for a directory containing a `.pages` file that defines a `title` has no effect.
+
+#### Links
+
+You can also use the `nav` attribute to add additional links to the navigation.
+
+```yaml
+nav:
+    - ...
+    - Link Title: https://lukasgeiter.com
+```
+
+### Change Sort Order
+
+Create a YAML file named `.pages` in a directory and set the `order` attribute to `asc` or `desc` to change the order of navigation items.
+
+```yaml
+order: desc
+```
+
+> **Note:** Unlike the default order, this does not distinguish between files and directories. Therefore pages and sections might get mixed.
+
 ### Collapse Single Nested Pages
 
 > **Note:** This feature is disabled by default. More on how to use it below
@@ -110,6 +164,8 @@ title: Page Title
 
 ### Arrange Pages
 
+> **Deprecated:** `arrange` will be removed in the next major release - [Use `nav` instead](#customize-navigation).
+
 Create a YAML file named `.pages` in a directory and set the `arrange` attribute to change the order of how child pages appear in the navigation. This works for actual pages as well as subdirectories.
 
 ```yaml
@@ -160,6 +216,7 @@ Enable the collapsing of single nested pages. Default is `false`
 Raise errors instead of warnings when:
 
 - `arrange` entries cannot be found
+- `nav` entries cannot be found
 
 Default is `true`
 
