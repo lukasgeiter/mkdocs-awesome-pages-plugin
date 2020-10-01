@@ -1,4 +1,5 @@
 # MkDocs Awesome Pages Plugin [![Build Status][travis-status]][travis-link]
+Amazing Documentatin
 
 *An MkDocs plugin that simplifies configuring page titles and their order*
 
@@ -34,7 +35,7 @@ More information about plugins in the [MkDocs documentation][mkdocs-plugins]
 <br/>
 
 ## Features
-
+**
 ### Customize Navigation
 
 Create a YAML file named `.pages` in a directory and use the `nav` attribute to customize the navigation on that level. List the files and subdirectories in the order that they should appear in the navigation.
@@ -67,7 +68,7 @@ nav:
     - First page: page1.md
 ```
 
-> **Note:** Specifying a title for a directory containing a `.pages` file that defines a `title` has no effect.
+> **Note:** Specifying a title for a directory containing a `.pages` file that defines a `title` has no effect..
 
 #### Links
 
