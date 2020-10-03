@@ -1,4 +1,5 @@
 import warnings
+from pathlib import Path
 from typing import List, Optional, Union
 
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
@@ -35,10 +36,10 @@ class HideInRootHasNoEffect(Warning):
 
 class AwesomeNavigation:
 
-    def __init__(self, navigation: MkDocsNavigation, options: Options):
+    def __init__(self, navigation: MkDocsNavigation, options: Options, docs_dir: str):
         self.options = options
 
-        self.meta = NavigationMeta(navigation.items, options)
+        self.meta = NavigationMeta(navigation.items, options, docs_dir)
 
         if self.meta.root.title is not None:
             warnings.warn(TitleInRootHasNoEffect(self.options.filename))
@@ -155,9 +156,10 @@ class AwesomeNavigation:
 
 class NavigationMeta:
 
-    def __init__(self, items: List[NavigationItem], options: Options):
+    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str):
         self.options = options
         self.sections = {}
+        self.docs_dir = docs_dir
 
         root_path = self._gather_metadata(items)
         self.root = Meta.try_load_from(join_paths(root_path, self.options.filename))
@@ -166,10 +168,12 @@ class NavigationMeta:
         paths = []
         for item in items:
             if isinstance(item, Page):
-                paths.append(item.file.abs_src_path)
+                if Path(self.docs_dir) in Path(item.file.abs_src_path).parents:
+                    paths.append(item.file.abs_src_path)
             elif isinstance(item, Section):
                 section_dir = self._gather_metadata(item.children)
-                paths.append(section_dir)
+                if section_dir is not None:
+                    paths.append(section_dir)
                 self.sections[item] = Meta.try_load_from(join_paths(section_dir, self.options.filename))
 
         return self._common_dirname(paths)

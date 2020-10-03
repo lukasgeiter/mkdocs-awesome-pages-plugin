@@ -66,7 +66,7 @@ class TestMeta(NavigationTestCase):
         self.options = Options(filename='.pages', collapse_single_pages=False, strict=True)
 
     def test_empty(self):
-        meta = NavigationMeta([], self.options)
+        meta = NavigationMeta([], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 0)
         self.assertEmptyMeta(meta.root)
@@ -74,7 +74,7 @@ class TestMeta(NavigationTestCase):
     def test_page_in_root(self):
         meta = NavigationMeta([
             self.page('Page', 'page.md')
-        ], self.options)
+        ], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 0)
         self.assertMeta(meta.root, path='.pages')
@@ -83,7 +83,7 @@ class TestMeta(NavigationTestCase):
         section = self.section('Section', [])
         meta = NavigationMeta([
             section
-        ], self.options)
+        ], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
@@ -95,7 +95,7 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], self.options)
+        ], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path='section/.pages')
@@ -116,18 +116,18 @@ class TestMeta(NavigationTestCase):
         meta = NavigationMeta([
             a,
             c
-        ], self.options)
+        ], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 5)
 
         self.assertMeta(meta.sections[a], path='a/.pages')
         self.assertMeta(meta.sections[b], path='a/b/.pages')
 
-        self.assertEmptyMeta(meta.sections[c])
+        self.assertMeta(meta.sections[c], path='c/.pages')
         self.assertEmptyMeta(meta.sections[d])
         self.assertMeta(meta.sections[e], path='c/e/.pages')
 
-        self.assertEmptyMeta(meta.root)
+        self.assertMeta(meta.root, path='.pages')
 
     def test_filename_option(self):
         section = self.section('Section', [
@@ -135,7 +135,7 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], Options(filename='.index', collapse_single_pages=False, strict=True))
+        ], Options(filename='.index', collapse_single_pages=False, strict=True), docs_dir='')
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path='section/.index')
@@ -145,7 +145,7 @@ class TestMeta(NavigationTestCase):
         meta = NavigationMeta([
             self.page('Page', 'page.md'),
             self.link('Link')
-        ], self.options)
+        ], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 0)
         self.assertMeta(meta.root, path='.pages')
@@ -157,8 +157,17 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], self.options)
+        ], self.options, docs_dir='')
 
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
         self.assertEmptyMeta(meta.root)
+
+    def test_path_outside_docs(self):
+        meta = NavigationMeta([
+            self.page('Page', 'page.md', docs_dir='/docs'),
+            self.page('Outside', '/outside', docs_dir='/docs')
+        ], self.options, docs_dir='/docs')
+
+        self.assertEqual(len(meta.sections), 0)
+        self.assertMeta(meta.root, path='/docs/.pages')

@@ -21,8 +21,8 @@ class NavigationMetaMock:
 class NavigationTestCase(TestCase):
 
     @staticmethod
-    def page(title: str, path: Optional[str] = None) -> Page:
-        return Page(title, File(path or title + '.md', '', '', False), {})
+    def page(title: str, path: Optional[str] = None, docs_dir: str = '') -> Page:
+        return Page(title, File(path or title + '.md', docs_dir, '', False), {})
 
     @staticmethod
     def link(title: str, url: Optional[str] = None):
@@ -68,7 +68,8 @@ class NavigationTestCase(TestCase):
 
         return AwesomeNavigation(
             self.createNavigation(children),
-            Options(filename='.pages', collapse_single_pages=collapse_single_pages, strict=strict)
+            Options(filename='.pages', collapse_single_pages=collapse_single_pages, strict=strict),
+            docs_dir=''
         )
 
     def assertNavigationEqual(self, actual: List[NavigationItem], expected: List[NavigationItem]):
