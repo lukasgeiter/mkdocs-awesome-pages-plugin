@@ -193,6 +193,57 @@ class TestNav(NavigationTestCase):
             self.page('1')
         ])
 
+    def test_sections(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('1', '1.md'),
+            self.page('2', '2.md'),
+            self.section('A', [
+                self.page('3', 'a/3.md'),
+                self.page('4', 'a/4.md')
+            ], 'a'),
+            self.section('B', [
+                self.page('5', 'b/5.md'),
+                self.page('6', 'b/6.md')
+            ], 'b'),
+            Meta(nav=[
+                MetaNavItem('a'),
+                Meta.NAV_REST_TOKEN,
+                MetaNavItem('2.md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.section('A', [
+                self.page('3', 'a/3.md'),
+                self.page('4', 'a/4.md')
+            ]),
+            self.page('1', '1.md'),
+            self.section('B', [
+                self.page('5', 'b/5.md'),
+                self.page('6', 'b/6.md')
+            ]),
+            self.page('2', '2.md')
+        ])
+
+    def test_custom_section(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('1', '1.md'),
+            self.page('2', '2.md'),
+            self.page('3'),
+            Meta(nav=[
+                MetaNavItem.from_yaml({'a': ['1.md', '2.md']}, context=''),
+                Meta.NAV_REST_TOKEN,
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.section('a', [
+                self.page('1', '1.md'),
+                self.page('2', '2.md')
+            ]),
+            self.page('3'),
+        ])
+
     def test_not_found(self):
         with self.assertRaises(NavEntryNotFound):
             self.createAwesomeNavigation([
