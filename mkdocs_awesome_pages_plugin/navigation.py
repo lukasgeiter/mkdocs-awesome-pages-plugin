@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
-    _get_by_type, _add_parent_links, _add_previous_and_next_links
+    _add_parent_links, _add_previous_and_next_links
 from mkdocs.structure.pages import Page
 
 from .meta import Meta
@@ -148,7 +148,7 @@ class AwesomeNavigation:
         return section
 
     def to_mkdocs(self) -> MkDocsNavigation:
-        pages = _get_by_type(self.items, Page)
+        pages = get_by_type(self.items, Page)
         _add_previous_and_next_links(pages)
         _add_parent_links(self.items)
         return MkDocsNavigation(self.items, pages)
@@ -184,3 +184,15 @@ class NavigationMeta:
             dirnames = [dirname(path) for path in paths]
             if len(set(dirnames)) == 1:
                 return dirnames[0]
+
+
+# Copy of mkdocs.structure.nav._get_by_type with fix for nested sections
+# PR: https://github.com/mkdocs/mkdocs/pull/2203
+def get_by_type(nav, T):
+    ret = []
+    for item in nav:
+        if isinstance(item, T):
+            ret.append(item)
+        if item.children:
+            ret.extend(get_by_type(item.children, T))
+    return ret

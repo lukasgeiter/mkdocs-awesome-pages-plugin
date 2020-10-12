@@ -4,11 +4,11 @@ from unittest import TestCase, mock
 
 from mkdocs.structure.files import File
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
-    _get_by_type, _add_parent_links, _add_previous_and_next_links
+    _add_parent_links, _add_previous_and_next_links
 from mkdocs.structure.pages import Page
 
 from ...meta import Meta
-from ...navigation import NavigationItem, AwesomeNavigation
+from ...navigation import NavigationItem, AwesomeNavigation, get_by_type
 from ...options import Options
 
 
@@ -47,7 +47,7 @@ class NavigationTestCase(TestCase):
 
     @staticmethod
     def createNavigation(items: List[NavigationItem]) -> MkDocsNavigation:
-        pages = _get_by_type(items, Page)
+        pages = get_by_type(items, Page)
         _add_previous_and_next_links(pages)
         _add_parent_links(items)
         return MkDocsNavigation(items, pages)
@@ -91,7 +91,7 @@ class NavigationTestCase(TestCase):
     def assertValidNavigation(self, navigation: MkDocsNavigation, *,
                               assert_previous_next: bool = True, assert_parent: bool = True):
 
-        pages = _get_by_type(navigation, Page)
+        pages = get_by_type(navigation, Page)
 
         if assert_previous_next:
             bookended = [None] + pages + [None]
@@ -101,7 +101,7 @@ class NavigationTestCase(TestCase):
                 self.assertEqual(page1.next_page, page2, 'Incorrect next_page reference in {}'.format(page1))
 
         if assert_parent:
-            sections = _get_by_type(navigation, Section)
+            sections = get_by_type(navigation, Section)
 
             for section in sections:
                 for child in section.children:
