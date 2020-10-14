@@ -4,7 +4,7 @@
 
 The awesome-pages plugin allows you to customize how your pages show up the navigation of your MkDocs without having to configure the full structure in your `mkdocs.yml`. It gives you detailed control using a small configuration file directly placed in the relevant directory of your documentation.
 
-> **Note:** This plugin works best without a `nav` or `pages` entry in your `mkdocs.yml`. Having a `nav` entry is supported, but you might not get the results you expect, especially if your `nav` structure doesn't match the file structure.
+> **Note:** This plugin won't do anything if your `mkdocs.yml` defines a `nav` or `pages` entry. To make use of the features listed below, you'll either have to remove the entry completely or [add a `...` entry to it](#combine-custom-navigation--file-structure).
 
 <br/>
 
@@ -188,6 +188,63 @@ arrange:
 ```
 
 In this example `introduction.md` is positioned at the beginning, `summary.md` at the end, and any other pages in between.
+
+### Combine Custom Navigation & File Structure
+
+MkDocs gives you two ways to define the structure of your navigation. Either create a custom navigation manually in `mkdocs.yml` or use the file structure to generate the navigation. This feature makes it possible to combine both methods. Allowing you to manually define parts of your navigation without having to list all files.
+
+> **Note:** You can freely combine this with all the other features of this plugin. However they will only affect the part of the navigation that is not defined manually.
+
+Use the `nav` entry in `mkdocs.yml` to define the custom part of your navigation. Include a `...` entry where you want the navigation tree of all remaining pages to be inserted.
+
+The following examples are based on this file structure:
+
+```yaml
+docs/
+├─ page1.md
+├─ page2.md
+└─ folder/
+   ├─ page3.md
+   └─ page4.md
+```
+
+If you wanted `page1.md` and `page2.md` to appear under their own section you could do this:
+
+```yaml
+nav:
+    - Start:
+        - page1.md
+        - page2.md
+    - ...
+```
+
+Which would result in the following navigation:
+
+- Start
+  - Page 1
+  - Page 2
+- Folder
+  - Page 3
+  - Page 4
+
+The `...` entry can also be placed at a deeper level:
+
+```yaml
+nav:
+    - page1.md
+    - Rest:
+        - ...
+```
+
+Which would result in the following navigation:
+
+- Page 1
+- Rest
+  - Page 2
+  - Folder
+    - Page 3
+    - Page 4
+
 
 <br/>
 
