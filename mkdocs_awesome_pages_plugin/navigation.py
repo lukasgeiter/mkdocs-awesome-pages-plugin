@@ -1,6 +1,6 @@
 import warnings
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Set
 
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
     _add_parent_links, _add_previous_and_next_links
@@ -36,10 +36,11 @@ class HideInRootHasNoEffect(Warning):
 
 class AwesomeNavigation:
 
-    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str):
+    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str, explicit_sections: Set[Section]):
         self.options = options
+        self.explicit_sections = explicit_sections
 
-        self.meta = NavigationMeta(items, options, docs_dir)
+        self.meta = NavigationMeta(items, options, docs_dir, explicit_sections)
 
         if self.meta.root.title is not None:
             warnings.warn(TitleInRootHasNoEffect(self.options.filename))
@@ -122,6 +123,9 @@ class AwesomeNavigation:
 
         section.children = self._process_children(section.children, collapse_recursive, meta)
 
+        if section in self.explicit_sections:
+            return section
+
         if not section.children:
             return None
 
@@ -156,10 +160,11 @@ class AwesomeNavigation:
 
 class NavigationMeta:
 
-    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str):
+    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str, explicit_sections: Set[Section]):
         self.options = options
         self.sections = {}
         self.docs_dir = docs_dir
+        self.explicit_sections = explicit_sections
 
         root_path = self._gather_metadata(items)
         self.root = Meta.try_load_from(join_paths(root_path, self.options.filename))
@@ -172,9 +177,12 @@ class NavigationMeta:
                     paths.append(item.file.abs_src_path)
             elif isinstance(item, Section):
                 section_dir = self._gather_metadata(item.children)
-                if section_dir is not None:
-                    paths.append(section_dir)
-                self.sections[item] = Meta.try_load_from(join_paths(section_dir, self.options.filename))
+                if item in self.explicit_sections:
+                    self.sections[item] = Meta()
+                else:
+                    if section_dir is not None:
+                        paths.append(section_dir)
+                    self.sections[item] = Meta.try_load_from(join_paths(section_dir, self.options.filename))
 
         return self._common_dirname(paths)
 

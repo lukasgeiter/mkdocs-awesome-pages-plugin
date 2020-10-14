@@ -62,10 +62,11 @@ class E2ETestCase(TestCase):
             'nav': mkdocs_nav
         }
 
-    def mkdocs(self, config: dict, files: List[Union[str, Tuple[str, Union[str, list]]]]):
+    def mkdocs(self, config: dict, files: List[Union[str, Tuple[str, Union[str, list]]]], dummy_pages: bool = True):
         # mkdocs requires a minimum amount of top-level items to render the navigation properly
         # ensure that this requirement is met by adding dummy pages
-        self._addDummyPages(files, self.MIN_ROOT_ITEMS)
+        if dummy_pages:
+            self._addDummyPages(files, self.MIN_ROOT_ITEMS)
 
         with tempfile.TemporaryDirectory() as temp_directory, cd(temp_directory):
             self._writeToFile('mkdocs.yml', yaml.dump(config))

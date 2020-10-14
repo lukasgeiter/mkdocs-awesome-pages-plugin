@@ -62,7 +62,8 @@ class NavigationTestCase(TestCase):
         return AwesomeNavigation(
             children,
             Options(filename='.pages', collapse_single_pages=collapse_single_pages, strict=strict),
-            docs_dir=''
+            docs_dir='',
+            explicit_sections=set()
         )
 
     def assertNavigationEqual(self, actual: List[NavigationItem], expected: List[NavigationItem]):

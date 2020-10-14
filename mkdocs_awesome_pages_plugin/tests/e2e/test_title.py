@@ -75,7 +75,7 @@ class TestSectionTitle(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Section Title', [
+            ('Nav Title', [
                 ('Page', '/section/page')
             ])
         ])
