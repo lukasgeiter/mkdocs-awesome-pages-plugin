@@ -36,10 +36,10 @@ class HideInRootHasNoEffect(Warning):
 
 class AwesomeNavigation:
 
-    def __init__(self, navigation: MkDocsNavigation, options: Options, docs_dir: str):
+    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str):
         self.options = options
 
-        self.meta = NavigationMeta(navigation.items, options, docs_dir)
+        self.meta = NavigationMeta(items, options, docs_dir)
 
         if self.meta.root.title is not None:
             warnings.warn(TitleInRootHasNoEffect(self.options.filename))
@@ -48,7 +48,7 @@ class AwesomeNavigation:
             warnings.warn(HideInRootHasNoEffect(self.options.filename))
 
         self.items = self._process_children(
-            navigation.items,
+            items,
             self.options.collapse_single_pages,
             self.meta.root
         )

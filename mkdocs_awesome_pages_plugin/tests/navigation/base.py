@@ -45,13 +45,6 @@ class NavigationTestCase(TestCase):
         self.meta_mock.sections[section] = meta
         return section
 
-    @staticmethod
-    def createNavigation(items: List[NavigationItem]) -> MkDocsNavigation:
-        pages = get_by_type(items, Page)
-        _add_previous_and_next_links(pages)
-        _add_parent_links(items)
-        return MkDocsNavigation(items, pages)
-
     def createAwesomeNavigation(self, items: List[NavigationItem], *,
                                 collapse_single_pages: bool = False, strict: bool = True) -> AwesomeNavigation:
 
@@ -67,7 +60,7 @@ class NavigationTestCase(TestCase):
             self.meta_mock.root = meta
 
         return AwesomeNavigation(
-            self.createNavigation(children),
+            children,
             Options(filename='.pages', collapse_single_pages=collapse_single_pages, strict=strict),
             docs_dir=''
         )
