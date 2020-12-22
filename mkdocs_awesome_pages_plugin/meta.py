@@ -1,10 +1,16 @@
+import collections
+import re
+from enum import Enum
+from pathlib import PurePath
+from typing import Optional, List, Union, Any, Iterator
+
 import yaml
-from typing import Optional, List, Union
+from wcmatch import glob
 
 
-class DuplicateRestTokenError(Exception):
-    def __init__(self, context: str):
-        super().__init__('Rest token "..." is only allowed once [{context}]'.format(context=context))
+class DuplicateRestItemError(Exception):
+    def __init__(self, item: str, context: str):
+        super().__init__('Duplicate rest entry "{item}" [{context}]'.format(context=context, item=item))
 
 
 class MetaNavItem:
@@ -16,8 +22,14 @@ class MetaNavItem:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, MetaNavItem) and self.value == other.value and self.title == other.title
 
+    def __hash__(self):
+        return hash((self.value, self.title))
+
     @staticmethod
     def from_yaml(item: Union[str, dict], context: str):
+        if MetaNavRestItem.is_rest(item):
+            return MetaNavRestItem(item)
+
         if isinstance(item, str):
             return MetaNavItem(item)
 
@@ -29,11 +41,61 @@ class MetaNavItem:
         raise TypeError('Invalid nav item format {type} [{context}]'.format(type=item, context=context))
 
 
+class RestType(Enum):
+    GLOB = 'glob'
+    REGEX = 'regex'
+    ALL = 'all'
+
+
+class MetaNavRestItem(MetaNavItem):
+
+    _REGEX = r'^\.{3}\s*\|\s*(?:(regex|glob)=)?(.*)'
+
+    def __init__(self, value: str):
+        super().__init__(value)
+
+        match = re.search(self._REGEX, value)
+        if match:
+            self.type = RestType.GLOB if match.group(1) is None else RestType(match.group(1))
+            self.pattern = match.group(2)
+        else:
+            self.type = RestType.ALL
+            self.pattern = None
+
+    def matches(self, path: Optional[str]) -> bool:
+        if self.type == RestType.GLOB:
+            return path is not None and glob.globmatch(path, self.pattern, flags=glob.GLOBSTAR)
+        elif self.type == RestType.REGEX:
+            return path is not None and re.search(self.pattern, PurePath(path).as_posix()) is not None
+        else:
+            return True
+
+    @staticmethod
+    def is_rest(item: Any) -> bool:
+        return isinstance(item, str) and (item == '...' or re.search(MetaNavRestItem._REGEX, item))
+
+
+class RestItemList(collections.Iterable):
+    def __init__(self):
+        self.patterns = []
+        self.all = None
+
+    def append(self, item: MetaNavRestItem):
+        if item.type == RestType.ALL:
+            self.all = item
+        else:
+            self.patterns.append(item)
+
+    def __iter__(self) -> Iterator[MetaNavRestItem]:
+        yield from self.patterns
+        if self.all:
+            yield self.all
+
+
 class Meta:
 
     TITLE_ATTRIBUTE = 'title'
     NAV_ATTRIBUTE = 'nav'
-    NAV_REST_TOKEN = MetaNavItem('...')
     ARRANGE_ATTRIBUTE = 'arrange'
     ARRANGE_REST_TOKEN = '...'
     COLLAPSE_ATTRIBUTE = 'collapse'
@@ -49,9 +111,9 @@ class Meta:
                  collapse_single_pages: bool = None, hide: bool = None, order: Optional[str] = None):
 
         if nav is None and arrange is not None:
-            nav = [MetaNavItem(value) for value in arrange]
-            if Meta.NAV_REST_TOKEN not in nav:
-                nav.append(Meta.NAV_REST_TOKEN)
+            nav = [MetaNavItem.from_yaml(value, path) for value in arrange]
+            if MetaNavRestItem('...') not in nav:
+                nav.append(MetaNavRestItem('...'))
 
         self.title = title
         self.nav = nav
@@ -99,7 +161,7 @@ class Meta:
                                 context=path)
                     )
                 if arrange.count(Meta.ARRANGE_REST_TOKEN) > 1:
-                    raise DuplicateRestTokenError(path)
+                    raise DuplicateRestItemError('...', path)
 
             if nav is not None:
                 if not isinstance(nav, list):
@@ -111,9 +173,12 @@ class Meta:
                     )
 
                 nav = [MetaNavItem.from_yaml(item, path) for item in nav]
-
-                if nav.count(Meta.NAV_REST_TOKEN) > 1:
-                    raise DuplicateRestTokenError(path)
+                checked = set()
+                for item in nav:
+                    if isinstance(item, MetaNavRestItem):
+                        if item in checked:
+                            raise DuplicateRestItemError(item.value, path)
+                        checked.add(item)
 
             if collapse is not None:
                 if not isinstance(collapse, bool):

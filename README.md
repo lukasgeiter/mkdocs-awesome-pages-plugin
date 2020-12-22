@@ -57,6 +57,19 @@ nav:
     - summary.md
 ```
 
+Furthermore, it is possible to filter the remaining items using glob patterns or regular expressions. For example to match only the Markdown files starting with `introduction-`.
+
+```yaml
+nav:
+    - ... | introduction-*.md
+    - ...
+    - summary.md
+```
+
+> **Note:** The pattern is checked against the basename (folder- / filename) of remaining items - not their whole path.
+
+For more details refer to the [Rest Filter Patterns](#rest-filter-patterns) section below.
+
 #### Titles
 
 You can optionally specify a title for the navigation entry.
@@ -201,29 +214,34 @@ The following examples are based on this file structure:
 
 ```yaml
 docs/
+├─ introduction.md
 ├─ page1.md
 ├─ page2.md
 └─ folder/
+   ├─ introduction.md
    ├─ page3.md
    └─ page4.md
 ```
 
-If you wanted `page1.md` and `page2.md` to appear under their own section you could do this:
+If you wanted `introduction.md`, `page1.md` and `page2.md` to appear under their own section you could do this:
 
 ```yaml
 nav:
     - Start:
         - page1.md
         - page2.md
+        - summary.md
     - ...
 ```
 
 Which would result in the following navigation:
 
 - Start
+  - Introduction
   - Page 1
   - Page 2
 - Folder
+  - Introduction
   - Page 3
   - Page 4
 
@@ -240,11 +258,73 @@ Which would result in the following navigation:
 
 - Page 1
 - Rest
+  - Introduction
   - Page 2
   - Folder
+    - Introduction
     - Page 3
     - Page 4
 
+Furthermore, it is possible to filter the remaining items using glob patterns or regular expressions. For example to match only files named `introduction.md`.
+
+```yaml
+nav:
+    - Introductions:
+        - ... | **/introduction.md
+    - ...
+```
+
+With the following result:
+
+- Introductions
+    - Introduction
+    - Introduction
+- Page 1
+- Page 2
+- Folder
+    - Page 3
+    - Page 4
+    
+
+> **Note:** The pattern is checked against the path relative to the docs directory.
+
+For more details refer to the [Rest Filter Patterns](#rest-filter-patterns) section below.
+
+<br/>
+
+## Rest Filter Patterns
+
+In all places where the rest entry (`...`) is allowed, you can also include a glob pattern or regular expression to filter the items to be displayed.
+
+```yaml
+nav:
+    - ... | page-*.md
+    - ... | regex=page-[0-9]+.md
+```
+
+The filter only operates on remaining items. This means it will not include items that are explicitly listed in the navigation or items that are matched by another filter that appears earlier in the configuration.
+
+You may also include a rest entry without filter to act as a catch-all, inserting everything that is not matched by a filter.
+
+### Syntax Details
+
+Unless the filter starts with `regex=` it is interpreted as glob pattern, however you may also explicitly say so using `glob=`. The spaces around `...` are optional but recommended for readability.
+
+> **Note:** Depending on the characters in your filter, you might also need to use quotes around the whole entry.
+
+```yaml
+nav:
+    # equivalent glob entries
+    - ... | page-*.md
+    - ... | glob=page-*.md
+    - ...|page-*.md
+    - '... | page-*.md'
+
+    # equivalent regex entries
+    - ... | regex=page-[0-9]+.md
+    - ...|regex=page-[0-9]+.md
+    - '... | regex=page-[0-9]+.md'
+```
 
 <br/>
 

@@ -1,5 +1,5 @@
 from .base import NavigationTestCase
-from ...meta import Meta, MetaNavItem
+from ...meta import Meta, MetaNavItem, MetaNavRestItem
 
 
 class TestOrder(NavigationTestCase):
@@ -118,7 +118,7 @@ class TestOrder(NavigationTestCase):
             self.page('4'),
             Meta(order=Meta.ORDER_ASC, nav=[
                 MetaNavItem('4.md'),
-                Meta.NAV_REST_TOKEN
+                MetaNavRestItem('...')
             ])
         ])
 
@@ -138,7 +138,7 @@ class TestOrder(NavigationTestCase):
             self.page('4'),
             Meta(order=Meta.ORDER_DESC, nav=[
                 MetaNavItem('1.md'),
-                Meta.NAV_REST_TOKEN
+                MetaNavRestItem('...')
             ])
         ])
 

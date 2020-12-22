@@ -2,7 +2,7 @@ from typing import Optional
 from unittest import TestCase
 
 from .base import NavigationTestCase
-from ...meta import Meta
+from ...meta import Meta, MetaNavRestItem, RestType
 from ...navigation import NavigationMeta
 from ...options import Options
 from ...utils import normpath
@@ -171,3 +171,78 @@ class TestMeta(NavigationTestCase):
 
         self.assertEqual(len(meta.sections), 0)
         self.assertMeta(meta.root, path='/docs/.pages')
+
+
+class TestRestParsing(NavigationTestCase):
+
+    def test_all(self):
+        item = MetaNavRestItem('...')
+
+        self.assertIsNone(item.pattern)
+        self.assertEqual(item.type, RestType.ALL)
+
+    def test_glob_implicit(self):
+        item = MetaNavRestItem('...|foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_implicit_spaces(self):
+        item = MetaNavRestItem('... | foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_implicit_trailing_space(self):
+        item = MetaNavRestItem('... | foo ')
+
+        self.assertEqual(item.pattern, 'foo ')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit(self):
+        item = MetaNavRestItem('...|glob=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit_spaces(self):
+        item = MetaNavRestItem('... | glob=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit_trailing_space(self):
+        item = MetaNavRestItem('... | glob=foo ')
+
+        self.assertEqual(item.pattern, 'foo ')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit_leading_space(self):
+        item = MetaNavRestItem('... | glob= foo')
+
+        self.assertEqual(item.pattern, ' foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_regex(self):
+        item = MetaNavRestItem('...|regex=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.REGEX)
+
+    def test_regex_spaces(self):
+        item = MetaNavRestItem('... | regex=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.REGEX)
+
+    def test_regex_trailing_space(self):
+        item = MetaNavRestItem('... | regex=foo ')
+
+        self.assertEqual(item.pattern, 'foo ')
+        self.assertEqual(item.type, RestType.REGEX)
+
+    def test_regex_leading_space(self):
+        item = MetaNavRestItem('... | regex= foo')
+
+        self.assertEqual(item.pattern, ' foo')
+        self.assertEqual(item.type, RestType.REGEX)

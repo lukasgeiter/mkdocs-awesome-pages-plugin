@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from mkdocs.config import config_options, Config
 from mkdocs.plugins import BasePlugin
@@ -6,8 +6,8 @@ from mkdocs.structure.files import Files, File
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, get_navigation, Section, Link
 from mkdocs.structure.pages import Page
 
-from .meta import DuplicateRestTokenError, Meta
-from .navigation import AwesomeNavigation, get_by_type
+from .meta import DuplicateRestItemError, MetaNavRestItem, RestItemList
+from .navigation import AwesomeNavigation, get_by_type, NavigationItem
 from .options import Options
 
 
@@ -24,6 +24,8 @@ class AwesomePagesPlugin(BasePlugin):
 
     def __init__(self):
         self.nav_config_with_rest = None
+        self.rest_items = RestItemList()
+        self.rest_blocks = {}
 
     def on_nav(self, nav: MkDocsNavigation, config: Config, files: Files):
         explicit_nav = nav if config['nav'] else None
@@ -36,54 +38,58 @@ class AwesomePagesPlugin(BasePlugin):
         explicit_sections = set(get_by_type(explicit_nav, Section)) if explicit_nav else set()
 
         if self.nav_config_with_rest:
-            _remove_files(nav.items, [page.file for page in explicit_nav.pages])
-            _insert_rest(explicit_nav.items, nav.items)
+            self.rest_blocks = self._generate_rest_blocks(nav.items, [page.file for page in explicit_nav.pages])
+            self._insert_rest(explicit_nav.items)
             nav = explicit_nav
 
         return AwesomeNavigation(nav.items, Options(**self.config), config['docs_dir'], explicit_sections).to_mkdocs()
 
     def on_config(self, config: Config):
         if config['nav']:
-            if _find_rest_token(config['nav']):
+            self._find_rest(config['nav'])
+            if self.rest_items:
                 self.nav_config_with_rest = config['nav']
                 config['nav'] = None  # clear nav to prevent MkDocs from reporting files that are not included
 
         return config
 
+    def _find_rest(self, config):
+        if isinstance(config, list):
+            for index, element in enumerate(config):
+                if MetaNavRestItem.is_rest(element):
+                    rest_item = MetaNavRestItem(element)
+                    if rest_item in self.rest_items:
+                        raise DuplicateRestItemError(rest_item.value, 'mkdocs.yml')
+                    self.rest_items.append(rest_item)
 
-def _find_rest_token(config) -> bool:
-    stack = [config]
-    found = False
-    while stack:
-        data = stack.pop()
-        if isinstance(data, list):
-            for index, element in enumerate(data):
-                if element == Meta.NAV_REST_TOKEN.value:
-                    if found:
-                        raise DuplicateRestTokenError('mkdocs.yml')
-                    data[index] = {AwesomePagesPlugin.REST_PLACEHOLDER: '/'}
-                    found = True
+                    config[index] = {AwesomePagesPlugin.REST_PLACEHOLDER: '/' + element}
                 else:
-                    stack.append(element)
+                    self._find_rest(element)
 
-        elif isinstance(data, dict):
-            stack.extend(data.values())
+        elif isinstance(config, dict):
+            for value in config.values():
+                self._find_rest(value)
 
-    return found
+    def _generate_rest_blocks(self, items: List[NavigationItem], exclude_files: List[File]) -> Dict[str, List[NavigationItem]]:
+        result = {rest_item: [] for rest_item in self.rest_items}
+        for item in items[:]:  # loop over a shallow copy of items so removing items doesn't break iteration
+            if isinstance(item, Page):
+                if item.file not in exclude_files:
+                    for rest_item in self.rest_items:
+                        if rest_item.matches(item.file.src_path):
+                            items.remove(item)
+                            result[rest_item].append(item)
+                            break
+            if isinstance(item, Section):
+                child_result = self._generate_rest_blocks(item.children, exclude_files)
+                for rest_item, children in child_result.items():
+                    if children:
+                        result[rest_item].append(Section(item.title, children))
+        return result
 
-
-def _remove_files(items, to_remove: List[File]):
-    for item in items[:]:  # loop over a shallow copy of items so removing items doesn't break iteration
-        if isinstance(item, Page) and item.file in to_remove:
-            items.remove(item)
-        if isinstance(item, Section):
-            _remove_files(item.children, to_remove)
-
-
-def _insert_rest(items, rest):
-    for index, item in enumerate(items):
-        if isinstance(item, Link) and item.title == AwesomePagesPlugin.REST_PLACEHOLDER:
-            items[index:index + 1] = rest
-            return
-        if isinstance(item, Section):
-            _insert_rest(item.children, rest)
+    def _insert_rest(self, items):
+        for index, item in enumerate(items):
+            if isinstance(item, Link) and item.title == AwesomePagesPlugin.REST_PLACEHOLDER:
+                items[index:index + 1] = self.rest_blocks[MetaNavRestItem(item.url[1:])]
+            if isinstance(item, Section):
+                self._insert_rest(item.children)

@@ -1,5 +1,5 @@
 from .base import E2ETestCase
-from ...meta import DuplicateRestTokenError
+from ...meta import DuplicateRestItemError
 from ...navigation import NavEntryNotFound
 
 
@@ -128,6 +128,164 @@ class TestNav(E2ETestCase):
                 ('1', '/a/1')
             ]),
             ('1', '/1')
+        ])
+
+    def test_rest_glob(self):
+        navigation = self.mkdocs(self.config, [
+            '1.md',
+            '2a.md',
+            '2b.md',
+            '3.md',
+            self.pagesFile(nav=[
+                '1.md',
+                '... | 2*.md',
+                '1.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('1', '/1'),
+            ('2a', '/2a'),
+            ('2b', '/2b'),
+            ('1', '/1')
+        ])
+
+    def test_rest_glob_section(self):
+        navigation = self.mkdocs(self.config, [
+            'a.md',
+            'b.md',
+            ('a', [
+                '1a.md',
+                '1b.md',
+                '2a.md',
+                '2b.md',
+                self.pagesFile(nav=[
+                    '... | *b.md',
+                    '...'
+                ])
+            ]),
+            self.pagesFile(nav=[
+                '... | a*',
+                'b.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('A', '/a'),
+            ('A', [
+                ('1b', '/a/1b'),
+                ('2b', '/a/2b'),
+                ('1a', '/a/1a'),
+                ('2a', '/a/2a')
+            ]),
+            ('B', '/b')
+        ])
+
+    def test_rest_glob_precedence(self):
+        navigation = self.mkdocs(self.config, [
+            '1.md',
+            '1a.md',
+            '1b.md',
+            '2.md',
+            '2a.md',
+            '2b.md',
+            self.pagesFile(nav=[
+                '...',
+                {'Link 1': '/link1'},
+                '... | 1*.md',
+                {'Link 2': '/link2'},
+                '... | *[ab].md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('2', '/2'),
+            ('Link 1', '/link1'),
+            ('1', '/1'),
+            ('1a', '/1a'),
+            ('1b', '/1b'),
+            ('Link 2', '/link2'),
+            ('2a', '/2a'),
+            ('2b', '/2b')
+        ])
+
+    def test_rest_regex(self):
+        navigation = self.mkdocs(self.config, [
+            '1.md',
+            '2a.md',
+            '2b.md',
+            '3.md',
+            self.pagesFile(nav=[
+                '1.md',
+                r'... | regex=2\w*\.md',
+                '1.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('1', '/1'),
+            ('2a', '/2a'),
+            ('2b', '/2b'),
+            ('1', '/1')
+        ])
+
+    def test_rest_regex_section(self):
+        navigation = self.mkdocs(self.config, [
+            'a.md',
+            'b.md',
+            ('a', [
+                '1a.md',
+                '1b.md',
+                '2a.md',
+                '2b.md',
+                self.pagesFile(nav=[
+                    r'... | regex=\w*b\.md',
+                    '...'
+                ])
+            ]),
+            self.pagesFile(nav=[
+                r'... | regex=a\w*',
+                'b.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('A', '/a'),
+            ('A', [
+                ('1b', '/a/1b'),
+                ('2b', '/a/2b'),
+                ('1a', '/a/1a'),
+                ('2a', '/a/2a')
+            ]),
+            ('B', '/b')
+        ])
+
+    def test_rest_regex_precedence(self):
+        navigation = self.mkdocs(self.config, [
+            '1.md',
+            '1a.md',
+            '1b.md',
+            '2.md',
+            '2a.md',
+            '2b.md',
+            self.pagesFile(nav=[
+                '...',
+                {'Link 1': '/link1'},
+                r'... | regex=1\w*\.md',
+                {'Link 2': '/link2'},
+                r'... | regex=\w*[ab]\.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('2', '/2'),
+            ('Link 1', '/link1'),
+            ('1', '/1'),
+            ('1a', '/1a'),
+            ('1b', '/1b'),
+            ('Link 2', '/link2'),
+            ('2a', '/2a'),
+            ('2b', '/2b')
         ])
 
     def test_title(self):
@@ -336,7 +494,7 @@ class TestNav(E2ETestCase):
         ])
 
     def test_duplicate_rest_token(self):
-        with self.assertRaises(DuplicateRestTokenError):
+        with self.assertRaises(DuplicateRestItemError):
             self.mkdocs(self.config, [
                 '1.md',
                 '2.md',

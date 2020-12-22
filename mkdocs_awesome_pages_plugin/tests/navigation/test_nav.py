@@ -1,5 +1,5 @@
 from .base import NavigationTestCase
-from ...meta import Meta, MetaNavItem
+from ...meta import Meta, MetaNavItem, MetaNavRestItem
 from ...navigation import NavEntryNotFound
 
 
@@ -60,7 +60,7 @@ class TestNav(NavigationTestCase):
             self.page('4'),
             Meta(nav=[
                 MetaNavItem('3.md'),
-                Meta.NAV_REST_TOKEN,
+                MetaNavRestItem('...'),
                 MetaNavItem('1.md')
             ])
         ])
@@ -79,7 +79,7 @@ class TestNav(NavigationTestCase):
             self.page('2'),
             Meta(nav=[
                 MetaNavItem('2.md'),
-                Meta.NAV_REST_TOKEN,
+                MetaNavRestItem('...'),
                 MetaNavItem('1.md')
             ])
         ])
@@ -87,6 +87,168 @@ class TestNav(NavigationTestCase):
         self.assertNavigationEqual(navigation.items, [
             self.page('2'),
             self.page('1')
+        ])
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_rest_glob(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('1'),
+            self.page('2a'),
+            self.page('2b'),
+            self.page('3'),
+            Meta(nav=[
+                MetaNavItem('1.md'),
+                MetaNavRestItem('... | 2*.md'),
+                MetaNavItem('1.md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('1'),
+            self.page('2a'),
+            self.page('2b'),
+            self.page('1')
+        ])
+
+    def test_rest_glob_section(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('a'),
+            self.page('b'),
+            self.section('Section A', [
+                self.page('1a', 'a/1a.md'),
+                self.page('1b', 'a/1b.md'),
+                self.page('2a', 'a/2a.md'),
+                self.page('2b', 'a/2b.md'),
+                Meta(nav=[
+                    MetaNavRestItem('... | *b.md'),
+                    MetaNavRestItem('...')
+                ], path='a/.pages')
+            ], 'a'),
+            Meta(nav=[
+                MetaNavRestItem('... | a*'),
+                MetaNavItem('b.md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('a'),
+            self.section('Section A', [
+                self.page('1b', 'a/1b.md'),
+                self.page('2b', 'a/2b.md'),
+                self.page('1a', 'a/1a.md'),
+                self.page('2a', 'a/2a.md')
+            ], 'a'),
+            self.page('b')
+        ])
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_rest_glob_precedence(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('1'),
+            self.page('1a'),
+            self.page('1b'),
+            self.page('2'),
+            self.page('2a'),
+            self.page('2b'),
+            Meta(nav=[
+                MetaNavRestItem('...'),
+                MetaNavItem('/', 'Link 1'),
+                MetaNavRestItem('... | 1*.md'),
+                MetaNavItem('/', 'Link 2'),
+                MetaNavRestItem('... | *[ab].md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('2'),
+            self.link('Link 1', '/'),
+            self.page('1'),
+            self.page('1a'),
+            self.page('1b'),
+            self.link('Link 2', '/'),
+            self.page('2a'),
+            self.page('2b')
+        ])
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_rest_regex(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('1'),
+            self.page('2a'),
+            self.page('2b'),
+            self.page('3'),
+            Meta(nav=[
+                MetaNavItem('1.md'),
+                MetaNavRestItem(r'... | regex=2\w*\.md'),
+                MetaNavItem('1.md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('1'),
+            self.page('2a'),
+            self.page('2b'),
+            self.page('1')
+        ])
+
+    def test_rest_regex_section(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('a'),
+            self.page('b'),
+            self.section('Section A', [
+                self.page('1a', 'a/1a.md'),
+                self.page('1b', 'a/1b.md'),
+                self.page('2a', 'a/2a.md'),
+                self.page('2b', 'a/2b.md'),
+                Meta(nav=[
+                    MetaNavRestItem(r'... | regex=\w*b\.md'),
+                    MetaNavRestItem('...')
+                ], path='a/.pages')
+            ], 'a'),
+            Meta(nav=[
+                MetaNavRestItem(r'... | regex=a\w*'),
+                MetaNavItem('b.md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('a'),
+            self.section('Section A', [
+                self.page('1b', 'a/1b.md'),
+                self.page('2b', 'a/2b.md'),
+                self.page('1a', 'a/1a.md'),
+                self.page('2a', 'a/2a.md')
+            ], 'a'),
+            self.page('b')
+        ])
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_rest_regex_precedence(self):
+        navigation = self.createAwesomeNavigation([
+            self.page('1'),
+            self.page('1a'),
+            self.page('1b'),
+            self.page('2'),
+            self.page('2a'),
+            self.page('2b'),
+            Meta(nav=[
+                MetaNavRestItem('...'),
+                MetaNavItem('/', 'Link 1'),
+                MetaNavRestItem(r'... | regex=1\w*\.md'),
+                MetaNavItem('/', 'Link 2'),
+                MetaNavRestItem(r'... | regex=\w*[ab]\.md')
+            ])
+        ])
+
+        self.assertNavigationEqual(navigation.items, [
+            self.page('2'),
+            self.link('Link 1', '/'),
+            self.page('1'),
+            self.page('1a'),
+            self.page('1b'),
+            self.link('Link 2', '/'),
+            self.page('2a'),
+            self.page('2b')
         ])
         self.assertValidNavigation(navigation.to_mkdocs())
 
@@ -130,7 +292,7 @@ class TestNav(NavigationTestCase):
             self.link('Link'),
             Meta(nav=[
                 MetaNavItem('2.md'),
-                Meta.NAV_REST_TOKEN,
+                MetaNavRestItem('...'),
                 MetaNavItem('1.md')
             ])
         ])

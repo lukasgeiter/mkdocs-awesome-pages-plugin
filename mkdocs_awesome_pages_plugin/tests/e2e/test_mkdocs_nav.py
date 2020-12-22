@@ -1,5 +1,5 @@
 from .base import E2ETestCase
-from ...meta import DuplicateRestTokenError
+from ...meta import DuplicateRestItemError
 from ...navigation import NavEntryNotFound
 
 
@@ -249,7 +249,7 @@ class TestMkdocsNavRest(E2ETestCase):
         ])
 
     def test_duplicate_rest_token(self):
-        with self.assertRaises(DuplicateRestTokenError):
+        with self.assertRaises(DuplicateRestItemError):
             self.mkdocs(self.createConfig(mkdocs_nav=[
                 '...',
                 '1.md',
@@ -641,3 +641,425 @@ class TestMkdocsNavRest(E2ETestCase):
             ]),
             ('2', '/a/2')
         ])
+
+
+class TestMkdocsNavRestGlob(E2ETestCase):
+
+    def test_pattern_only(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '2a.md',
+            '... | *a.md'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '2a.md',
+            '3a.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('2a', '/2a'),
+            ('1a', '/1a'),
+            ('3a', '/3a')
+        ])
+
+    def test_pattern_and_rest(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '... | *a.md',
+            '2a.md',
+            '...'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '2a.md',
+            '3a.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('1a', '/1a'),
+            ('3a', '/3a'),
+            ('2a', '/2a'),
+            ('1b', '/1b')
+        ])
+
+    def test_multiple_patterns(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '1c.md',
+            '... | *a.md',
+            '2c.md',
+            '... | *b.md'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '1c.md',
+            '2a.md',
+            '2b.md',
+            '2c.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('1c', '/1c'),
+            ('1a', '/1a'),
+            ('2a', '/2a'),
+            ('2c', '/2c'),
+            ('1b', '/1b'),
+            ('2b', '/2b')
+        ])
+
+    def test_overlapping_patterns(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '... | *a.md',
+            '1c.md',
+            '... | 2*.md'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '1c.md',
+            '2a.md',
+            '2b.md',
+            '2c.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('1a', '/1a'),
+            ('2a', '/2a'),
+            ('1c', '/1c'),
+            ('2b', '/2b'),
+            ('2c', '/2c')
+        ])
+
+    def test_folder(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            'b/1.md',
+            '... | *.md',  # doesn't match anything
+            'b/2.md',
+            '... | a',  # doesn't match anything
+            'b/3.md',
+            '... | a/*.md'
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('1', '/b/1'),
+            ('2', '/b/2'),
+            ('3', '/b/3'),
+            ('A', [
+                ('1', '/a/1'),
+                ('2', '/a/2'),
+                ('3', '/a/3')
+            ])
+        ])
+
+    def test_nested(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '... | **/1.md',
+            {'2': [
+                '... | a/**/2.md'
+            ]},
+            {'Rest': [
+                '...'
+            ]}
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md',
+                ('aa', [
+                    '1.md',
+                    '2.md'
+                ])
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ], dummy_pages=False)
+
+        self.assertEqual(navigation, [
+            ('A', [
+                ('1', '/a/1'),
+                ('Aa', [
+                    ('1', '/a/aa/1')
+                ])
+            ]),
+            ('B', [
+                ('1', '/b/1')
+            ]),
+            ('2', [
+                ('A', [
+                    ('2', '/a/2'),
+                    ('Aa', [
+                        ('2', '/a/aa/2')
+                    ])
+                ])
+            ]),
+            ('Rest', [
+                ('A', [
+                    ('3', '/a/3')
+                ]),
+                ('B', [
+                    ('2', '/b/2'),
+                    ('3', '/b/3')
+                ])
+            ])
+        ])
+
+    def test_precedence(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '...',
+            {'1': [
+                '... | 1*.md'
+            ]},
+            '... | *[ab].md'
+        ]), [
+            '1.md',
+            '1a.md',
+            '1b.md',
+            '2.md',
+            '2a.md',
+            '2b.md'
+        ], dummy_pages=False)
+
+        self.assertEqual(navigation, [
+            ('2', '/2'),
+            ('1', [
+                ('1', '/1'),
+                ('1a', '/1a'),
+                ('1b', '/1b')
+            ]),
+            ('2a', '/2a'),
+            ('2b', '/2b')
+        ])
+
+    def test_duplicate_pattern(self):
+        with self.assertRaises(DuplicateRestItemError):
+            self.mkdocs(self.createConfig(mkdocs_nav=[
+                '... | a*.md',
+                '1.md',
+                '... | a*.md'
+            ]), [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+
+
+class TestMkdocsNavRestRegex(E2ETestCase):
+
+    def test_pattern_only(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '2a.md',
+            r'... | regex=.+a\.md'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '2a.md',
+            '3a.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('2a', '/2a'),
+            ('1a', '/1a'),
+            ('3a', '/3a')
+        ])
+
+    def test_pattern_and_rest(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            r'... | regex=.+a\.md',
+            '2a.md',
+            '...'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '2a.md',
+            '3a.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('1a', '/1a'),
+            ('3a', '/3a'),
+            ('2a', '/2a'),
+            ('1b', '/1b')
+        ])
+
+    def test_multiple_patterns(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '1c.md',
+            r'... | regex=.+a\.md',
+            '2c.md',
+            r'... | regex=.+b\.md'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '1c.md',
+            '2a.md',
+            '2b.md',
+            '2c.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('1c', '/1c'),
+            ('1a', '/1a'),
+            ('2a', '/2a'),
+            ('2c', '/2c'),
+            ('1b', '/1b'),
+            ('2b', '/2b')
+        ])
+
+    def test_overlapping_patterns(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            r'... | regex=.+a\.md',
+            '1c.md',
+            r'... | regex=2.+\.md'
+        ]), [
+            '1a.md',
+            '1b.md',
+            '1c.md',
+            '2a.md',
+            '2b.md',
+            '2c.md'
+        ])
+
+        self.assertEqual(navigation, [
+            ('1a', '/1a'),
+            ('2a', '/2a'),
+            ('1c', '/1c'),
+            ('2b', '/2b'),
+            ('2c', '/2c')
+        ])
+
+    def test_folder(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            'b/1.md',
+            r'... | regex=^\w+\.md$',  # doesn't match anything
+            'b/2.md',
+            r'... | regex=^\w+$',  # doesn't match anything
+            'b/3.md',
+            r'... | regex=^a/\w+\.md$'
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('1', '/b/1'),
+            ('2', '/b/2'),
+            ('3', '/b/3'),
+            ('A', [
+                ('1', '/a/1'),
+                ('2', '/a/2'),
+                ('3', '/a/3')
+            ])
+        ])
+
+    def test_nested(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            r'... | regex=^.*/1\.md$',
+            {'2': [
+                r'... | regex=^a/(.*/|)2\.md$'
+            ]},
+            {'Rest': [
+                '...'
+            ]}
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md',
+                ('aa', [
+                    '1.md',
+                    '2.md'
+                ])
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ], dummy_pages=False)
+
+        self.assertEqual(navigation, [
+            ('A', [
+                ('1', '/a/1'),
+                ('Aa', [
+                    ('1', '/a/aa/1')
+                ])
+            ]),
+            ('B', [
+                ('1', '/b/1')
+            ]),
+            ('2', [
+                ('A', [
+                    ('2', '/a/2'),
+                    ('Aa', [
+                        ('2', '/a/aa/2')
+                    ])
+                ])
+            ]),
+            ('Rest', [
+                ('A', [
+                    ('3', '/a/3')
+                ]),
+                ('B', [
+                    ('2', '/b/2'),
+                    ('3', '/b/3')
+                ])
+            ])
+        ])
+
+    def test_precedence(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '...',
+            {'1': [
+                r'... | regex=1\w*\.md'
+            ]},
+            r'... | regex=\w*[ab]\.md'
+        ]), [
+            '1.md',
+            '1a.md',
+            '1b.md',
+            '2.md',
+            '2a.md',
+            '2b.md'
+        ], dummy_pages=False)
+
+        self.assertEqual(navigation, [
+            ('2', '/2'),
+            ('1', [
+                ('1', '/1'),
+                ('1a', '/1a'),
+                ('1b', '/1b')
+            ]),
+            ('2a', '/2a'),
+            ('2b', '/2b')
+        ])
+
+    def test_duplicate_pattern(self):
+        with self.assertRaises(DuplicateRestItemError):
+            self.mkdocs(self.createConfig(mkdocs_nav=[
+                r'... | regex=a.+\.md',
+                '1.md',
+                r'... | regex=a.+\.md'
+            ]), [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])

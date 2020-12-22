@@ -6,7 +6,7 @@ from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, 
     _add_parent_links, _add_previous_and_next_links
 from mkdocs.structure.pages import Page
 
-from .meta import Meta
+from .meta import Meta, MetaNavRestItem, RestItemList
 from .options import Options
 from .utils import dirname, basename, join_paths
 
@@ -83,11 +83,12 @@ class AwesomeNavigation:
         items_by_basename = {basename(self._get_item_path(item)): item for item in items}
 
         result = []
-        rest_index = None
+        rest_items = RestItemList()
 
         for index, meta_item in enumerate(meta.nav):
-            if meta_item == Meta.NAV_REST_TOKEN:
-                rest_index = index
+            if isinstance(meta_item, MetaNavRestItem):
+                rest_items.append(meta_item)
+                result.append(meta_item)
             else:
                 if meta_item.value in items_by_basename:
                     item = items_by_basename[meta_item.value]
@@ -105,8 +106,20 @@ class AwesomeNavigation:
                     else:
                         warnings.warn(warning)
 
-        if rest_index is not None:
-            result[rest_index:rest_index] = [item for item in items if item not in result]
+        if rest_items:
+            rest = {rest_item: [] for rest_item in rest_items}
+
+            for item in items:
+                if item not in result:
+                    path = basename(self._get_item_path(item))
+                    for rest_item in rest_items:
+                        if rest_item.matches(path):
+                            rest[rest_item].append(item)
+                            break
+
+            for index, item in enumerate(result):
+                if isinstance(item, MetaNavRestItem):
+                    result[index:index + 1] = rest[item]
 
         return result
 

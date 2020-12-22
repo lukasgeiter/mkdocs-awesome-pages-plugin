@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from ..meta import Meta, DuplicateRestTokenError, MetaNavItem
+from ..meta import Meta, DuplicateRestItemError, MetaNavItem, MetaNavRestItem
 from .file_mock import FileMock
 
 
@@ -39,7 +39,7 @@ class TestLoadFrom(TestCase):
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
             MetaNavItem('1.md'),
-            Meta.NAV_REST_TOKEN
+            MetaNavRestItem('...')
         ])
 
     def test_arrange_rest_token(self, file_mock: FileMock):
@@ -55,7 +55,7 @@ class TestLoadFrom(TestCase):
         self.assertIsNone(meta.title)
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
-            Meta.NAV_REST_TOKEN,
+            MetaNavRestItem('...'),
             MetaNavItem('1.md')
         ])
 
@@ -73,7 +73,7 @@ class TestLoadFrom(TestCase):
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
             MetaNavItem('1.md'),
-            Meta.NAV_REST_TOKEN
+            MetaNavRestItem('...')
         ])
 
     def test_arrange_and_nav(self, file_mock: FileMock):
@@ -144,7 +144,7 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from('.pages')
         self.assertEqual(meta.nav, [
             MetaNavItem('2.md'),
-            Meta.NAV_REST_TOKEN,
+            MetaNavRestItem('...'),
             MetaNavItem('1.md', 'One')
         ])
 
@@ -198,7 +198,7 @@ class TestLoadFrom(TestCase):
             '  - ...\n'
         )
 
-        with self.assertRaises(DuplicateRestTokenError):
+        with self.assertRaises(DuplicateRestItemError):
             Meta.load_from('.pages')
 
     def test_invalid_collapse_type(self, file_mock: FileMock):
@@ -287,7 +287,18 @@ class TestLoadFrom(TestCase):
             '  - ...\n'
         )
 
-        with self.assertRaises(DuplicateRestTokenError):
+        with self.assertRaises(DuplicateRestItemError):
+            Meta.load_from('.pages')
+
+    def test_duplicate_nav_rest_pattern_glob(self, file_mock: FileMock):
+        file_mock['.pages'].read_data = (
+            'nav:\n'
+            '  - ... | a*.md\n'
+            '  - 1.md\n'
+            '  - ... | a*.md\n'
+        )
+
+        with self.assertRaises(DuplicateRestItemError):
             Meta.load_from('.pages')
 
     def test_file_not_found(self, file_mock: FileMock):
