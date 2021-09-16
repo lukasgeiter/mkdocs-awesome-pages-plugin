@@ -11,7 +11,7 @@ class TestCollapseGlobalDisabled(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section', [
-                ('Page', 'section/page')
+                ('Page', '/section/page')
             ])
         ])
 
@@ -30,7 +30,7 @@ class TestCollapseGlobalDisabled(E2ETestCase):
         self.assertEqual(navigation, [
             ('A', [
                 ('C', [
-                    ('Page', 'a/b/c/page')
+                    ('Page', '/a/b/c/page')
                 ])
             ])
         ])
@@ -49,7 +49,7 @@ class TestCollapseGlobalDisabled(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('A', [
-                ('Page', 'a/b/c/page')
+                ('Page', '/a/b/c/page')
             ])
         ])
 
@@ -68,7 +68,7 @@ class TestCollapseGlobalDisabled(E2ETestCase):
         self.assertEqual(navigation, [
             ('A', [
                 ('B', [
-                    ('Page', 'a/b/c/page')
+                    ('Page', '/a/b/c/page')
                 ])
             ])
         ])
@@ -92,7 +92,7 @@ class TestCollapseGlobalDisabled(E2ETestCase):
         self.assertEqual(navigation, [
             ('A', [
                 ('C', [
-                    ('1', 'a/b/c/1')
+                    ('1', '/a/b/c/1')
                 ])
             ])
         ])
@@ -111,7 +111,7 @@ class TestCollapseGlobalEnabled(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Page', 'section/page')
+            ('Page', '/section/page')
         ])
 
     def test_deep(self):
@@ -126,7 +126,7 @@ class TestCollapseGlobalEnabled(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Page', 'a/b/c/page')
+            ('Page', '/a/b/c/page')
         ])
 
     def test_override_local(self):
@@ -143,7 +143,7 @@ class TestCollapseGlobalEnabled(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('B', [
-                ('Page', 'a/b/c/page')
+                ('Page', '/a/b/c/page')
             ])
         ])
 
@@ -162,7 +162,7 @@ class TestCollapseGlobalEnabled(E2ETestCase):
         self.assertEqual(navigation, [
             ('B', [
                 ('C', [
-                    ('Page', 'a/b/c/page')
+                    ('Page', '/a/b/c/page')
                 ])
             ])
         ])
@@ -176,7 +176,7 @@ class TestCollapseGlobalEnabled(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Page', 'section/page')
+            ('Page', '/section/page')
         ])
 
     def test_links(self):
@@ -195,7 +195,7 @@ class TestCollapseGlobalEnabled(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section', [
-                ('Page', 'section/page'),
+                ('Page', '/section/page'),
                 ('Link', 'https://example.com')
             ])
         ])
@@ -216,8 +216,8 @@ class TestCollapseGlobalEnabled(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section', [
-                ('Page', 'section/page'),
-                ('Page', 'section/page')
+                ('Page', '/section/page'),
+                ('Page', '/section/page')
             ])
         ])
 
@@ -237,5 +237,5 @@ class TestCollapseGlobalEnabled(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('1', 'a/b/c/1')
+            ('1', '/a/b/c/1')
         ])

@@ -2,7 +2,7 @@ from typing import Optional
 from unittest import TestCase
 
 from .base import NavigationTestCase
-from ...meta import Meta
+from ...meta import Meta, MetaNavRestItem, RestType
 from ...navigation import NavigationMeta
 from ...options import Options
 from ...utils import normpath
@@ -55,7 +55,6 @@ class TestMeta(NavigationTestCase):
 
         self.assertEqual(actual.collapse_single_pages, expected.collapse_single_pages)
         self.assertEqual(actual.collapse, expected.collapse)
-        self.assertEqual(actual.arrange, expected.arrange)
         self.assertEqual(actual.title, expected.title)
         self.assertEqual(normpath(actual.path), normpath(expected.path))
 
@@ -67,7 +66,7 @@ class TestMeta(NavigationTestCase):
         self.options = Options(filename='.pages', collapse_single_pages=False, strict=True)
 
     def test_empty(self):
-        meta = NavigationMeta([], self.options)
+        meta = NavigationMeta([], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 0)
         self.assertEmptyMeta(meta.root)
@@ -75,7 +74,7 @@ class TestMeta(NavigationTestCase):
     def test_page_in_root(self):
         meta = NavigationMeta([
             self.page('Page', 'page.md')
-        ], self.options)
+        ], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 0)
         self.assertMeta(meta.root, path='.pages')
@@ -84,7 +83,7 @@ class TestMeta(NavigationTestCase):
         section = self.section('Section', [])
         meta = NavigationMeta([
             section
-        ], self.options)
+        ], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
@@ -96,7 +95,7 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], self.options)
+        ], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path='section/.pages')
@@ -117,18 +116,18 @@ class TestMeta(NavigationTestCase):
         meta = NavigationMeta([
             a,
             c
-        ], self.options)
+        ], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 5)
 
         self.assertMeta(meta.sections[a], path='a/.pages')
         self.assertMeta(meta.sections[b], path='a/b/.pages')
 
-        self.assertEmptyMeta(meta.sections[c])
+        self.assertMeta(meta.sections[c], path='c/.pages')
         self.assertEmptyMeta(meta.sections[d])
         self.assertMeta(meta.sections[e], path='c/e/.pages')
 
-        self.assertEmptyMeta(meta.root)
+        self.assertMeta(meta.root, path='.pages')
 
     def test_filename_option(self):
         section = self.section('Section', [
@@ -136,7 +135,7 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], Options(filename='.index', collapse_single_pages=False, strict=True))
+        ], Options(filename='.index', collapse_single_pages=False, strict=True), docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path='section/.index')
@@ -146,7 +145,7 @@ class TestMeta(NavigationTestCase):
         meta = NavigationMeta([
             self.page('Page', 'page.md'),
             self.link('Link')
-        ], self.options)
+        ], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 0)
         self.assertMeta(meta.root, path='.pages')
@@ -158,8 +157,92 @@ class TestMeta(NavigationTestCase):
         ])
         meta = NavigationMeta([
             section
-        ], self.options)
+        ], self.options, docs_dir='', explicit_sections=set())
 
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
         self.assertEmptyMeta(meta.root)
+
+    def test_path_outside_docs(self):
+        meta = NavigationMeta([
+            self.page('Page', 'page.md', docs_dir='/docs'),
+            self.page('Outside', '/outside', docs_dir='/docs')
+        ], self.options, docs_dir='/docs', explicit_sections=set())
+
+        self.assertEqual(len(meta.sections), 0)
+        self.assertMeta(meta.root, path='/docs/.pages')
+
+
+class TestRestParsing(NavigationTestCase):
+
+    def test_all(self):
+        item = MetaNavRestItem('...')
+
+        self.assertIsNone(item.pattern)
+        self.assertEqual(item.type, RestType.ALL)
+
+    def test_glob_implicit(self):
+        item = MetaNavRestItem('...|foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_implicit_spaces(self):
+        item = MetaNavRestItem('... | foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_implicit_trailing_space(self):
+        item = MetaNavRestItem('... | foo ')
+
+        self.assertEqual(item.pattern, 'foo ')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit(self):
+        item = MetaNavRestItem('...|glob=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit_spaces(self):
+        item = MetaNavRestItem('... | glob=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit_trailing_space(self):
+        item = MetaNavRestItem('... | glob=foo ')
+
+        self.assertEqual(item.pattern, 'foo ')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_glob_explicit_leading_space(self):
+        item = MetaNavRestItem('... | glob= foo')
+
+        self.assertEqual(item.pattern, ' foo')
+        self.assertEqual(item.type, RestType.GLOB)
+
+    def test_regex(self):
+        item = MetaNavRestItem('...|regex=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.REGEX)
+
+    def test_regex_spaces(self):
+        item = MetaNavRestItem('... | regex=foo')
+
+        self.assertEqual(item.pattern, 'foo')
+        self.assertEqual(item.type, RestType.REGEX)
+
+    def test_regex_trailing_space(self):
+        item = MetaNavRestItem('... | regex=foo ')
+
+        self.assertEqual(item.pattern, 'foo ')
+        self.assertEqual(item.type, RestType.REGEX)
+
+    def test_regex_leading_space(self):
+        item = MetaNavRestItem('... | regex= foo')
+
+        self.assertEqual(item.pattern, ' foo')
+        self.assertEqual(item.type, RestType.REGEX)

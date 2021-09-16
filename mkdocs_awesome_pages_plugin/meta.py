@@ -1,30 +1,127 @@
+import collections
+import re
+from enum import Enum
+from pathlib import PurePath
+from typing import Optional, List, Union, Any, Iterator
+
 import yaml
-from typing import Optional, List
+from wcmatch import glob
 
 
-class DuplicateRestTokenError(Exception):
-    def __init__(self, context: str):
-        super().__init__('Arrange rest token "..." is only allowed once [{context}]'.format(context=context))
+class DuplicateRestItemError(Exception):
+    def __init__(self, item: str, context: str):
+        super().__init__('Duplicate rest entry "{item}" [{context}]'.format(context=context, item=item))
+
+
+class MetaNavItem:
+
+    def __init__(self, value: str, title: Optional[str] = None):
+        self.value = value
+        self.title = title
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, MetaNavItem) and self.value == other.value and self.title == other.title
+
+    def __hash__(self):
+        return hash((self.value, self.title))
+
+    @staticmethod
+    def from_yaml(item: Union[str, dict], context: str):
+        if MetaNavRestItem.is_rest(item):
+            return MetaNavRestItem(item)
+
+        if isinstance(item, str):
+            return MetaNavItem(item)
+
+        if isinstance(item, dict) and len(item) == 1:
+            (title, value) = list(item.items())[0]
+            if isinstance(value, str) and isinstance(title, str):
+                return MetaNavItem(value, title)
+
+        raise TypeError('Invalid nav item format {type} [{context}]'.format(type=item, context=context))
+
+
+class RestType(Enum):
+    GLOB = 'glob'
+    REGEX = 'regex'
+    ALL = 'all'
+
+
+class MetaNavRestItem(MetaNavItem):
+
+    _REGEX = r'^\.{3}\s*\|\s*(?:(regex|glob)=)?(.*)'
+
+    def __init__(self, value: str):
+        super().__init__(value)
+
+        match = re.search(self._REGEX, value)
+        if match:
+            self.type = RestType.GLOB if match.group(1) is None else RestType(match.group(1))
+            self.pattern = match.group(2)
+        else:
+            self.type = RestType.ALL
+            self.pattern = None
+
+    def matches(self, path: Optional[str]) -> bool:
+        if self.type == RestType.GLOB:
+            return path is not None and glob.globmatch(path, self.pattern, flags=glob.GLOBSTAR)
+        elif self.type == RestType.REGEX:
+            return path is not None and re.search(self.pattern, PurePath(path).as_posix()) is not None
+        else:
+            return True
+
+    @staticmethod
+    def is_rest(item: Any) -> bool:
+        return isinstance(item, str) and (item == '...' or re.search(MetaNavRestItem._REGEX, item))
+
+
+class RestItemList(collections.Iterable):
+    def __init__(self):
+        self.patterns = []
+        self.all = None
+
+    def append(self, item: MetaNavRestItem):
+        if item.type == RestType.ALL:
+            self.all = item
+        else:
+            self.patterns.append(item)
+
+    def __iter__(self) -> Iterator[MetaNavRestItem]:
+        yield from self.patterns
+        if self.all:
+            yield self.all
 
 
 class Meta:
 
     TITLE_ATTRIBUTE = 'title'
+    NAV_ATTRIBUTE = 'nav'
     ARRANGE_ATTRIBUTE = 'arrange'
     ARRANGE_REST_TOKEN = '...'
     COLLAPSE_ATTRIBUTE = 'collapse'
     COLLAPSE_SINGLE_PAGES_ATTRIBUTE = 'collapse_single_pages'
     HIDE_ATTRIBUTE = 'hide'
+    ORDER_ATTRIBUTE = 'order'
 
-    def __init__(self, *, title: Optional[str] = None, arrange: Optional[List[str]] = None, path: Optional[str] = None,
-                 collapse: bool = None, collapse_single_pages: bool = None, hide: bool = None):
+    ORDER_ASC = 'asc'
+    ORDER_DESC = 'desc'
+
+    def __init__(self, *, title: Optional[str] = None, arrange: Optional[List[str]] = None,
+                 nav: Optional[List[MetaNavItem]] = None, path: Optional[str] = None, collapse: bool = None,
+                 collapse_single_pages: bool = None, hide: bool = None, order: Optional[str] = None):
+
+        if nav is None and arrange is not None:
+            nav = [MetaNavItem.from_yaml(value, path) for value in arrange]
+            if MetaNavRestItem('...') not in nav:
+                nav.append(MetaNavRestItem('...'))
 
         self.title = title
-        self.arrange = arrange or []
+        self.nav = nav
         self.path = path
         self.collapse = collapse
         self.collapse_single_pages = collapse_single_pages
         self.hide = hide
+        self.order = order
 
     @staticmethod
     def try_load_from(path: Optional[str]) -> 'Meta':
@@ -41,9 +138,11 @@ class Meta:
             contents = yaml.safe_load(file) or {}
             title = contents.get(Meta.TITLE_ATTRIBUTE)
             arrange = contents.get(Meta.ARRANGE_ATTRIBUTE)
+            nav = contents.get(Meta.NAV_ATTRIBUTE)
             collapse = contents.get(Meta.COLLAPSE_ATTRIBUTE)
             collapse_single_pages = contents.get(Meta.COLLAPSE_SINGLE_PAGES_ATTRIBUTE)
             hide = contents.get(Meta.HIDE_ATTRIBUTE)
+            order = contents.get(Meta.ORDER_ATTRIBUTE)
 
             if title is not None:
                 if not isinstance(title, str):
@@ -62,7 +161,25 @@ class Meta:
                                 context=path)
                     )
                 if arrange.count(Meta.ARRANGE_REST_TOKEN) > 1:
-                    raise DuplicateRestTokenError(path)
+                    raise DuplicateRestItemError('...', path)
+
+            if nav is not None:
+                if not isinstance(nav, list):
+                    raise TypeError(
+                        'Expected "{attribute}" attribute to be a list - got {type} [{context}]'
+                        .format(attribute=Meta.NAV_ATTRIBUTE,
+                                type=type(nav),
+                                context=path)
+                    )
+
+                nav = [MetaNavItem.from_yaml(item, path) for item in nav]
+                checked = set()
+                for item in nav:
+                    if isinstance(item, MetaNavRestItem):
+                        if item in checked:
+                            raise DuplicateRestItemError(item.value, path)
+                        checked.add(item)
+
             if collapse is not None:
                 if not isinstance(collapse, bool):
                     raise TypeError(
@@ -87,6 +204,14 @@ class Meta:
                                 type=type(hide),
                                 context=path)
                     )
+            if order is not None:
+                if order != Meta.ORDER_ASC and order != Meta.ORDER_DESC:
+                    raise TypeError(
+                        'Expected "{attribute}" attribute to be either "desc" or "asc" - got "{order}" [{context}]'
+                        .format(attribute=Meta.ORDER_ATTRIBUTE,
+                                order=order,
+                                context=path)
+                    )
 
-            return Meta(title=title, arrange=arrange, path=path,
-                        collapse=collapse, collapse_single_pages=collapse_single_pages, hide=hide)
+            return Meta(title=title, arrange=arrange, nav=nav, path=path, collapse=collapse,
+                        collapse_single_pages=collapse_single_pages, hide=hide, order=order)

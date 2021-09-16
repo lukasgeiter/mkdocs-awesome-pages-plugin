@@ -1,5 +1,5 @@
 from .base import E2ETestCase
-from ...navigation import ArrangeEntryNotFound
+from ...navigation import NavEntryNotFound
 
 
 class TestArrange(E2ETestCase):
@@ -20,9 +20,9 @@ class TestArrange(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section', [
-                ('2', 'section/2'),
-                ('3', 'section/3'),
-                ('1', 'section/1')
+                ('2', '/section/2'),
+                ('3', '/section/3'),
+                ('1', '/section/1')
             ])
         ])
 
@@ -35,9 +35,9 @@ class TestArrange(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('Section', [
-                ('1', 'section/1'),
-                ('2', 'section/2'),
-                ('3', 'section/3')
+                ('1', '/section/1'),
+                ('2', '/section/2'),
+                ('3', '/section/3')
             ])
         ])
 
@@ -52,9 +52,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('3', '3'),
-            ('1', '1'),
-            ('2', '2')
+            ('3', '/3'),
+            ('1', '/1'),
+            ('2', '/2')
         ])
 
     def test_some_in_config(self):
@@ -66,9 +66,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('2', '2'),
-            ('1', '1'),
-            ('3', '3')
+            ('2', '/2'),
+            ('1', '/1'),
+            ('3', '/3')
         ])
 
     def test_rest_start(self):
@@ -81,9 +81,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('1', '1'),
-            ('3', '3'),
-            ('2', '2')
+            ('1', '/1'),
+            ('3', '/3'),
+            ('2', '/2')
         ])
 
     def test_rest_middle(self):
@@ -97,9 +97,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('2', '2'),
-            ('3', '3'),
-            ('1', '1')
+            ('2', '/2'),
+            ('3', '/3'),
+            ('1', '/1')
         ])
 
     def test_rest_end(self):
@@ -112,9 +112,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('2', '2'),
-            ('1', '1'),
-            ('3', '3')
+            ('2', '/2'),
+            ('1', '/1'),
+            ('3', '/3')
         ])
 
     def test_empty_rest(self):
@@ -129,9 +129,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('3', '3'),
-            ('2', '2'),
-            ('1', '1')
+            ('3', '/3'),
+            ('2', '/2'),
+            ('1', '/1')
         ])
 
     def test_only_rest(self):
@@ -143,9 +143,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('1', '1'),
-            ('2', '2'),
-            ('3', '3')
+            ('1', '/1'),
+            ('2', '/2'),
+            ('3', '/3')
         ])
 
     def test_sections(self):
@@ -169,15 +169,15 @@ class TestArrange(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('A', [
-                ('3', 'a/3'),
-                ('4', 'a/4')
+                ('3', '/a/3'),
+                ('4', '/a/4')
             ]),
-            ('1', '1'),
+            ('1', '/1'),
             ('B', [
-                ('5', 'b/5'),
-                ('6', 'b/6')
+                ('5', '/b/5'),
+                ('6', '/b/6')
             ]),
-            ('2', '2')
+            ('2', '/2')
         ])
 
     def test_deep(self):
@@ -207,14 +207,14 @@ class TestArrange(E2ETestCase):
 
         self.assertEqual(navigation, [
             ('B', [
-                ('5', 'b/5'),
-                ('4', 'b/4'),
-                ('6', 'b/6')
+                ('5', '/b/5'),
+                ('4', '/b/4'),
+                ('6', '/b/6')
             ]),
             ('A', [
-                ('2', 'a/2'),
-                ('3', 'a/3'),
-                ('1', 'a/1')
+                ('2', '/a/2'),
+                ('3', '/a/3'),
+                ('1', '/a/1')
             ])
         ])
 
@@ -233,9 +233,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Page 2', '2'),
+            ('Page 2', '/2'),
             ('Link 1', 'https://example.com'),
-            ('Page 1', '1'),
+            ('Page 1', '/1'),
             ('Link 2', 'https://example.com')
         ])
 
@@ -257,10 +257,10 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('3', 'b/3'),
+            ('3', '/b/3'),
             ('A', [
-                ('1', 'a/1'),
-                ('2', 'a/2')
+                ('1', '/a/1'),
+                ('2', '/a/2')
             ])
         ])
 
@@ -279,11 +279,11 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('2', '2'),
-            ('2', '2'),
-            ('3', '3'),
-            ('1', '1'),
-            ('3', '3')
+            ('2', '/2'),
+            ('2', '/2'),
+            ('3', '/3'),
+            ('1', '/1'),
+            ('3', '/3')
         ])
 
     def test_duplicate_entry(self):
@@ -302,10 +302,9 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('2', '2'),
-            ('1', '1'),
-            ('1', '1'),
-            ('3', '3')
+            ('2', '/2'),
+            ('1', '/1'),
+            ('3', '/3')
         ])
 
     def test_duplicate_config_entry(self):
@@ -319,14 +318,14 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('1', '1'),
-            ('2', '2'),
-            ('1', '1'),
-            ('3', '3')
+            ('1', '/1'),
+            ('2', '/2'),
+            ('1', '/1'),
+            ('3', '/3')
         ])
 
     def test_entry_not_found(self):
-        with self.assertRaises(ArrangeEntryNotFound):
+        with self.assertRaises(NavEntryNotFound):
             self.mkdocs(self.config, [
                 *self.pages123,
                 self.pagesFile(arrange=[
@@ -338,7 +337,7 @@ class TestArrange(E2ETestCase):
             ])
 
     def test_entry_not_found_strict(self):
-        with self.assertRaises(ArrangeEntryNotFound):
+        with self.assertRaises(NavEntryNotFound):
             self.mkdocs(self.createConfig(strict=True), [
                 *self.pages123,
                 self.pagesFile(arrange=[
@@ -350,7 +349,7 @@ class TestArrange(E2ETestCase):
             ])
 
     def test_entry_not_found_not_strict(self):
-        with self.assertWarns(ArrangeEntryNotFound):
+        with self.assertWarns(NavEntryNotFound):
             self.mkdocs(self.createConfig(strict=False), [
                 *self.pages123,
                 self.pagesFile(arrange=[
@@ -368,6 +367,6 @@ class TestArrange(E2ETestCase):
         ])
 
         self.assertEqual(navigation, [
-            ('Home', ''),
-            ('Before index', 'before_index')
+            ('Home', '/'),
+            ('Before index', '/before_index')
         ])

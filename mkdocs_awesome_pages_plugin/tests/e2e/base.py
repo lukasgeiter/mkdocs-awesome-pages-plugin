@@ -19,14 +19,18 @@ class E2ETestCase(TestCase):
         self.config = self.createConfig()
 
     def pagesFile(self, title: Optional[str] = None, arrange: Optional[List[str]] = None,
-                  collapse: bool = None, collapse_single_pages: bool = None, hide: bool = None) -> Tuple[str, str]:
+                  nav: Optional[List[Union[str, dict]]] = None, collapse: bool = None,
+                  collapse_single_pages: bool = None, hide: bool = None,
+                  order: Optional[str] = None) -> Tuple[str, str]:
 
         data = self._removeDictNoneValues({
             'title': title,
             'arrange': arrange,
+            'nav': nav,
             'collapse': collapse,
             'collapse_single_pages': collapse_single_pages,
-            'hide': hide
+            'hide': hide,
+            'order': order
         })
 
         return '.pages', yaml.dump(data)
@@ -58,10 +62,11 @@ class E2ETestCase(TestCase):
             'nav': mkdocs_nav
         }
 
-    def mkdocs(self, config: dict, files: List[Union[str, Tuple[str, Union[str, list]]]]):
+    def mkdocs(self, config: dict, files: List[Union[str, Tuple[str, Union[str, list]]]], dummy_pages: bool = True):
         # mkdocs requires a minimum amount of top-level items to render the navigation properly
         # ensure that this requirement is met by adding dummy pages
-        self._addDummyPages(files, self.MIN_ROOT_ITEMS)
+        if dummy_pages:
+            self._addDummyPages(files, self.MIN_ROOT_ITEMS)
 
         with tempfile.TemporaryDirectory() as temp_directory, cd(temp_directory):
             self._writeToFile('mkdocs.yml', yaml.dump(config))
@@ -78,7 +83,8 @@ class E2ETestCase(TestCase):
             # extract from 404 page because it's always generated and contains the navigation as well
             nav = self._extractNav('dist/404.html')
             # filter out dummy pages
-            return [item for item in nav if not (isinstance(item[1], str) and item[1].startswith(self.DUMMY_NAME))]
+            return [item for item in nav
+                    if not (isinstance(item[1], str) and item[1].startswith('/' + self.DUMMY_NAME))]
 
     def _addDummyPages(self, items: list, number_of_pages: int):
         items.extend(['{}{}.md'.format(self.DUMMY_NAME, i) for i in range(number_of_pages)])
@@ -129,10 +135,10 @@ class E2ETestCase(TestCase):
             if li.has_attr('class') and ('dropdown' in li['class'] or 'dropdown-submenu' in li['class']):
                 contents = self._parseNav(li.find('ul'))
             else:
-                contents = li.a['href'].strip('/')
-                if contents == '.':
+                contents = li.a['href'].rstrip('/')
+                if contents == '/.':
                     # normalize index url
-                    contents = ''
+                    contents = '/'
 
             pages.append(
                 (li.a.text.strip(), contents)

@@ -1,12 +1,12 @@
 import warnings
-from typing import List, Optional, Union, Dict
+from pathlib import Path
+from typing import List, Optional, Union, Set
 
 from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
-    _get_by_type, _add_parent_links, _add_previous_and_next_links
+    _add_parent_links, _add_previous_and_next_links
 from mkdocs.structure.pages import Page
 
-from .arrange import arrange, InvalidArrangeEntry
-from .meta import Meta
+from .meta import Meta, MetaNavRestItem, RestItemList
 from .options import Options
 from .utils import dirname, basename, join_paths
 
@@ -16,9 +16,9 @@ from mkdocs.utils import meta as mkdocs_meta
 NavigationItem = Union[Page, Section, Link]
 
 
-class ArrangeEntryNotFound(Warning):
+class NavEntryNotFound(Warning):
     def __init__(self, entry: str, context: str):
-        super().__init__('Arrange entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
+        super().__init__('Nav entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
 
 
 class TitleInRootHasNoEffect(Warning):
@@ -39,12 +39,14 @@ class HideInRootHasNoEffect(Warning):
 
 class AwesomeNavigation:
 
-    def __init__(self, navigation: MkDocsNavigation, options: Options):
+    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str, explicit_sections: Set[Section]):
         self.options = options
         self.Allpages = []
         self.maximum_file_homepage = int(float(options.maximum_file_homepage))
         self.maximum_days_ahead = int(float(options.maximum_days_ahead))
-        self.meta = NavigationMeta(navigation.items, options)
+        self.explicit_sections = explicit_sections
+
+        self.meta = NavigationMeta(items, options, docs_dir, explicit_sections)
 
         if self.meta.root.title is not None:
             warnings.warn(TitleInRootHasNoEffect(self.options.filename))
@@ -53,13 +55,15 @@ class AwesomeNavigation:
             warnings.warn(HideInRootHasNoEffect(self.options.filename))
 
         self.items = self._process_children(
-            navigation.items,
+            items,
             self.options.collapse_single_pages,
             self.meta.root
         )
 
     def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
-        children = self._arrange_items(children, meta)
+        self._order(children, meta)
+        children = self._nav(children, meta)
+
         result = []
 
         for item in children:
@@ -71,17 +75,59 @@ class AwesomeNavigation:
 
         return result
 
-    def _arrange_items(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
-        if meta.arrange is not None:
-            try:
-                return arrange(items, meta.arrange, lambda item: basename(self._get_item_path(item)))
-            except InvalidArrangeEntry as e:
-                warning = ArrangeEntryNotFound(e.value, meta.path)
-                if self.options.strict:
-                    raise warning
+    def _order(self, items: List[NavigationItem], meta: Meta):
+        if meta.order is not None:
+            items.sort(
+                key=lambda i: basename(self._get_item_path(i)),
+                reverse=meta.order == Meta.ORDER_DESC
+            )
+
+    def _nav(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
+        if meta.nav is None:
+            return items
+
+        items_by_basename = {basename(self._get_item_path(item)): item for item in items}
+
+        result = []
+        rest_items = RestItemList()
+
+        for index, meta_item in enumerate(meta.nav):
+            if isinstance(meta_item, MetaNavRestItem):
+                rest_items.append(meta_item)
+                result.append(meta_item)
+            else:
+                if meta_item.value in items_by_basename:
+                    item = items_by_basename[meta_item.value]
+                    if meta_item.title is not None:
+                        item.title = meta_item.title
+                    result.append(item)
+
+                elif meta_item.title is not None:
+                    result.append(Link(meta_item.title, meta_item.value))
+
                 else:
-                    warnings.warn(warning)
-        return items
+                    warning = NavEntryNotFound(meta_item.value, meta.path)
+                    if self.options.strict:
+                        raise warning
+                    else:
+                        warnings.warn(warning)
+
+        if rest_items:
+            rest = {rest_item: [] for rest_item in rest_items}
+
+            for item in items:
+                if item not in result:
+                    path = basename(self._get_item_path(item))
+                    for rest_item in rest_items:
+                        if rest_item.matches(path):
+                            rest[rest_item].append(item)
+                            break
+
+            for index, item in enumerate(result):
+                if isinstance(item, MetaNavRestItem):
+                    result[index:index + 1] = rest[item]
+
+        return result
 
     def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:
         meta = self.meta.sections[section]
@@ -95,6 +141,9 @@ class AwesomeNavigation:
         self._set_title(section, meta)
 
         section.children = self._process_children(section.children, collapse_recursive, meta)
+
+        if section in self.explicit_sections:
+            return section
 
         if not section.children:
             return None
@@ -128,7 +177,7 @@ class AwesomeNavigation:
         _, page_.meta = mkdocs_meta.get_data(source)
 
     def to_mkdocs(self) -> MkDocsNavigation:
-        pages = _get_by_type(self.items, Page)
+        pages = get_by_type(self.items, Page)
         _add_previous_and_next_links(pages)
         _add_parent_links(self.items)
 
@@ -171,9 +220,11 @@ class AwesomeNavigation:
 
 class NavigationMeta:
 
-    def __init__(self, items: List[NavigationItem], options: Options):
+    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str, explicit_sections: Set[Section]):
         self.options = options
         self.sections = {}
+        self.docs_dir = docs_dir
+        self.explicit_sections = explicit_sections
 
         root_path = self._gather_metadata(items)
         self.root = Meta.try_load_from(join_paths(root_path, self.options.filename))
@@ -182,11 +233,16 @@ class NavigationMeta:
         paths = []
         for item in items:
             if isinstance(item, Page):
-                paths.append(item.file.abs_src_path)
+                if Path(self.docs_dir) in Path(item.file.abs_src_path).parents:
+                    paths.append(item.file.abs_src_path)
             elif isinstance(item, Section):
                 section_dir = self._gather_metadata(item.children)
-                paths.append(section_dir)
-                self.sections[item] = Meta.try_load_from(join_paths(section_dir, self.options.filename))
+                if item in self.explicit_sections:
+                    self.sections[item] = Meta()
+                else:
+                    if section_dir is not None:
+                        paths.append(section_dir)
+                    self.sections[item] = Meta.try_load_from(join_paths(section_dir, self.options.filename))
 
         return self._common_dirname(paths)
 
@@ -196,3 +252,15 @@ class NavigationMeta:
             dirnames = [dirname(path) for path in paths]
             if len(set(dirnames)) == 1:
                 return dirnames[0]
+
+
+# Copy of mkdocs.structure.nav._get_by_type with fix for nested sections
+# PR: https://github.com/mkdocs/mkdocs/pull/2203
+def get_by_type(nav, T):
+    ret = []
+    for item in nav:
+        if isinstance(item, T):
+            ret.append(item)
+        if item.children:
+            ret.extend(get_by_type(item.children, T))
+    return ret
