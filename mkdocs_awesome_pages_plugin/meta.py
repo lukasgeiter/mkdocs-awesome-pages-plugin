@@ -1,4 +1,7 @@
-import collections
+try:
+    import collections.abc as collectionsAbc  # python 3.6+
+except ImportError:
+    import collections as collectionsAbc    # python 3.9-
 import re
 from enum import Enum
 from pathlib import PurePath
@@ -75,7 +78,7 @@ class MetaNavRestItem(MetaNavItem):
         return isinstance(item, str) and (item == '...' or re.search(MetaNavRestItem._REGEX, item))
 
 
-class RestItemList(collections.Iterable):
+class RestItemList(collectionsAbc.Iterable):
     def __init__(self):
         self.patterns = []
         self.all = None
