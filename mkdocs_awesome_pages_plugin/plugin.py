@@ -84,7 +84,10 @@ class AwesomePagesPlugin(BasePlugin):
                 child_result = self._generate_rest_blocks(item.children, exclude_files)
                 for rest_item, children in child_result.items():
                     if children:
-                        result[rest_item].append(Section(item.title, children))
+                        if rest_item.flat:
+                            result[rest_item].extend(children)
+                        else:
+                            result[rest_item].append(Section(item.title, children))
         return result
 
     def _insert_rest(self, items):

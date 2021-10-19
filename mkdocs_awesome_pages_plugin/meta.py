@@ -49,18 +49,21 @@ class RestType(Enum):
 
 class MetaNavRestItem(MetaNavItem):
 
-    _REGEX = r'^\.{3}\s*\|\s*(?:(regex|glob)=)?(.*)'
+    _REGEX = r'^\.{3}\s*(?:\|\s*(flat)\s*)?\s*(?:\|\s*(?:(regex|glob)=)?(.*))?'
 
     def __init__(self, value: str):
         super().__init__(value)
 
         match = re.search(self._REGEX, value)
-        if match:
-            self.type = RestType.GLOB if match.group(1) is None else RestType(match.group(1))
-            self.pattern = match.group(2)
+        if match.group(2) is not None:
+            self.type = RestType(match.group(2))
+        elif match.group(3) is not None:
+            self.type = RestType.GLOB
         else:
             self.type = RestType.ALL
-            self.pattern = None
+
+        self.pattern = match.group(3)
+        self.flat = match.group(1) is not None
 
     def matches(self, path: Optional[str]) -> bool:
         if self.type == RestType.GLOB:
@@ -72,7 +75,7 @@ class MetaNavRestItem(MetaNavItem):
 
     @staticmethod
     def is_rest(item: Any) -> bool:
-        return isinstance(item, str) and (item == '...' or re.search(MetaNavRestItem._REGEX, item))
+        return isinstance(item, str) and re.search(MetaNavRestItem._REGEX, item)
 
 
 class RestItemList(collections.abc.Iterable):

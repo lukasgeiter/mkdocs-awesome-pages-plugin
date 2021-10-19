@@ -290,6 +290,24 @@ With the following result:
 
 For more details refer to the [Rest Filter Patterns](#rest-filter-patterns) section below.
 
+By default, remaining items keep their hierarchical structure. You may add `flat` to flatten all the matching pages:
+
+```yaml
+nav:
+    - page1.md
+    - Rest:
+        - ... | flat | **/introduction.md
+        - ... | flat
+```
+
+- Page 1
+- Rest
+    - Introduction
+    - Introduction
+    - Page 2
+    - Page 3
+    - Page 4
+
 <br/>
 
 ## Rest Filter Patterns

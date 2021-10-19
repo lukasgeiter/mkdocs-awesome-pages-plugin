@@ -642,6 +642,38 @@ class TestMkdocsNavRest(E2ETestCase):
             ('2', '/a/2')
         ])
 
+    def test_flat(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '... | flat',
+            {'C': [
+                'a/2.md',
+                'a/1.md',
+                'b/3.md'
+            ]}
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ])
+
+        self.assertEqual(navigation, [
+            ('3', '/a/3'),
+            ('1', '/b/1'),
+            ('2', '/b/2'),
+            ('C', [
+                ('2', '/a/2'),
+                ('1', '/a/1'),
+                ('3', '/b/3')
+            ])
+        ])
+
 
 class TestMkdocsNavRestGlob(E2ETestCase):
 
@@ -853,6 +885,47 @@ class TestMkdocsNavRestGlob(E2ETestCase):
                 '3.md'
             ])
 
+    def test_flat(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            '... | flat | **/1.md',
+            {'2': [
+                '... | flat | a/**/2.md'
+            ]},
+            {'Rest': [
+                '... | flat'
+            ]}
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md',
+                ('aa', [
+                    '1.md',
+                    '2.md'
+                ])
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ], dummy_pages=False)
+
+        self.assertEqual(navigation, [
+            ('1', '/a/1'),
+            ('1', '/a/aa/1'),
+            ('1', '/b/1'),
+            ('2', [
+                ('2', '/a/2'),
+                ('2', '/a/aa/2')
+            ]),
+            ('Rest', [
+                ('3', '/a/3'),
+                ('2', '/b/2'),
+                ('3', '/b/3')
+            ])
+        ])
+
 
 class TestMkdocsNavRestRegex(E2ETestCase):
 
@@ -1063,3 +1136,44 @@ class TestMkdocsNavRestRegex(E2ETestCase):
                 '2.md',
                 '3.md'
             ])
+
+    def test_flat(self):
+        navigation = self.mkdocs(self.createConfig(mkdocs_nav=[
+            r'... | flat | regex=^.*/1\.md$',
+            {'2': [
+                r'... | flat | regex=^a/(.*/|)2\.md$'
+            ]},
+            {'Rest': [
+                '... | flat'
+            ]}
+        ]), [
+            ('a', [
+                '1.md',
+                '2.md',
+                '3.md',
+                ('aa', [
+                    '1.md',
+                    '2.md'
+                ])
+            ]),
+            ('b', [
+                '1.md',
+                '2.md',
+                '3.md'
+            ])
+        ], dummy_pages=False)
+
+        self.assertEqual(navigation, [
+            ('1', '/a/1'),
+            ('1', '/a/aa/1'),
+            ('1', '/b/1'),
+            ('2', [
+                ('2', '/a/2'),
+                ('2', '/a/aa/2')
+            ]),
+            ('Rest', [
+                ('3', '/a/3'),
+                ('2', '/b/2'),
+                ('3', '/b/3')
+            ])
+        ])
