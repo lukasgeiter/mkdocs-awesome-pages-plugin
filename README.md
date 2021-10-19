@@ -37,7 +37,7 @@ More information about plugins in the [MkDocs documentation][mkdocs-plugins]
 
 ### Customize Navigation
 
-Create a YAML file named `.pages` in a directory and use the `nav` attribute to customize the navigation on that level. List the files and subdirectories in the order that they should appear in the navigation.
+Create a file named `.pages` in a directory and use the `nav` attribute to customize the navigation on that level. List the files and subdirectories in the order that they should appear in the navigation.
 
 ```yaml
 nav:
@@ -94,7 +94,7 @@ nav:
 
 ### Change Sort Order
 
-Create a YAML file named `.pages` in a directory and set the `order` attribute to `asc` or `desc` to change the order of navigation items.
+Create a file named `.pages` in a directory and set the `order` attribute to `asc` or `desc` to change the order of navigation items.
 
 ```yaml
 order: desc
@@ -139,7 +139,7 @@ Collapsing can be enabled globally using the [`collapse_single_pages` option](#c
 
 #### For a sub-section
 
-If you only want to collapse certain pages, create a YAML file called `.pages` in the directory and set `collapse_single_pages` to `true`:
+If you only want to collapse certain pages, create a file called `.pages` in the directory and set `collapse_single_pages` to `true`:
 
 ```yaml
 collapse_single_pages: true
@@ -151,7 +151,7 @@ You may also enable collapsing globally using the plugin option and then use the
 
 #### For a single page
 
-If you want to enable or disable collapsing of a single page, without applying the setting recursively, create a YAML file called `.pages` in the directory and set `collapse` to `true` or `false`:
+If you want to enable or disable collapsing of a single page, without applying the setting recursively, create a file called `.pages` in the directory and set `collapse` to `true` or `false`:
 
 ```yaml
 collapse: true
@@ -159,7 +159,7 @@ collapse: true
 
 ### Hide Directory
 
-Create a YAML file named `.pages` in a directory and set the `hide` attribute to `true` to hide the directory, including all sub-pages and sub-sections, from the navigation:
+Create a file named `.pages` in a directory and set the `hide` attribute to `true` to hide the directory, including all sub-pages and sub-sections, from the navigation:
 
 ```yaml
 hide: true
@@ -169,7 +169,7 @@ hide: true
 
 ### Set Directory Title
 
-Create a YAML file named `.pages` in a directory and set the `title` to override the title of that directory in the navigation:
+Create a file named `.pages` in a directory and set the `title` to override the title of that directory in the navigation:
 
 ```yaml
 title: Page Title
@@ -179,7 +179,7 @@ title: Page Title
 
 > **Deprecated:** `arrange` will be removed in the next major release - [Use `nav` instead](#customize-navigation).
 
-Create a YAML file named `.pages` in a directory and set the `arrange` attribute to change the order of how child pages appear in the navigation. This works for actual pages as well as subdirectories.
+Create a file named `.pages` in a directory and set the `arrange` attribute to change the order of how child pages appear in the navigation. This works for actual pages as well as subdirectories.
 
 ```yaml
 title: Page Title
