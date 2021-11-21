@@ -94,6 +94,9 @@ class RestItemList(collections.abc.Iterable):
         if self.all:
             yield self.all
 
+    def __len__(self):
+        return len(self.patterns) + (1 if self.all is not None else 0)
+
 
 class Meta:
 
