@@ -1,3 +1,4 @@
+import warnings
 from typing import List, Dict
 
 from mkdocs.config import config_options, Config
@@ -9,6 +10,15 @@ from mkdocs.structure.pages import Page
 from .meta import DuplicateRestItemError, MetaNavRestItem, RestItemList
 from .navigation import AwesomeNavigation, get_by_type, NavigationItem
 from .options import Options
+
+
+class NavPluginOrder(Warning):
+    def __init__(self, plugin_name: str):
+        super().__init__(
+            'The plugin "{plugin_name}" might not work correctly when placed before awesome-pages in the list of '
+            'plugins. It defines an on_nav handler that will be overridden by awesome-pages in some circumstances.'
+            .format(plugin_name=plugin_name)
+        )
 
 
 class AwesomePagesPlugin(BasePlugin):
@@ -45,6 +55,13 @@ class AwesomePagesPlugin(BasePlugin):
         return AwesomeNavigation(nav.items, Options(**self.config), config['docs_dir'], explicit_sections).to_mkdocs()
 
     def on_config(self, config: Config):
+        for name, plugin in config['plugins'].items():
+            if name == 'awesome-pages':
+                break
+            if hasattr(plugin, 'on_nav'):
+                warnings.warn(NavPluginOrder(name))
+
+
         if config['nav']:
             self._find_rest(config['nav'])
             if self.rest_items:
