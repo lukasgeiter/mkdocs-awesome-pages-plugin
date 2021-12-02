@@ -1,4 +1,4 @@
-# MkDocs Awesome Pages Plugin [![Build Status][travis-status]][travis-link]
+# MkDocs Awesome Pages Plugin [![Tests Status][status-tests-badge]][status-tests-link]
 
 *An MkDocs plugin that simplifies configuring page titles and their order*
 
@@ -383,8 +383,8 @@ From reporting a bug to submitting a pull request: every contribution is appreci
 Report bugs, ask questions and request features using [Github issues][github-issues].
 If you want to contribute to the code of this project, please read the [Contribution Guidelines][contributing].
 
-[travis-status]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin.svg?branch=master
-[travis-link]: https://travis-ci.org/lukasgeiter/mkdocs-awesome-pages-plugin
+[status-tests-badge]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/actions/workflows/tests.yml/badge.svg
+[status-tests-link]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/actions/workflows/tests.yml
 [mkdocs-plugins]: http://www.mkdocs.org/user-guide/plugins/
 [github-v1]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/tree/v1
 [github-issues]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues
