@@ -4,9 +4,12 @@ import warnings
 from typing import Optional, List, Tuple, Union, Dict
 from unittest import TestCase
 
-import pkg_resources
 import yaml
 from bs4 import BeautifulSoup
+from importlib_metadata import EntryPoint
+from mkdocs import plugins
+from mkdocs.commands.build import build
+from mkdocs.config import load_config
 
 from ...utils import cd
 
@@ -103,11 +106,7 @@ class E2ETestCase(TestCase):
                 self._createFiles(path, contents)
 
     def _mkdocsBuild(self, **options):
-        # register project with pkg_resources so mkdocs picks it up as a plugin (before mkdocs module import!)
-        self._registerPluginDist()
-
-        from mkdocs.commands.build import build
-        from mkdocs.config import load_config
+        self._patchGetPlugins()
 
         with warnings.catch_warnings():
             # ignore deprecation warnings within mkdocs
@@ -147,14 +146,19 @@ class E2ETestCase(TestCase):
         return pages
 
     @staticmethod
-    def _registerPluginDist():
-        distribution = pkg_resources.Distribution(__file__)
-        entry_point = pkg_resources.EntryPoint.parse(
-            'awesome-pages = mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin',
-            dist=distribution
-        )
-        distribution._ep_map = {'mkdocs.plugins': {'awesome-pages': entry_point}}
-        pkg_resources.working_set.add(distribution)
+    def _patchGetPlugins():
+        _original_get_plugins = plugins.get_plugins
+
+        def _patched_get_plugins():
+            result = _original_get_plugins()
+            result['awesome-pages'] = EntryPoint(
+                name='awesome-pages',
+                value='mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin',
+                group='mkdocs.plugins'
+            )
+            return result
+
+        plugins.get_plugins = _patched_get_plugins
 
     @staticmethod
     def _writeToFile(path: str, content: str):
