@@ -2,8 +2,13 @@ import warnings
 from pathlib import Path
 from typing import List, Optional, Union, Set
 
-from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
-    _add_parent_links, _add_previous_and_next_links
+from mkdocs.structure.nav import (
+    Navigation as MkDocsNavigation,
+    Section,
+    Link,
+    _add_parent_links,
+    _add_previous_and_next_links,
+)
 from mkdocs.structure.pages import Page
 
 from .meta import Meta, MetaNavRestItem, RestItemList
@@ -21,22 +26,25 @@ class NavEntryNotFound(Warning):
 class TitleInRootHasNoEffect(Warning):
     def __init__(self, filename: str):
         super().__init__(
-            'Using the "title" attribute in the {filename} file of the doc root has no effect'
-            .format(filename=filename)
+            'Using the "title" attribute in the {filename} file of the doc root has no effect'.format(filename=filename)
         )
 
 
 class HideInRootHasNoEffect(Warning):
     def __init__(self, filename: str):
         super().__init__(
-            'Using the "hide" attribute in the {filename} file of the doc root has no effect'
-            .format(filename=filename)
+            'Using the "hide" attribute in the {filename} file of the doc root has no effect'.format(filename=filename)
         )
 
 
 class AwesomeNavigation:
-
-    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str, explicit_sections: Set[Section]):
+    def __init__(
+        self,
+        items: List[NavigationItem],
+        options: Options,
+        docs_dir: str,
+        explicit_sections: Set[Section],
+    ):
         self.options = options
         self.explicit_sections = explicit_sections
 
@@ -48,11 +56,7 @@ class AwesomeNavigation:
         if self.meta.root.hide is not None:
             warnings.warn(HideInRootHasNoEffect(self.options.filename))
 
-        self.items = self._process_children(
-            items,
-            self.options.collapse_single_pages,
-            self.meta.root
-        )
+        self.items = self._process_children(items, self.options.collapse_single_pages, self.meta.root)
 
     def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
         self._order(children, meta)
@@ -73,7 +77,7 @@ class AwesomeNavigation:
         if meta.order is not None:
             items.sort(
                 key=lambda i: basename(self._get_item_path(i)),
-                reverse=meta.order == Meta.ORDER_DESC
+                reverse=meta.order == Meta.ORDER_DESC,
             )
 
     def _nav(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
@@ -119,7 +123,7 @@ class AwesomeNavigation:
 
             for index, item in enumerate(result):
                 if isinstance(item, MetaNavRestItem):
-                    result[index:index + 1] = rest[item]
+                    result[index : index + 1] = rest[item]
 
         return result
 
@@ -172,8 +176,13 @@ class AwesomeNavigation:
 
 
 class NavigationMeta:
-
-    def __init__(self, items: List[NavigationItem], options: Options, docs_dir: str, explicit_sections: Set[Section]):
+    def __init__(
+        self,
+        items: List[NavigationItem],
+        options: Options,
+        docs_dir: str,
+        explicit_sections: Set[Section],
+    ):
         self.options = options
         self.sections = {}
         self.docs_dir = docs_dir

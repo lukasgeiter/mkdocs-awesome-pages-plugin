@@ -3,8 +3,13 @@ from typing import List, Union, Optional
 from unittest import TestCase, mock
 
 from mkdocs.structure.files import File
-from mkdocs.structure.nav import Navigation as MkDocsNavigation, Section, Link, \
-    _add_parent_links, _add_previous_and_next_links
+from mkdocs.structure.nav import (
+    Navigation as MkDocsNavigation,
+    Section,
+    Link,
+    _add_parent_links,
+    _add_previous_and_next_links,
+)
 from mkdocs.structure.pages import Page
 
 from ...meta import Meta
@@ -19,10 +24,9 @@ class NavigationMetaMock:
 
 
 class NavigationTestCase(TestCase):
-
     @staticmethod
-    def page(title: str, path: Optional[str] = None, docs_dir: str = '') -> Page:
-        return Page(title, File(path or title + '.md', docs_dir, '', False), {})
+    def page(title: str, path: Optional[str] = None, docs_dir: str = "") -> Page:
+        return Page(title, File(path or title + ".md", docs_dir, "", False), {})
 
     @staticmethod
     def link(title: str, url: Optional[str] = None):
@@ -30,10 +34,15 @@ class NavigationTestCase(TestCase):
             url = title
         return Link(title, url)
 
-    def section(self, title: str, items: List[Union[NavigationItem, Meta]], path: Optional[str] = None) -> Section:
+    def section(
+        self,
+        title: str,
+        items: List[Union[NavigationItem, Meta]],
+        path: Optional[str] = None,
+    ) -> Section:
         children = []
         if path is not None:
-            path = os.path.join(path, '.pages')
+            path = os.path.join(path, ".pages")
         meta = Meta(path=path)
         for item in items:
             if isinstance(item, Meta):
@@ -45,8 +54,9 @@ class NavigationTestCase(TestCase):
         self.meta_mock.sections[section] = meta
         return section
 
-    def createAwesomeNavigation(self, items: List[NavigationItem], *,
-                                collapse_single_pages: bool = False, strict: bool = True) -> AwesomeNavigation:
+    def createAwesomeNavigation(
+        self, items: List[NavigationItem], *, collapse_single_pages: bool = False, strict: bool = True
+    ) -> AwesomeNavigation:
 
         children = []
         meta = None
@@ -61,9 +71,13 @@ class NavigationTestCase(TestCase):
 
         return AwesomeNavigation(
             children,
-            Options(filename='.pages', collapse_single_pages=collapse_single_pages, strict=strict),
-            docs_dir='',
-            explicit_sections=set()
+            Options(
+                filename=".pages",
+                collapse_single_pages=collapse_single_pages,
+                strict=strict,
+            ),
+            docs_dir="",
+            explicit_sections=set(),
         )
 
     def assertNavigationEqual(self, actual: List[NavigationItem], expected: List[NavigationItem]):
@@ -82,8 +96,9 @@ class NavigationTestCase(TestCase):
                 self.assertIsInstance(actual_item, Link)
                 self.assertEqual(actual_item.url, expected_item.url)
 
-    def assertValidNavigation(self, navigation: MkDocsNavigation, *,
-                              assert_previous_next: bool = True, assert_parent: bool = True):
+    def assertValidNavigation(
+        self, navigation: MkDocsNavigation, *, assert_previous_next: bool = True, assert_parent: bool = True
+    ):
 
         pages = get_by_type(navigation, Page)
 
@@ -91,20 +106,32 @@ class NavigationTestCase(TestCase):
             bookended = [None] + pages + [None]
             zipped = zip(bookended[:-2], bookended[1:-1], bookended[2:])
             for page0, page1, page2 in zipped:
-                self.assertEqual(page1.previous_page, page0, 'Incorrect previous_page reference in {}'.format(page1))
-                self.assertEqual(page1.next_page, page2, 'Incorrect next_page reference in {}'.format(page1))
+                self.assertEqual(
+                    page1.previous_page,
+                    page0,
+                    "Incorrect previous_page reference in {}".format(page1),
+                )
+                self.assertEqual(
+                    page1.next_page,
+                    page2,
+                    "Incorrect next_page reference in {}".format(page1),
+                )
 
         if assert_parent:
             sections = get_by_type(navigation, Section)
 
             for section in sections:
                 for child in section.children:
-                    self.assertEqual(child.parent, section, 'Incorrect parent reference in {}'.format(child))
+                    self.assertEqual(
+                        child.parent,
+                        section,
+                        "Incorrect parent reference in {}".format(child),
+                    )
 
         self.assertEqual(navigation.pages, pages)
 
     def setUp(self):
-        patcher = mock.patch('mkdocs_awesome_pages_plugin.navigation.NavigationMeta')
+        patcher = mock.patch("mkdocs_awesome_pages_plugin.navigation.NavigationMeta")
         self.addCleanup(patcher.stop)
         m = patcher.start()
         m.return_value = self.meta_mock = NavigationMetaMock()

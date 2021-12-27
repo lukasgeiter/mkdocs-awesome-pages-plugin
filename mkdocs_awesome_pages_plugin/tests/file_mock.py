@@ -2,7 +2,7 @@ from mock_open import MockOpen
 
 
 class FileMock(MockOpen):
-    def _mock_call(self, path: str, mode: str = 'r', *args, **kws):
+    def _mock_call(self, path: str, mode: str = "r", *args, **kws):
         original_side_effect = self._mock_side_effect
 
         if path not in self._MockOpen__files:

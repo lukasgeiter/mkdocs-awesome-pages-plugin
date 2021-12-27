@@ -38,7 +38,7 @@ The summary of a commit should be concise and worded in an imperative mood.
 
 #### Code Style
 
-Make sure your code follows [PEP-8](https://www.python.org/dev/peps/pep-0008/) and keeps things consistent with the rest of the code. 
+This project uses [Black][black] for code formatting. 
 
 #### Tests
 
@@ -47,3 +47,4 @@ If it makes sense, writing tests for your PRs is always appreciated and will hel
 [Python 3]: https://www.python.org/
 [poetry]: https://python-poetry.org/
 [git-commit-message]: https://chris.beams.io/posts/git-commit/
+[black]: https://black.readthedocs.io/
