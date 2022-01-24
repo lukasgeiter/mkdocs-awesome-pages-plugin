@@ -34,8 +34,11 @@ class MetaNavItem:
 
         if isinstance(item, dict) and len(item) == 1:
             (title, value) = list(item.items())[0]
-            if isinstance(value, str) and isinstance(title, str):
-                return MetaNavItem(value, title)
+            if isinstance(title, str):
+                if isinstance(value, str):
+                    return MetaNavItem(value, title)
+                elif isinstance(value, list):
+                    return MetaNavItem([MetaNavItem.from_yaml(it, context) for it in value], title)
 
         raise TypeError("Invalid nav item format {type} [{context}]".format(type=item, context=context))
 

@@ -423,3 +423,49 @@ class TestNav(E2ETestCase):
     def test_not_found_not_strict(self):
         with self.assertWarns(NavEntryNotFound):
             self.mkdocs(self.createConfig(strict=False), [self.pagesFile(nav=["1.md", "..."])])
+
+    def test_vsection(self):
+        navigation = self.mkdocs(
+            self.config,
+            [
+                "a.md",
+                "b.md",
+                (
+                    "x",
+                    [
+                        "1a.md",
+                        "1b.md",
+                        "2a.md",
+                        "2b.md",
+                        "3.md",
+                        "4.md",
+                        self.pagesFile(
+                            nav=[
+                                "4.md",
+                                {"BB": ["... | *b.md"]},
+                                "...",
+                                {"AA": ["... | *a.md"]},
+                            ]
+                        ),
+                    ],
+                ),
+                self.pagesFile(nav=["...", "b.md"]),
+            ],
+        )
+
+        self.assertEqual(
+            navigation,
+            [
+                ("A", "/a"),
+                (
+                    "X",
+                    [
+                        ("4", "/x/4"),
+                        ("BB", [("1b", "/x/1b"), ("2b", "/x/2b")]),
+                        ("3", "/x/3"),
+                        ("AA", [("1a", "/x/1a"), ("2a", "/x/2a")]),
+                    ],
+                ),
+                ("B", "/b"),
+            ],
+        )

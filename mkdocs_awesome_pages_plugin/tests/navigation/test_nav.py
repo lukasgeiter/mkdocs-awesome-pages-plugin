@@ -388,3 +388,39 @@ class TestNav(NavigationTestCase):
                 ],
                 strict=False,
             )
+
+    def test_vsection(self):
+        navigation = self.createAwesomeNavigation(
+            [
+                self.page("1"),
+                self.page("2a"),
+                self.page("2b"),
+                self.page("2c"),
+                self.page("3a"),
+                self.page("3b"),
+                self.page("3c"),
+                self.page("4"),
+                Meta(
+                    nav=[
+                        MetaNavItem("4.md"),
+                        MetaNavItem([MetaNavItem("2a.md"), MetaNavItem("3a.md")], "AA"),
+                        MetaNavRestItem("..."),
+                        MetaNavItem([MetaNavItem("2b.md"), MetaNavItem("3b.md")], "BB"),
+                        MetaNavItem("1.md"),
+                    ]
+                ),
+            ]
+        )
+
+        self.assertNavigationEqual(
+            navigation.items,
+            [
+                self.page("4"),
+                self.section("AA", [self.page("2a"), self.page("3a")]),
+                self.page("2c"),
+                self.page("3c"),
+                self.section("BB", [self.page("2b"), self.page("3b")]),
+                self.page("1"),
+            ],
+        )
+        self.assertValidNavigation(navigation.to_mkdocs())
