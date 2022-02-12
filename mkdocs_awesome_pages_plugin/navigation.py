@@ -11,7 +11,7 @@ from mkdocs.structure.nav import (
 )
 from mkdocs.structure.pages import Page
 
-from .meta import Meta, MetaNavRestItem, RestItemList
+from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
 from .options import Options
 from .utils import dirname, basename, join_paths
 
@@ -35,6 +35,10 @@ class HideInRootHasNoEffect(Warning):
         super().__init__(
             'Using the "hide" attribute in the {filename} file of the doc root has no effect'.format(filename=filename)
         )
+
+
+class VirtualSection(Section):
+    pass
 
 
 class AwesomeNavigation:
@@ -65,7 +69,7 @@ class AwesomeNavigation:
         result = []
 
         for item in children:
-            if isinstance(item, Section):
+            if isinstance(item, Section) and not isinstance(item, VirtualSection):
                 item = self._process_section(item, collapse)
                 if item is None:
                     continue
@@ -86,19 +90,25 @@ class AwesomeNavigation:
 
         items_by_basename = {basename(self._get_item_path(item)): item for item in items}
 
-        result = []
+        used_items = []
         rest_items = RestItemList()
 
-        for index, meta_item in enumerate(meta.nav):
-            if isinstance(meta_item, MetaNavRestItem):
-                rest_items.append(meta_item)
-                result.append(meta_item)
-            else:
-                if meta_item.value in items_by_basename:
+        def _make_nav_rec(meta_nav: List[MetaNavItem]) -> List[Union[NavigationItem, MetaNavRestItem]]:
+            result = []
+            for meta_item in meta_nav:
+                if isinstance(meta_item, MetaNavRestItem):
+                    rest_items.append(meta_item)
+                    result.append(meta_item)
+
+                elif isinstance(meta_item.value, list):
+                    result.append(VirtualSection(meta_item.title, children=_make_nav_rec(meta_item.value)))
+
+                elif meta_item.value in items_by_basename:
                     item = items_by_basename[meta_item.value]
                     if meta_item.title is not None:
                         item.title = meta_item.title
                     result.append(item)
+                    used_items.append(item)
 
                 elif meta_item.title is not None:
                     result.append(Link(meta_item.title, meta_item.value))
@@ -109,21 +119,30 @@ class AwesomeNavigation:
                         raise warning
                     else:
                         warnings.warn(warning)
+            return result
+
+        result = _make_nav_rec(meta.nav)
 
         if rest_items:
             rest = {rest_item: [] for rest_item in rest_items}
 
             for item in items:
-                if item not in result:
+                if item not in used_items:
                     path = basename(self._get_item_path(item))
                     for rest_item in rest_items:
                         if rest_item.matches(path):
                             rest[rest_item].append(item)
                             break
 
-            for index, item in enumerate(result):
-                if isinstance(item, MetaNavRestItem):
-                    result[index : index + 1] = rest[item]
+            def _expand_rest_rec(result: List[Union[NavigationItem, MetaNavRestItem]]):
+                for index, item in enumerate(result):
+                    if isinstance(item, MetaNavRestItem):
+                        result[index : index + 1] = rest[item]
+                    elif isinstance(item, Section):
+                        if item.children:
+                            _expand_rest_rec(item.children)
+
+            _expand_rest_rec(result)
 
         return result
 
