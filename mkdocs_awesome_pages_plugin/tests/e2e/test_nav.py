@@ -424,7 +424,7 @@ class TestNav(E2ETestCase):
         with self.assertWarns(NavEntryNotFound):
             self.mkdocs(self.createConfig(strict=False), [self.pagesFile(nav=["1.md", "..."])])
 
-    def test_vsection(self):
+    def test_virtual_section(self):
         navigation = self.mkdocs(
             self.config,
             [

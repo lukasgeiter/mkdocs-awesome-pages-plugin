@@ -37,7 +37,7 @@ class HideInRootHasNoEffect(Warning):
         )
 
 
-class VSection(Section):
+class VirtualSection(Section):
     pass
 
 
@@ -69,7 +69,7 @@ class AwesomeNavigation:
         result = []
 
         for item in children:
-            if isinstance(item, Section) and not isinstance(item, VSection):
+            if isinstance(item, Section) and not isinstance(item, VirtualSection):
                 item = self._process_section(item, collapse)
                 if item is None:
                     continue
@@ -101,7 +101,7 @@ class AwesomeNavigation:
                     result.append(meta_item)
 
                 elif isinstance(meta_item.value, (list, tuple)):
-                    result.append(VSection(meta_item.title, children=_make_nav_rec(meta_item.value)))
+                    result.append(VirtualSection(meta_item.title, children=_make_nav_rec(meta_item.value)))
 
                 elif meta_item.value in items_by_basename:
                     item = items_by_basename[meta_item.value]

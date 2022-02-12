@@ -389,7 +389,7 @@ class TestNav(NavigationTestCase):
                 strict=False,
             )
 
-    def test_vsection(self):
+    def test_virtual_section(self):
         navigation = self.createAwesomeNavigation(
             [
                 self.page("1"),
