@@ -14,7 +14,7 @@ class DuplicateRestItemError(Exception):
 
 
 class MetaNavItem:
-    def __init__(self, value: str, title: Optional[str] = None):
+    def __init__(self, value: Union[str, List["MetaNavItem"]], title: Optional[str] = None):
         self.value = value
         self.title = title
 
