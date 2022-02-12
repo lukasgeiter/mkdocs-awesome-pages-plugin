@@ -100,7 +100,7 @@ class AwesomeNavigation:
                     rest_items.append(meta_item)
                     result.append(meta_item)
 
-                elif isinstance(meta_item.value, (list, tuple)):
+                elif isinstance(meta_item.value, list):
                     result.append(VirtualSection(meta_item.title, children=_make_nav_rec(meta_item.value)))
 
                 elif meta_item.value in items_by_basename:
