@@ -11,7 +11,7 @@ from mkdocs.structure.nav import (
 )
 from mkdocs.structure.pages import Page
 
-from .meta import Meta, MetaNavRestItem, RestItemList
+from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
 from .options import Options
 from .utils import dirname, basename, join_paths
 
@@ -93,7 +93,7 @@ class AwesomeNavigation:
         used_items = []
         rest_items = RestItemList()
 
-        def _make_nav_rec(meta_nav):
+        def _make_nav_rec(meta_nav: List[MetaNavItem]) -> List[Union[NavigationItem, MetaNavRestItem]]:
             result = []
             for meta_item in meta_nav:
                 if isinstance(meta_item, MetaNavRestItem):
@@ -134,7 +134,7 @@ class AwesomeNavigation:
                             rest[rest_item].append(item)
                             break
 
-            def _expand_rest_rec(result):
+            def _expand_rest_rec(result: List[Union[NavigationItem, MetaNavRestItem]]):
                 for index, item in enumerate(result):
                     if isinstance(item, MetaNavRestItem):
                         result[index : index + 1] = rest[item]
