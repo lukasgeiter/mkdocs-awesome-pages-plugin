@@ -92,6 +92,20 @@ nav:
     - Link Title: https://lukasgeiter.com
 ```
 
+#### Sections
+
+You can group items by creating new sections.
+
+```yaml
+nav:
+    - introduction.md
+    - Section 1:
+        - page1.md
+        - page2.md
+    - Section 2:
+        - ...
+```
+
 ### Change Sort Order
 
 Create a file named `.pages` in a directory and set the `order` attribute to `asc` or `desc` to change the order of navigation items.
