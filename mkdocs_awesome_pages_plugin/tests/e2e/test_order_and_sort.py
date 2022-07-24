@@ -1,5 +1,6 @@
 from .base import E2ETestCase
 
+
 class TestOrderAndSort(E2ETestCase):
     def test_asc(self):
         navigation = self.mkdocs(

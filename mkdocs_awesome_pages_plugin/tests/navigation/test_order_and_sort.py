@@ -1,6 +1,7 @@
 from .base import NavigationTestCase
 from ...meta import Meta, MetaNavItem, MetaNavRestItem
 
+
 class TestOrderAndSort(NavigationTestCase):
     def test_asc(self):
         navigation = self.createAwesomeNavigation(
