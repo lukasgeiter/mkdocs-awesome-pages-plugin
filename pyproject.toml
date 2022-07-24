@@ -21,6 +21,7 @@ awesome-pages = "mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin"
 python = ">=3.6.2"
 mkdocs = ">=1"
 wcmatch = ">=7"
+natsort = ">=8.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

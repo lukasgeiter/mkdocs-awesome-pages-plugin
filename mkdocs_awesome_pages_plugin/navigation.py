@@ -1,5 +1,6 @@
 import warnings
 from pathlib import Path
+from natsort import natsort_keygen
 from typing import List, Optional, Union, Set
 
 from mkdocs.structure.nav import (
@@ -78,11 +79,13 @@ class AwesomeNavigation:
         return result
 
     def _order(self, items: List[NavigationItem], meta: Meta):
-        if meta.order is not None:
-            items.sort(
-                key=lambda i: basename(self._get_item_path(i)),
-                reverse=meta.order == Meta.ORDER_DESC,
-            )
+        order, sort_type = meta.order, meta.sort_type
+        if order is None and sort_type is None:
+            return
+        key = lambda i: basename(self._get_item_path(i))
+        if sort_type == Meta.SORT_NATURAL:
+            key = natsort_keygen(key)
+        items.sort(key=key, reverse=order == Meta.ORDER_DESC)
 
     def _nav(self, items: List[NavigationItem], meta: Meta) -> List[NavigationItem]:
         if meta.nav is None:
