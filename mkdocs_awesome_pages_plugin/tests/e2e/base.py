@@ -30,6 +30,7 @@ class E2ETestCase(TestCase):
         collapse_single_pages: bool = None,
         hide: bool = None,
         order: Optional[str] = None,
+        sort_type: Optional[str] = None,
     ) -> Tuple[str, str]:
 
         data = self._removeDictNoneValues(
@@ -41,6 +42,7 @@ class E2ETestCase(TestCase):
                 "collapse_single_pages": collapse_single_pages,
                 "hide": hide,
                 "order": order,
+                "sort_type": sort_type,
             }
         )
 

@@ -116,6 +116,16 @@ order: desc
 
 > **Note:** Unlike the default order, this does not distinguish between files and directories. Therefore pages and sections might get mixed.
 
+### Natural Sort Type
+
+Create a file named `.pages` in a directory and set the `sort_type` attribute to `natural` to use [natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order).
+
+This can be combined with `order` above.
+
+```yaml
+sort_type: natural
+```
+
 ### Collapse Single Nested Pages
 
 > **Note:** This feature is disabled by default. More on how to use it below

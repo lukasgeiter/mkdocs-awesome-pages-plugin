@@ -110,9 +110,11 @@ class Meta:
     COLLAPSE_SINGLE_PAGES_ATTRIBUTE = "collapse_single_pages"
     HIDE_ATTRIBUTE = "hide"
     ORDER_ATTRIBUTE = "order"
+    SORT_TYPE_ATTRIBUTE = "sort_type"
 
     ORDER_ASC = "asc"
     ORDER_DESC = "desc"
+    SORT_NATURAL = "natural"
 
     def __init__(
         self,
@@ -124,7 +126,8 @@ class Meta:
         collapse: bool = None,
         collapse_single_pages: bool = None,
         hide: bool = None,
-        order: Optional[str] = None
+        order: Optional[str] = None,
+        sort_type: Optional[str] = None,
     ):
 
         if nav is None and arrange is not None:
@@ -139,6 +142,7 @@ class Meta:
         self.collapse_single_pages = collapse_single_pages
         self.hide = hide
         self.order = order
+        self.sort_type = sort_type
 
     @staticmethod
     def try_load_from(path: Optional[str]) -> "Meta":
@@ -160,6 +164,7 @@ class Meta:
             collapse_single_pages = contents.get(Meta.COLLAPSE_SINGLE_PAGES_ATTRIBUTE)
             hide = contents.get(Meta.HIDE_ATTRIBUTE)
             order = contents.get(Meta.ORDER_ATTRIBUTE)
+            sort_type = contents.get(Meta.SORT_TYPE_ATTRIBUTE)
 
             if title is not None:
                 if not isinstance(title, str):
@@ -232,6 +237,13 @@ class Meta:
                             attribute=Meta.ORDER_ATTRIBUTE, order=order, context=path
                         )
                     )
+            if sort_type is not None:
+                if sort_type != Meta.SORT_NATURAL:
+                    raise TypeError(
+                        'Expected "{attribute}" to be "natural" - got "{sort_type}" [{context}]'.format(
+                            attribute=Meta.SORT_TYPE_ATTRIBUTE, sort_type=sort_type, context=path
+                        )
+                    )
 
             return Meta(
                 title=title,
@@ -242,4 +254,5 @@ class Meta:
                 collapse_single_pages=collapse_single_pages,
                 hide=hide,
                 order=order,
+                sort_type=sort_type,
             )
