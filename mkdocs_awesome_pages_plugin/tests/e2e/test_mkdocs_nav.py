@@ -1,3 +1,6 @@
+import pytest
+from mkdocs import __version__ as mkdocs_version
+
 from .base import E2ETestCase
 from ...meta import DuplicateRestItemError
 from ...navigation import NavEntryNotFound
@@ -176,6 +179,10 @@ class TestMkdocsNavRest(E2ETestCase):
             ],
         )
 
+    @pytest.mark.skipif(
+        mkdocs_version >= "1.3.0",
+        reason="Since version 1.3 MkDocs validates nav and Dict type is invalid.",
+    )
     def test_sections_nested_rest_dict(self):
         navigation = self.mkdocs(
             self.createConfig(
