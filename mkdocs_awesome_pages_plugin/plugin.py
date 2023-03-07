@@ -35,6 +35,8 @@ class AwesomePagesPlugin(BasePlugin):
         ("filename", config_options.Type(str, default=DEFAULT_META_FILENAME)),
         ("collapse_single_pages", config_options.Type(bool, default=False)),
         ("strict", config_options.Type(bool, default=True)),
+        ("order", config_options.Choice(["asc", "desc"], default=None)),
+        ("sort_type", config_options.Choice(["natural"], default=None)),
     )
 
     def __init__(self):

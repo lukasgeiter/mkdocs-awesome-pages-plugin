@@ -380,6 +380,8 @@ plugins:
         filename: .index
         collapse_single_pages: true
         strict: false
+        order: asc
+        sort_type: natural
 ```
 
 ### `filename`
@@ -398,6 +400,10 @@ Raise errors instead of warnings when:
 - `nav` entries cannot be found
 
 Default is `true`
+
+### `order` and `sort_type`
+
+Global fallback values for the Meta attributes. Default is `None`.
 
 <br/>
 

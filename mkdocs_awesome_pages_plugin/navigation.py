@@ -79,7 +79,8 @@ class AwesomeNavigation:
         return result
 
     def _order(self, items: List[NavigationItem], meta: Meta):
-        order, sort_type = meta.order, meta.sort_type
+        order = meta.order or self.options.order
+        sort_type = meta.sort_type or self.options.sort_type
         if order is None and sort_type is None:
             return
         key = lambda i: basename(self._get_item_path(i))
