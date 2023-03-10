@@ -37,6 +37,7 @@ class AwesomePagesPlugin(BasePlugin):
         ("strict", config_options.Type(bool, default=True)),
         ("order", config_options.Choice(["asc", "desc"], default=None)),
         ("sort_type", config_options.Choice(["natural"], default=None)),
+        ("order_by", config_options.Choice(["filename", "title"], default=None)),
     )
 
     def __init__(self):

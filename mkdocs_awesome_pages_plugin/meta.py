@@ -109,10 +109,13 @@ class Meta:
     HIDE_ATTRIBUTE = "hide"
     ORDER_ATTRIBUTE = "order"
     SORT_TYPE_ATTRIBUTE = "sort_type"
+    ORDER_BY_ATTRIBUTE = "order_by"
 
     ORDER_ASC = "asc"
     ORDER_DESC = "desc"
     SORT_NATURAL = "natural"
+    ORDER_BY_FILENAME = "filename"
+    ORDER_BY_TITLE = "title"
 
     def __init__(
         self,
@@ -126,6 +129,7 @@ class Meta:
         hide: bool = None,
         order: Optional[str] = None,
         sort_type: Optional[str] = None,
+        order_by: Optional[str] = None,
     ):
         if nav is None and arrange is not None:
             nav = [MetaNavItem.from_yaml(value, path) for value in arrange]
@@ -140,6 +144,7 @@ class Meta:
         self.hide = hide
         self.order = order
         self.sort_type = sort_type
+        self.order_by = order_by
 
     @staticmethod
     def try_load_from(path: Optional[str]) -> "Meta":
@@ -162,6 +167,7 @@ class Meta:
             hide = contents.get(Meta.HIDE_ATTRIBUTE)
             order = contents.get(Meta.ORDER_ATTRIBUTE)
             sort_type = contents.get(Meta.SORT_TYPE_ATTRIBUTE)
+            order_by = contents.get(Meta.ORDER_BY_ATTRIBUTE)
 
             if title is not None:
                 if not isinstance(title, str):
@@ -242,6 +248,20 @@ class Meta:
                         )
                     )
 
+            if order_by is not None:
+                if order_by != Meta.ORDER_BY_TITLE and order_by != Meta.ORDER_BY_FILENAME:
+                    raise TypeError(
+                        'Expected "{attribute}" attribute to be one of {those} - got "{order_by}" [{context}]'.format(
+                            attribute=Meta.ORDER_BY_ATTRIBUTE,
+                            those=[
+                                Meta.ORDER_BY_FILENAME,
+                                Meta.ORDER_BY_TITLE,
+                            ],
+                            order_by=order_by,
+                            context=path,
+                        )
+                    )
+
             return Meta(
                 title=title,
                 arrange=arrange,
@@ -252,4 +272,5 @@ class Meta:
                 hide=hide,
                 order=order,
                 sort_type=sort_type,
+                order_by=order_by,
             )

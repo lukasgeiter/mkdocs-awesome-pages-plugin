@@ -126,6 +126,16 @@ This can be combined with `order` above.
 sort_type: natural
 ```
 
+### Order Navigation By Preference
+
+Create a file named `.pages` in a directory and set the `order_by` attribute to `filename` or `title` to change the order of navigation items.
+
+```yaml
+order_by: title
+```
+
+This can be combined with `order` and/or `sort_type` above. If `order` is not set it will order ascending. If no preference is set, it will order by filename.
+
 ### Collapse Single Nested Pages
 
 > **Note:** This feature is disabled by default. More on how to use it below
@@ -382,6 +392,7 @@ plugins:
         strict: false
         order: asc
         sort_type: natural
+        order_by: title
 ```
 
 ### `filename`
@@ -401,9 +412,9 @@ Raise errors instead of warnings when:
 
 Default is `true`
 
-### `order` and `sort_type`
+### `order`, `sort_type` and `order_by`
 
-Global fallback values for the Meta attributes. Default is `None`.
+Global fallback values for the Meta attributes. Default is `None` or `filename`.
 
 <br/>
 
