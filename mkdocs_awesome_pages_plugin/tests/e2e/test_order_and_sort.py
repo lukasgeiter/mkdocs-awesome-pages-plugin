@@ -253,3 +253,49 @@ class TestOrderAndSort(E2ETestCase):
                 ("20", [("3", "/20/3"), ("100", "/20/100"), ("20", "/20/20")]),
             ],
         )
+
+    def test_global_asc_without_local(self):
+        navigation = self.mkdocs(
+            self.createConfig(order="asc"),
+            [
+                "1.md",
+                "3.md",
+                ("2", ["1.md", "2.md"]),
+            ],
+        )
+
+        self.assertEqual(
+            navigation,
+            [("1", "/1"), ("2", [("1", "/2/1"), ("2", "/2/2")]), ("3", "/3")],
+        )
+
+    def test_global_asc_local_desc(self):
+        navigation = self.mkdocs(
+            self.createConfig(order="asc"),
+            [
+                "1.md",
+                "3.md",
+                ("2", ["1.md", "2.md", self.pagesFile(order="desc")]),
+                self.pagesFile(order="desc"),
+            ],
+        )
+
+        self.assertEqual(
+            navigation,
+            [("3", "/3"), ("2", [("2", "/2/2"), ("1", "/2/1")]), ("1", "/1")],
+        )
+
+    def test_global_asc_natural_without_local(self):
+        navigation = self.mkdocs(
+            self.createConfig(order="asc", sort_type="natural"),
+            [
+                "100.md",
+                "3.md",
+                ("20", ["100.md", "20.md"]),
+            ],
+        )
+
+        self.assertEqual(
+            navigation,
+            [("3", "/3"), ("20", [("20", "/20/20"), ("100", "/20/100")]), ("100", "/100")],
+        )
