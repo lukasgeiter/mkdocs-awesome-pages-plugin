@@ -32,7 +32,6 @@ class E2ETestCase(TestCase):
         order: Optional[str] = None,
         sort_type: Optional[str] = None,
     ) -> Tuple[str, str]:
-
         data = self._removeDictNoneValues(
             {
                 "title": title,
@@ -55,7 +54,6 @@ class E2ETestCase(TestCase):
         mkdocs_nav: Optional[List[Union[str, Dict[str, Union[str, list]]]]] = None,
         strict: Optional[bool] = None,
     ) -> dict:
-
         plugin_options = self._removeDictNoneValues(
             {
                 "filename": filename,

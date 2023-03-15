@@ -50,7 +50,6 @@ class RestType(Enum):
 
 
 class MetaNavRestItem(MetaNavItem):
-
     _REGEX = r"^\.{3}\s*(?:\|\s*(flat)\s*)?\s*(?:\|\s*(?:(regex|glob)=)?(.*))?"
 
     def __init__(self, value: str):
@@ -101,7 +100,6 @@ class RestItemList(collections.abc.Iterable):
 
 
 class Meta:
-
     TITLE_ATTRIBUTE = "title"
     NAV_ATTRIBUTE = "nav"
     ARRANGE_ATTRIBUTE = "arrange"
@@ -129,7 +127,6 @@ class Meta:
         order: Optional[str] = None,
         sort_type: Optional[str] = None,
     ):
-
         if nav is None and arrange is not None:
             nav = [MetaNavItem.from_yaml(value, path) for value in arrange]
             if MetaNavRestItem("...") not in nav:

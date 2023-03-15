@@ -3,7 +3,6 @@ from ...navigation import NavEntryNotFound
 
 
 class TestArrange(E2ETestCase):
-
     pages123 = ["1.md", "2.md", "3.md"]
 
     def test(self):

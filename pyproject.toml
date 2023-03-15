@@ -27,7 +27,7 @@ natsort = ">=8.1.0"
 pytest = "^6.2.5"
 beautifulsoup4 = "^4.10.0"
 mock-open = "^1.4.0"
-black = { extras = ["d"], version = "^21.12b0" }
+black = { extras = ["d"], version = "^23.1.0" }
 
 [tool.black]
 line-length = 120

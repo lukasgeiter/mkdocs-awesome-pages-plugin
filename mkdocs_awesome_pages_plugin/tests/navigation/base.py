@@ -57,7 +57,6 @@ class NavigationTestCase(TestCase):
     def createAwesomeNavigation(
         self, items: List[NavigationItem], *, collapse_single_pages: bool = False, strict: bool = True
     ) -> AwesomeNavigation:
-
         children = []
         meta = None
         for item in items:
@@ -99,7 +98,6 @@ class NavigationTestCase(TestCase):
     def assertValidNavigation(
         self, navigation: MkDocsNavigation, *, assert_previous_next: bool = True, assert_parent: bool = True
     ):
-
         pages = get_by_type(navigation, Page)
 
         if assert_previous_next:

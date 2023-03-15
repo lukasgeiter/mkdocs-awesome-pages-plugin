@@ -28,7 +28,6 @@ class NavPluginOrder(Warning):
 
 
 class AwesomePagesPlugin(BasePlugin):
-
     DEFAULT_META_FILENAME = ".pages"
     REST_PLACEHOLDER = "AWESOME_PAGES_REST"
 
