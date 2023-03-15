@@ -8,6 +8,10 @@ on:
     branches:
       - master
 
+defaults:
+  run:
+    shell: bash # required for snok/install-poetry on windows
+
 jobs:
   lint:
     name: Lint
