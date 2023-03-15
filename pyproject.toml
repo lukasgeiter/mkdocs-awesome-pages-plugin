@@ -18,7 +18,7 @@ exclude = ["mkdocs_awesome_pages_plugin/tests"]
 awesome-pages = "mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2"
+python = ">=3.7"
 mkdocs = ">=1"
 wcmatch = ">=7"
 natsort = ">=8.1.0"
