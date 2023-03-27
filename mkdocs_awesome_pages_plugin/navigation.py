@@ -221,32 +221,34 @@ class NavigationMeta:
         explicit_sections: Set[Section],
     ):
         self.options = options
-        self.sections = {}
+        self.sections: Dict[Section, Meta] = {}
         self.docs_dir = docs_dir
         self.explicit_sections = explicit_sections
 
-        root_path = self._gather_metadata(items)
-        self.root = Meta.try_load_from(join_paths(root_path, self.options.filename))
+        self.root: Meta = self._gather_metadata(items)
 
-    def _gather_metadata(self, items: List[NavigationItem]) -> Optional[str]:
-        paths = []
+    def _gather_metadata(self, items: List[NavigationItem]) -> Meta:
+        paths: List[str] = []
         for item in items:
             if isinstance(item, Page):
                 if Path(self.docs_dir) in Path(item.file.abs_src_path).parents:
                     paths.append(item.file.abs_src_path)
             elif isinstance(item, Section):
-                section_dir = self._gather_metadata(item.children)
+                section_meta = self._gather_metadata(item.children)
+
                 if item in self.explicit_sections:
                     self.sections[item] = Meta()
-                else:
-                    if section_dir is not None:
-                        paths.append(section_dir)
-                    self.sections[item] = Meta.try_load_from(join_paths(section_dir, self.options.filename))
+                    continue
 
-        return self._common_dirname(paths)
+                if section_meta.path is not None:
+                    paths.append(dirname(section_meta.path))
+
+                self.sections[item] = section_meta
+
+        return Meta.try_load_from(join_paths(self._common_dirname(paths), self.options.filename))
 
     @staticmethod
-    def _common_dirname(paths: List[Optional[str]]) -> Optional[str]:
+    def _common_dirname(paths: List[str]) -> Optional[str]:
         if paths:
             dirnames = [dirname(path) for path in paths]
             if len(set(dirnames)) == 1:
