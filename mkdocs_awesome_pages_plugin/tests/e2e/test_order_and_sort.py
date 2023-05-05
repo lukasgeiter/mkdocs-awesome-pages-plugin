@@ -424,3 +424,19 @@ class TestOrderAndSort(E2ETestCase):
             navigation,
             [("A", "/3"), ("B", [("C", "/B/1"), ("B", "/B/2")]), ("C", "/1")],
         )
+
+    def test_order_by_title_section_with_custom_title(self):
+        navigation = self.mkdocs(
+            self.createConfig(),
+            [
+                ("1.md", "# C"),
+                ("B", [("1.md", "# C"), ("2.md", "# B"), self.pagesFile(title="D")]),
+                ("3.md", "# A"),
+                self.pagesFile(order_by="title"),
+            ],
+        )
+
+        self.assertEqual(
+            navigation,
+            [("A", "/3"), ("C", "/1"), ("D", [("C", "/B/1"), ("B", "/B/2")])],
+        )

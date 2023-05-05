@@ -93,7 +93,7 @@ class AwesomeNavigation:
             return
 
         if order_by == Meta.ORDER_BY_TITLE:
-            key = lambda i: get_title(i)
+            key = lambda i: self._get_item_title(i)
         else:
             key = lambda i: basename(self._get_item_path(i))
 
@@ -191,6 +191,46 @@ class AwesomeNavigation:
         elif isinstance(item, Page):
             return item.file.abs_src_path
 
+    def _get_item_title(self, item: NavigationItem) -> str:
+        # Handle custom section titles in the ".pages" file
+        if isinstance(item, Section):
+            title = self.meta.sections[item].title
+            if title is not None:
+                return title
+
+        if item.title is not None:
+            return item.title
+
+        if not isinstance(item, Page):
+            return str(item.title)
+
+        # Copy of mkdocs.structure.pages.Page._set_title and Page.read_source
+        try:
+            with open(item.file.abs_src_path, encoding="utf-8-sig", errors="strict") as f:
+                source = f.read()
+        except OSError:
+            raise OSError(f"File not found: {item.file.src_path}")
+        except ValueError:
+            raise ValueError(f"Encoding error reading file: {item.file.src_path}")
+
+        page_markdown, page_meta = mkdocs.utils.meta.get_data(source)
+
+        if "title" in page_meta:
+            return page_meta["title"]
+
+        title = mkdocs.utils.get_markdown_title(page_markdown)
+
+        if title is None:
+            if item.is_homepage:
+                title = "Home"
+            else:
+                title = item.file.name.replace("-", " ").replace("_", " ")
+                # Capitalize if the filename was all lowercase, otherwise leave it as-is.
+                if title.lower() == title:
+                    title = title.capitalize()
+
+        return title
+
     @staticmethod
     def _set_title(section: Section, meta: Meta):
         if meta.title is not None:
@@ -265,38 +305,3 @@ def get_by_type(nav, T):
         if item.children:
             ret.extend(get_by_type(item.children, T))
     return ret
-
-
-# Copy of mkdocs.structure.pages.Page._set_title and Page.read_source
-def get_title(item: NavigationItem) -> str:
-    if item.title is not None:
-        return item.title
-
-    if not isinstance(item, Page):
-        return str(item.title)
-
-    try:
-        with open(item.file.abs_src_path, encoding="utf-8-sig", errors="strict") as f:
-            source = f.read()
-    except OSError:
-        raise OSError(f"File not found: {item.file.src_path}")
-    except ValueError:
-        raise ValueError(f"Encoding error reading file: {item.file.src_path}")
-
-    page_markdown, page_meta = mkdocs.utils.meta.get_data(source)
-
-    if "title" in page_meta:
-        return page_meta["title"]
-
-    title = mkdocs.utils.get_markdown_title(page_markdown)
-
-    if title is None:
-        if item.is_homepage:
-            title = "Home"
-        else:
-            title = item.file.name.replace("-", " ").replace("_", " ")
-            # Capitalize if the filename was all lowercase, otherwise leave it as-is.
-            if title.lower() == title:
-                title = title.capitalize()
-
-    return title
