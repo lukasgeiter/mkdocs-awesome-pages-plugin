@@ -46,12 +46,9 @@ jobs:
           - '3.9'
           - '3.10'
           - '3.11'
-          - 'pypy-3.7'
           - 'pypy-3.8'
           - 'pypy-3.9'
         exclude:
-          - os: 'windows-latest'
-            python: 'pypy-3.7'
           - os: 'windows-latest'
             python: 'pypy-3.8'
           - os: 'windows-latest'
