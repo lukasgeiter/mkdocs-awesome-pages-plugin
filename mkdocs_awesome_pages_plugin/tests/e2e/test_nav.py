@@ -469,3 +469,30 @@ class TestNav(E2ETestCase):
                 ("B", "/b"),
             ],
         )
+
+    def test_virtual_section_child_pagesfile(self):
+        navigation = self.mkdocs(
+            self.config,
+            [
+                "a.md",
+                "b.md",
+                (
+                    "x",
+                    [
+                        "1.md",
+                        "2.md",
+                        self.pagesFile(title="X Title", nav=["2.md", "1.md"]),
+                    ],
+                ),
+                self.pagesFile(nav=[{"Virtual Section": ["b.md", "..."]}, "a.md"]),
+            ],
+            dummy_pages=False,
+        )
+
+        self.assertEqual(
+            navigation,
+            [
+                ("Virtual Section", [("B", "/b"), ("X Title", [("2", "/x/2"), ("1", "/x/1")])]),
+                ("A", "/a"),
+            ],
+        )

@@ -69,11 +69,15 @@ class AwesomeNavigation:
     def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
         self._order(children, meta)
         children = self._nav(children, meta)
+        return self._process_child_sections(children, collapse)
 
+    def _process_child_sections(self, children: List[NavigationItem], collapse: bool):
         result = []
 
         for item in children:
-            if isinstance(item, Section) and not isinstance(item, VirtualSection):
+            if isinstance(item, VirtualSection):
+                item.children = self._process_child_sections(item.children, collapse)
+            elif isinstance(item, Section):
                 item = self._process_section(item, collapse)
                 if item is None:
                     continue
