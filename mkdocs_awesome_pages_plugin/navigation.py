@@ -296,8 +296,11 @@ class NavigationMeta:
 
         common_dirname = self._common_dirname(paths) or ""
         config_path = os.path.join(common_dirname, self.options.filename)
-        maybe_config_file = self.files.src_paths.get(config_path, None)
-        return Meta.try_load_from(getattr(maybe_config_file, "abs_src_path", None))
+        if config_path in self.files.src_paths:
+            config_path = self.files.src_paths[config_path].abs_src_path
+        else:
+            config_path = os.path.join(self.docs_dir, config_path)
+        return Meta.try_load_from(config_path)
 
     @staticmethod
     def _common_dirname(paths: List[str]) -> Optional[str]:

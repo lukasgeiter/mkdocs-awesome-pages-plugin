@@ -2,7 +2,7 @@ import os
 from typing import List, Union, Optional
 from unittest import TestCase, mock
 
-from mkdocs.structure.files import File
+from mkdocs.structure.files import File, Files
 from mkdocs.structure.nav import (
     Navigation as MkDocsNavigation,
     Section,
@@ -76,6 +76,7 @@ class NavigationTestCase(TestCase):
                 strict=strict,
             ),
             docs_dir="",
+            files=Files([]),
             explicit_sections=set(),
         )
 
