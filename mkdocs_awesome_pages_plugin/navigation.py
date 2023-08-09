@@ -280,8 +280,7 @@ class NavigationMeta:
         paths: List[str] = []
         for item in items:
             if isinstance(item, Page):
-                if Path(self.docs_dir) in Path(item.file.abs_src_path).parents:
-                    paths.append(item.file.src_path)
+                paths.append(item.file.src_path)
             elif isinstance(item, Section):
                 section_meta = self._gather_metadata(item.children)
 

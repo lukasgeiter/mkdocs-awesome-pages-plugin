@@ -96,7 +96,7 @@ class TestMeta(NavigationTestCase):
         self.assertMeta(meta.sections[a], path="a/.pages")
         self.assertMeta(meta.sections[b], path="a/b/.pages")
 
-        self.assertMeta(meta.sections[c], path="c/.pages")
+        self.assertMeta(meta.sections[c], path=".pages")
         self.assertEmptyMeta(meta.sections[d])
         self.assertMeta(meta.sections[e], path="c/e/.pages")
 
