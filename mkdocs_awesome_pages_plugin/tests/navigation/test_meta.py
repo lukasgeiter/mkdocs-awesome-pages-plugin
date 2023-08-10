@@ -1,11 +1,14 @@
-from typing import Optional
+import os.path
+from typing import List, Optional, Set
 from unittest import TestCase
 
-from mkdocs.structure.files import Files
+from mkdocs.structure.files import File, Files
+from mkdocs.structure.nav import Section
+from mkdocs.structure.pages import Page
 
 from .base import NavigationTestCase
 from ...meta import Meta, MetaNavRestItem, RestType
-from ...navigation import NavigationMeta
+from ...navigation import NavigationItem, NavigationMeta
 from ...options import Options
 from ...utils import normpath
 
@@ -47,19 +50,52 @@ class TestMeta(NavigationTestCase):
         super(TestMeta, self).setUp()
         self.options = Options(filename=".pages", collapse_single_pages=False, strict=True)
 
+    def _make_nav_meta(
+        self,
+        items: List[NavigationItem],
+        options: Options,
+        explicit_sections: Set[Section] = frozenset(),
+    ):
+        files = Files([])
+        config_dirs = set()
+
+        def populate_config_dirs(items: List[NavigationItem]):
+            for item in items:
+                if isinstance(item, Page) and not item.url.startswith("/"):
+                    config_dirs.add(
+                        (
+                            os.path.dirname(item.file.src_path),
+                            os.path.dirname(item.file.abs_src_path),
+                        )
+                    )
+                    files.append(item.file)
+                elif isinstance(item, Section):
+                    populate_config_dirs(item.children)
+
+        populate_config_dirs(items)
+
+        for config_dir, docs_dir in config_dirs:
+            files.append(
+                File(
+                    os.path.join(config_dir, options.filename),
+                    src_dir=docs_dir,
+                    dest_dir="",
+                    use_directory_urls=False,
+                )
+            )
+
+        return NavigationMeta(items, options, files, explicit_sections)
+
     def test_empty(self):
-        meta = NavigationMeta([], self.options, docs_dir="", files=Files([]), explicit_sections=set())
+        meta = self._make_nav_meta([], self.options)
 
         self.assertEqual(len(meta.sections), 0)
         self.assertEmptyMeta(meta.root)
 
     def test_page_in_root(self):
-        meta = NavigationMeta(
+        meta = self._make_nav_meta(
             [self.page("Page", "page.md")],
             self.options,
-            docs_dir="",
-            files=Files([]),
-            explicit_sections=set(),
         )
 
         self.assertEqual(len(meta.sections), 0)
@@ -67,7 +103,7 @@ class TestMeta(NavigationTestCase):
 
     def test_empty_section(self):
         section = self.section("Section", [])
-        meta = NavigationMeta([section], self.options, docs_dir="", files=Files([]), explicit_sections=set())
+        meta = self._make_nav_meta([section], self.options)
 
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
@@ -75,7 +111,7 @@ class TestMeta(NavigationTestCase):
 
     def test_section(self):
         section = self.section("Section", [self.page("Page", "section/page.md")])
-        meta = NavigationMeta([section], self.options, docs_dir="", files=Files([]), explicit_sections=set())
+        meta = self._make_nav_meta([section], self.options)
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path="section/.pages")
@@ -89,7 +125,7 @@ class TestMeta(NavigationTestCase):
         e = self.section("E", [self.page("2", "c/e/2.md")])
         c = self.section("C", [d, e])
 
-        meta = NavigationMeta([a, c], self.options, docs_dir="", files=Files([]), explicit_sections=set())
+        meta = self._make_nav_meta([a, c], self.options)
 
         self.assertEqual(len(meta.sections), 5)
 
@@ -104,52 +140,37 @@ class TestMeta(NavigationTestCase):
 
     def test_filename_option(self):
         section = self.section("Section", [self.page("Page", "section/page.md")])
-        meta = NavigationMeta(
-            [section],
-            Options(filename=".index", collapse_single_pages=False, strict=True),
-            docs_dir="",
-            files=Files([]),
-            explicit_sections=set(),
-        )
+        meta = self._make_nav_meta([section], Options(filename=".index", collapse_single_pages=False, strict=True))
 
         self.assertEqual(len(meta.sections), 1)
         self.assertMeta(meta.sections[section], path="section/.index")
         self.assertMeta(meta.root, path=".index")
 
     def test_links(self):
-        meta = NavigationMeta(
-            [self.page("Page", "page.md"), self.link("Link")],
-            self.options,
-            docs_dir="",
-            files=Files([]),
-            explicit_sections=set(),
-        )
+        meta = self._make_nav_meta([self.page("Page", "page.md"), self.link("Link")], self.options)
 
         self.assertEqual(len(meta.sections), 0)
         self.assertMeta(meta.root, path=".pages")
 
     def test_no_common_dirname(self):
         section = self.section("Section", [self.page("1", "a/1.md"), self.page("2", "b/2.md")])
-        meta = NavigationMeta([section], self.options, docs_dir="", files=Files([]), explicit_sections=set())
+        meta = self._make_nav_meta([section], self.options)
 
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
         self.assertEmptyMeta(meta.root)
 
     def test_path_outside_docs(self):
-        meta = NavigationMeta(
+        meta = self._make_nav_meta(
             [
                 self.page("Page", "page.md", docs_dir="/docs"),
                 self.page("Outside", "/outside", docs_dir="/docs"),
             ],
             self.options,
-            docs_dir="/docs",
-            files=Files([]),
-            explicit_sections=set(),
         )
 
         self.assertEqual(len(meta.sections), 0)
-        self.assertMeta(meta.root, path="/docs/.pages")
+        self.assertMeta(meta.root, path=".pages")
 
 
 class TestRestParsing(NavigationTestCase):

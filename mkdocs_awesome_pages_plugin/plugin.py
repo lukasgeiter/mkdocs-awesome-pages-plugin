@@ -1,5 +1,6 @@
 import os.path
 import warnings
+import glob
 from typing import List, Dict
 
 from mkdocs.config import config_options, Config
@@ -46,6 +47,19 @@ class AwesomePagesPlugin(BasePlugin):
         self.rest_items = RestItemList()
         self.rest_blocks = {}
 
+    def on_files(self, files: Files, config: Config):
+        # Add config files to Files, so we can unconditionally load files/configs from Files
+        config_files = glob.glob(os.path.join(config["docs_dir"], f"**/{self.config['filename']}"), recursive=True)
+        for filename in config_files:
+            file = File(
+                os.path.relpath(filename, config["docs_dir"]),
+                src_dir=config["docs_dir"],
+                dest_dir=config["site_dir"],
+                use_directory_urls=config["use_directory_urls"],
+            )
+            files.append(file)
+        return files
+
     def on_nav(self, nav: MkDocsNavigation, config: Config, files: Files):
         explicit_nav = nav if config["nav"] else None
 
@@ -62,7 +76,10 @@ class AwesomePagesPlugin(BasePlugin):
             nav = explicit_nav
 
         return AwesomeNavigation(
-            nav.items, Options(**self.config), os.path.relpath(config["docs_dir"]), files, explicit_sections
+            nav.items,
+            Options(**self.config),
+            files,
+            explicit_sections,
         ).to_mkdocs()
 
     def on_config(self, config: Config):

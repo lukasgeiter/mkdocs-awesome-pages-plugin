@@ -15,8 +15,6 @@ class GeneratedFiles(BasePlugin):
     def on_post_build(self, *args, **kwargs):
         self.src_dir.cleanup()
 
-
-
     def on_files(self, files, config):
         docs_dir = Path(self.src_dir.name)
         section_dir = docs_dir / "section"
@@ -45,19 +43,6 @@ class GeneratedFiles(BasePlugin):
         write_files(section_dir)
         return files
 
-    @staticmethod
-    def _write_files(path, files, config):
-        for file in path.iterdir():
-            if file.is_file():
-                files.append(
-                    File(
-                        f"section/{file.name}",
-                        src_dir=self.src_dir.name,
-                        dest_dir=config["site_dir"],
-                        use_directory_urls=config["use_directory_urls"],
-                    )
-                )
-
 
 class TestGeneratedFiles(E2ETestCase):
     PLUGINS = [GeneratedFiles]
@@ -78,7 +63,12 @@ class TestGeneratedFiles(E2ETestCase):
             [
                 (
                     "Section",
-                    [("3", "/section/3"), ("1", "/section/1"), ("2", "/section/2")],
+                    [
+                        ("3", "/section/3"),
+                        ("Sub", [("A", "/section/sub/a")]),
+                        ("1", "/section/1"),
+                        ("2", "/section/2"),
+                    ],
                 )
             ],
         )
@@ -94,8 +84,7 @@ class TestGeneratedFiles(E2ETestCase):
             [
                 (
                     "Section",
-                    [("3", "/section/3"), ("2", "/section/2")],
+                    [("3", "/section/3"), ("Sub", [("A", "/section/sub/a")]), ("2", "/section/2")],
                 )
             ],
         )
-

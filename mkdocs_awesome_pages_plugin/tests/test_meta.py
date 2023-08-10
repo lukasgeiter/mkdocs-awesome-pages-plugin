@@ -1,5 +1,7 @@
 from unittest import TestCase, mock
 
+from mkdocs.structure.files import File, Files
+
 from ..meta import Meta, DuplicateRestItemError, MetaNavItem, MetaNavRestItem
 from .file_mock import FileMock
 
@@ -28,7 +30,9 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
         self.assertIsNone(meta.title)
-        self.assertEqual(meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")])
+        self.assertEqual(
+            meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")]
+        )
 
     def test_arrange_rest_token(self, file_mock: FileMock):
         file_mock[".pages"].read_data = "arrange:\n" "  - 2.md\n" "  - ...\n" "  - 1.md\n"
@@ -36,18 +40,26 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
         self.assertIsNone(meta.title)
-        self.assertEqual(meta.nav, [MetaNavItem("2.md"), MetaNavRestItem("..."), MetaNavItem("1.md")])
+        self.assertEqual(
+            meta.nav, [MetaNavItem("2.md"), MetaNavRestItem("..."), MetaNavItem("1.md")]
+        )
 
     def test_title_and_arrange(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = "title: Section Title\n" "arrange:\n" "  - 2.md\n" "  - 1.md\n"
+        file_mock[".pages"].read_data = (
+            "title: Section Title\n" "arrange:\n" "  - 2.md\n" "  - 1.md\n"
+        )
 
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
         self.assertEqual(meta.title, "Section Title")
-        self.assertEqual(meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")])
+        self.assertEqual(
+            meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")]
+        )
 
     def test_arrange_and_nav(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = "arrange:\n" "  - 2.md\n" "  - 1.md\n" "nav:\n" "  - 1.md\n" "  - 2.md\n"
+        file_mock[".pages"].read_data = (
+            "arrange:\n" "  - 2.md\n" "  - 1.md\n" "nav:\n" "  - 1.md\n" "  - 2.md\n"
+        )
 
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
@@ -112,7 +124,9 @@ class TestLoadFrom(TestCase):
             Meta.load_from(".pages")
 
     def test_duplicate_rest_token(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = "arrange:\n" "  - 2.md\n" "  - ...\n" "  - 1.md\n" "  - ...\n"
+        file_mock[".pages"].read_data = (
+            "arrange:\n" "  - 2.md\n" "  - ...\n" "  - 1.md\n" "  - ...\n"
+        )
 
         with self.assertRaises(DuplicateRestItemError):
             Meta.load_from(".pages")
@@ -178,7 +192,9 @@ class TestLoadFrom(TestCase):
             Meta.load_from(".pages")
 
     def test_duplicate_nav_rest_pattern_glob(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = "nav:\n" "  - ... | a*.md\n" "  - 1.md\n" "  - ... | a*.md\n"
+        file_mock[".pages"].read_data = (
+            "nav:\n" "  - ... | a*.md\n" "  - 1.md\n" "  - ... | a*.md\n"
+        )
 
         with self.assertRaises(DuplicateRestItemError):
             Meta.load_from(".pages")
@@ -190,13 +206,26 @@ class TestLoadFrom(TestCase):
 
 @mock.patch("builtins.open", new_callable=FileMock)
 class TestTryLoadFrom(TestCase):
-    def test(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = "title: Section Title\n"
+    def test_in_docs_dir(self, file_mock: FileMock):
+        file_mock["/docs/.pages"].read_data = "title: Section Title\n"
+        files = Files([File(".pages", "/docs", "", False)])
 
-        meta = Meta.try_load_from(".pages")
+        meta = Meta.try_load_from_files(".pages", files)
         self.assertEqual(meta.title, "Section Title")
+        self.assertEqual(meta.path, ".pages")
+
+    def test_generated_file(self, file_mock: FileMock):
+        file_mock["/tmp/.pages"].read_data = "title: Section Title\n"
+        files = Files([File(".pages", "/tmp", "", False)])
+
+        meta = Meta.try_load_from_files(".pages", files)
+        self.assertEqual(meta.title, "Section Title")
+        self.assertEqual(meta.path, ".pages")
 
     def test_file_not_found(self, file_mock: FileMock):
-        meta = Meta.try_load_from(".pages")
+        meta = Meta.try_load_from_files(".pages", Files([]))
         self.assertIsInstance(meta, Meta)
 
+    def test_none_path(self, file_mock: FileMock):
+        meta = Meta.try_load_from_files(None, Files([]))
+        self.assertIsInstance(meta, Meta)

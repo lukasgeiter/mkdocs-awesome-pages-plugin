@@ -75,7 +75,6 @@ class NavigationTestCase(TestCase):
                 collapse_single_pages=collapse_single_pages,
                 strict=strict,
             ),
-            docs_dir="",
             files=Files([]),
             explicit_sections=set(),
         )
