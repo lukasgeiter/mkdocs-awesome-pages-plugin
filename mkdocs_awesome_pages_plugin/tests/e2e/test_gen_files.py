@@ -45,10 +45,11 @@ class GeneratedFiles(BasePlugin):
 
 
 class TestGeneratedFiles(E2ETestCase):
+    """See https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues/78."""
+
     PLUGINS = [GeneratedFiles]
 
     def test_mixed(self):
-        """See https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues/78."""
         navigation = self.mkdocs(
             self.config,
             [
@@ -74,7 +75,6 @@ class TestGeneratedFiles(E2ETestCase):
         )
 
     def test_all_virtual(self):
-        """See https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues/78."""
         navigation = self.mkdocs(
             self.config,
             [],

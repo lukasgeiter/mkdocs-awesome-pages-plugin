@@ -30,9 +30,7 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
         self.assertIsNone(meta.title)
-        self.assertEqual(
-            meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")]
-        )
+        self.assertEqual(meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")])
 
     def test_arrange_rest_token(self, file_mock: FileMock):
         file_mock[".pages"].read_data = "arrange:\n" "  - 2.md\n" "  - ...\n" "  - 1.md\n"
@@ -40,26 +38,18 @@ class TestLoadFrom(TestCase):
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
         self.assertIsNone(meta.title)
-        self.assertEqual(
-            meta.nav, [MetaNavItem("2.md"), MetaNavRestItem("..."), MetaNavItem("1.md")]
-        )
+        self.assertEqual(meta.nav, [MetaNavItem("2.md"), MetaNavRestItem("..."), MetaNavItem("1.md")])
 
     def test_title_and_arrange(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = (
-            "title: Section Title\n" "arrange:\n" "  - 2.md\n" "  - 1.md\n"
-        )
+        file_mock[".pages"].read_data = "title: Section Title\n" "arrange:\n" "  - 2.md\n" "  - 1.md\n"
 
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
         self.assertEqual(meta.title, "Section Title")
-        self.assertEqual(
-            meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")]
-        )
+        self.assertEqual(meta.nav, [MetaNavItem("2.md"), MetaNavItem("1.md"), MetaNavRestItem("...")])
 
     def test_arrange_and_nav(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = (
-            "arrange:\n" "  - 2.md\n" "  - 1.md\n" "nav:\n" "  - 1.md\n" "  - 2.md\n"
-        )
+        file_mock[".pages"].read_data = "arrange:\n" "  - 2.md\n" "  - 1.md\n" "nav:\n" "  - 1.md\n" "  - 2.md\n"
 
         meta = Meta.load_from(".pages")
         self.assertEqual(meta.path, ".pages")
@@ -124,9 +114,7 @@ class TestLoadFrom(TestCase):
             Meta.load_from(".pages")
 
     def test_duplicate_rest_token(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = (
-            "arrange:\n" "  - 2.md\n" "  - ...\n" "  - 1.md\n" "  - ...\n"
-        )
+        file_mock[".pages"].read_data = "arrange:\n" "  - 2.md\n" "  - ...\n" "  - 1.md\n" "  - ...\n"
 
         with self.assertRaises(DuplicateRestItemError):
             Meta.load_from(".pages")
@@ -192,9 +180,7 @@ class TestLoadFrom(TestCase):
             Meta.load_from(".pages")
 
     def test_duplicate_nav_rest_pattern_glob(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = (
-            "nav:\n" "  - ... | a*.md\n" "  - 1.md\n" "  - ... | a*.md\n"
-        )
+        file_mock[".pages"].read_data = "nav:\n" "  - ... | a*.md\n" "  - 1.md\n" "  - ... | a*.md\n"
 
         with self.assertRaises(DuplicateRestItemError):
             Meta.load_from(".pages")
