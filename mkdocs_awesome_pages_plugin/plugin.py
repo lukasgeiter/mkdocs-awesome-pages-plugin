@@ -1,3 +1,4 @@
+import os.path
 import warnings
 from typing import List, Dict
 
@@ -61,7 +62,7 @@ class AwesomePagesPlugin(BasePlugin):
             nav = explicit_nav
 
         return AwesomeNavigation(
-            nav.items, Options(**self.config), config["docs_dir"], files, explicit_sections
+            nav.items, Options(**self.config), os.path.relpath(config["docs_dir"]), files, explicit_sections
         ).to_mkdocs()
 
     def on_config(self, config: Config):

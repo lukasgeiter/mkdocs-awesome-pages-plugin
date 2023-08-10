@@ -19,7 +19,7 @@ from mkdocs.structure.pages import Page
 
 from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
 from .options import Options
-from .utils import dirname, basename
+from .utils import dirname, basename, join_paths
 
 NavigationItem = Union[Page, Section, Link]
 
@@ -196,7 +196,7 @@ class AwesomeNavigation:
         if isinstance(item, Section):
             return dirname(self.meta.sections[item].path)
         elif isinstance(item, Page):
-            return item.file.abs_src_path
+            return item.file.src_path
 
     def _get_item_title(self, item: NavigationItem) -> str:
         # Handle custom section titles in the ".pages" file
@@ -280,7 +280,8 @@ class NavigationMeta:
         paths: List[str] = []
         for item in items:
             if isinstance(item, Page):
-                paths.append(item.file.src_path)
+                if item.file.src_path in self.files.src_paths:
+                    paths.append(item.file.src_path)
             elif isinstance(item, Section):
                 section_meta = self._gather_metadata(item.children)
 
@@ -293,13 +294,20 @@ class NavigationMeta:
 
                 self.sections[item] = section_meta
 
-        common_dirname = self._common_dirname(paths) or ""
-        config_path = os.path.join(common_dirname, self.options.filename)
-        if config_path in self.files.src_paths:
-            config_path = self.files.src_paths[config_path].abs_src_path
-        else:
-            config_path = os.path.join(self.docs_dir, config_path)
-        return Meta.try_load_from(config_path)
+        common_dirname = self._common_dirname(paths)
+        if common_dirname is None:
+            return Meta()
+
+        rel_config_path = os.path.join(common_dirname, self.options.filename)
+        in_docs_config_path = os.path.join(self.docs_dir, rel_config_path)
+        try:
+            return Meta.load_from(in_docs_config_path)
+        except FileNotFoundError:
+            maybe_virtual_config = self.files.src_paths.get(rel_config_path)
+            if maybe_virtual_config is None:
+                return Meta()
+
+            return Meta.try_load_from(maybe_virtual_config.abs_src_path)
 
     @staticmethod
     def _common_dirname(paths: List[str]) -> Optional[str]:

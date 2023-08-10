@@ -33,7 +33,7 @@ class TestCommonDirname(TestCase):
 class TestMeta(NavigationTestCase):
     def assertMeta(self, actual: Meta, expected: Optional[Meta] = None, *, path: Optional[str] = None):
         if expected is None:
-            expected = Meta(path=path or ".pages")
+            expected = Meta(path=path)
 
         self.assertEqual(actual.collapse_single_pages, expected.collapse_single_pages)
         self.assertEqual(actual.collapse, expected.collapse)
@@ -96,7 +96,7 @@ class TestMeta(NavigationTestCase):
         self.assertMeta(meta.sections[a], path="a/.pages")
         self.assertMeta(meta.sections[b], path="a/b/.pages")
 
-        self.assertMeta(meta.sections[c], path=".pages")
+        self.assertMeta(meta.sections[c], path="c/.pages")
         self.assertEmptyMeta(meta.sections[d])
         self.assertMeta(meta.sections[e], path="c/e/.pages")
 

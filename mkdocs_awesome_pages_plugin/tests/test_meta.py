@@ -200,6 +200,3 @@ class TestTryLoadFrom(TestCase):
         meta = Meta.try_load_from(".pages")
         self.assertIsInstance(meta, Meta)
 
-    def test_none_path(self, file_mock: FileMock):
-        meta = Meta.try_load_from(None)
-        self.assertIsInstance(meta, Meta)
