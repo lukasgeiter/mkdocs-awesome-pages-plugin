@@ -26,20 +26,26 @@ NavigationItem = Union[Page, Section, Link]
 
 class NavEntryNotFound(Warning):
     def __init__(self, entry: str, context: str):
-        super().__init__('Nav entry "{entry}" not found. [{context}]'.format(entry=entry, context=context))
+        super().__init__(
+            'Nav entry "{entry}" not found. [{context}]'.format(entry=entry, context=context)
+        )
 
 
 class TitleInRootHasNoEffect(Warning):
     def __init__(self, filename: str):
         super().__init__(
-            'Using the "title" attribute in the {filename} file of the doc root has no effect'.format(filename=filename)
+            'Using the "title" attribute in the {filename} file of the doc root has no effect'.format(
+                filename=filename
+            )
         )
 
 
 class HideInRootHasNoEffect(Warning):
     def __init__(self, filename: str):
         super().__init__(
-            'Using the "hide" attribute in the {filename} file of the doc root has no effect'.format(filename=filename)
+            'Using the "hide" attribute in the {filename} file of the doc root has no effect'.format(
+                filename=filename
+            )
         )
 
 
@@ -67,9 +73,13 @@ class AwesomeNavigation:
         if self.meta.root.hide is not None:
             warnings.warn(HideInRootHasNoEffect(self.options.filename))
 
-        self.items = self._process_children(items, self.options.collapse_single_pages, self.meta.root)
+        self.items = self._process_children(
+            items, self.options.collapse_single_pages, self.meta.root
+        )
 
-    def _process_children(self, children: List[NavigationItem], collapse: bool, meta: Meta) -> List[NavigationItem]:
+    def _process_children(
+        self, children: List[NavigationItem], collapse: bool, meta: Meta
+    ) -> List[NavigationItem]:
         self._order(children, meta)
         children = self._nav(children, meta)
         return self._process_child_sections(children, collapse)
@@ -118,7 +128,9 @@ class AwesomeNavigation:
         used_items = []
         rest_items = RestItemList()
 
-        def _make_nav_rec(meta_nav: List[MetaNavItem]) -> List[Union[NavigationItem, MetaNavRestItem]]:
+        def _make_nav_rec(
+            meta_nav: List[MetaNavItem],
+        ) -> List[Union[NavigationItem, MetaNavRestItem]]:
             result = []
             for meta_item in meta_nav:
                 if isinstance(meta_item, MetaNavRestItem):
@@ -126,7 +138,9 @@ class AwesomeNavigation:
                     result.append(meta_item)
 
                 elif isinstance(meta_item.value, list):
-                    result.append(VirtualSection(meta_item.title, children=_make_nav_rec(meta_item.value)))
+                    result.append(
+                        VirtualSection(meta_item.title, children=_make_nav_rec(meta_item.value))
+                    )
 
                 elif meta_item.value in items_by_basename:
                     item = items_by_basename[meta_item.value]
@@ -171,7 +185,9 @@ class AwesomeNavigation:
 
         return result
 
-    def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:
+    def _process_section(
+        self, section: Section, collapse_recursive: bool
+    ) -> Optional[NavigationItem]:
         meta = self.meta.sections[section]
 
         if meta.hide is True:
@@ -194,6 +210,8 @@ class AwesomeNavigation:
 
     def _get_item_path(self, item: NavigationItem) -> Optional[str]:
         if isinstance(item, Section):
+            # TODO: This is now `None` where it wasn't before!
+            #   self.meta.sections[item].path
             return dirname(self.meta.sections[item].path)
         elif isinstance(item, Page):
             return item.file.src_path
@@ -244,7 +262,9 @@ class AwesomeNavigation:
             section.title = meta.title
 
     @staticmethod
-    def _collapse(section: Section, collapse: Optional[bool], collapse_recursive: bool) -> NavigationItem:
+    def _collapse(
+        section: Section, collapse: Optional[bool], collapse_recursive: bool
+    ) -> NavigationItem:
         if collapse is None:
             collapse = collapse_recursive
 
@@ -305,9 +325,12 @@ class NavigationMeta:
         except FileNotFoundError:
             maybe_virtual_config = self.files.src_paths.get(rel_config_path)
             if maybe_virtual_config is None:
-                return Meta()
+                return Meta(path=in_docs_config_path)
 
-            return Meta.try_load_from(maybe_virtual_config.abs_src_path)
+            try:
+                return Meta.load_from(maybe_virtual_config.abs_src_path)
+            except FileNotFoundError:
+                return Meta(in_docs_config_path)
 
     @staticmethod
     def _common_dirname(paths: List[str]) -> Optional[str]:
