@@ -21,10 +21,11 @@ class GeneratedFiles(BasePlugin):
         section_dir.mkdir()
         (section_dir / "2.md").touch()
         (section_dir / "3.md").touch()
+        (section_dir / ".pages").write_text(yaml.dump({"arrange": ["3.md", "sub", "..."]}))
         subsection_dir = section_dir / "sub"
         subsection_dir.mkdir()
         (subsection_dir / "a.md").touch()
-        (section_dir / ".pages").write_text(yaml.dump({"arrange": ["3.md", "sub", "..."]}))
+        (subsection_dir / ".pages").write_text(yaml.dump({"nav": ["a.md"]}))
 
         def write_files(path):
             for entry in path.iterdir():
