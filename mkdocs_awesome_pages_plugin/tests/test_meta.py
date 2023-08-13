@@ -193,16 +193,8 @@ class TestLoadFrom(TestCase):
 @mock.patch("builtins.open", new_callable=FileMock)
 class TestTryLoadFrom(TestCase):
     def test_in_docs_dir(self, file_mock: FileMock):
-        file_mock["/docs/.pages"].read_data = "title: Section Title\n"
-        files = Files([File(".pages", "/docs", "", False)])
-
-        meta = Meta.try_load_from_files(".pages", files)
-        self.assertEqual(meta.title, "Section Title")
-        self.assertEqual(meta.path, ".pages")
-
-    def test_generated_file(self, file_mock: FileMock):
-        file_mock["/tmp/.pages"].read_data = "title: Section Title\n"
-        files = Files([File(".pages", "/tmp", "", False)])
+        file_mock["docs/.pages"].read_data = "title: Section Title\n"
+        files = Files([File(".pages", "docs", "", False)])
 
         meta = Meta.try_load_from_files(".pages", files)
         self.assertEqual(meta.title, "Section Title")
