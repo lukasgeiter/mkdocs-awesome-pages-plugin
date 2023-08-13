@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import TestCase, mock
 
 from mkdocs.structure.files import File, Files
@@ -193,8 +194,9 @@ class TestLoadFrom(TestCase):
 @mock.patch("builtins.open", new_callable=FileMock)
 class TestTryLoadFrom(TestCase):
     def test_in_docs_dir(self, file_mock: FileMock):
-        file_mock["docs/.pages"].read_data = "title: Section Title\n"
-        files = Files([File(".pages", "docs", "", False)])
+        docs_path = Path("docs").resolve()
+        file_mock[str(docs_path / ".pages")].read_data = "title: Section Title\n"
+        files = Files([File(".pages", str(docs_path), "", False)])
 
         meta = Meta.try_load_from_files(".pages", files)
         self.assertEqual(meta.title, "Section Title")
