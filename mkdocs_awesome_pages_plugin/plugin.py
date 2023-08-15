@@ -50,14 +50,17 @@ class AwesomePagesPlugin(BasePlugin):
     def on_files(self, files: Files, config: Config):
         # Add config files to Files, so we can unconditionally load files/configs from Files
         config_files = glob.glob(os.path.join(config["docs_dir"], f"**/{self.config['filename']}"), recursive=True)
+        initial_src_paths = files.src_paths
         for filename in config_files:
-            file = File(
-                os.path.relpath(filename, config["docs_dir"]),
-                src_dir=config["docs_dir"],
-                dest_dir=config["site_dir"],
-                use_directory_urls=config["use_directory_urls"],
-            )
-            files.append(file)
+            config_path = os.path.relpath(filename, config["docs_dir"])
+            if config_path not in initial_src_paths:
+                file = File(
+                    os.path.relpath(filename, config["docs_dir"]),
+                    src_dir=config["docs_dir"],
+                    dest_dir=config["site_dir"],
+                    use_directory_urls=config["use_directory_urls"],
+                )
+                files.append(file)
         return files
 
     def on_nav(self, nav: MkDocsNavigation, config: Config, files: Files):
