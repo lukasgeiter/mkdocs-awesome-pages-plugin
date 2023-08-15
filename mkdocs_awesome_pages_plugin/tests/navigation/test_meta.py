@@ -74,11 +74,11 @@ class TestMeta(NavigationTestCase):
 
         populate_config_dirs(items)
 
-        for config_dir, docs_dir in config_dirs:
+        for rel_path, abs_path in config_dirs:
             files.append(
                 File(
-                    os.path.join(config_dir, options.filename),
-                    src_dir=docs_dir,
+                    os.path.join(rel_path, options.filename),
+                    src_dir=abs_path,
                     dest_dir="",
                     use_directory_urls=False,
                 )
@@ -159,18 +159,6 @@ class TestMeta(NavigationTestCase):
         self.assertEqual(len(meta.sections), 1)
         self.assertEmptyMeta(meta.sections[section])
         self.assertEmptyMeta(meta.root)
-
-    def test_path_outside_docs(self):
-        meta = self._make_nav_meta(
-            [
-                self.page("Page", "page.md", docs_dir="/docs"),
-                self.page("Outside", "/outside", docs_dir="/docs"),
-            ],
-            self.options,
-        )
-
-        self.assertEqual(len(meta.sections), 0)
-        self.assertMeta(meta.root, path=".pages")
 
 
 class TestRestParsing(NavigationTestCase):

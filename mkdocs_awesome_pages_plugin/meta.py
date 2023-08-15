@@ -2,13 +2,11 @@ import collections.abc
 import re
 from enum import Enum
 from pathlib import PurePath
-from typing import Optional, List, Union, Any, Iterator, TYPE_CHECKING
+from typing import Optional, List, Union, Any, Iterator
 
+from mkdocs.structure.files import Files
 import yaml
 from wcmatch import glob
-
-if TYPE_CHECKING:
-    from mkdocs.structure.files import Files
 
 
 class DuplicateRestItemError(Exception):

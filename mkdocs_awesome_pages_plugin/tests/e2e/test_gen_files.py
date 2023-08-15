@@ -1,3 +1,4 @@
+import os.path
 import tempfile
 from pathlib import Path
 
@@ -32,7 +33,7 @@ class GeneratedFiles(BasePlugin):
                 if entry.is_file():
                     files.append(
                         File(
-                            f"{path.relative_to(docs_dir)}/{entry.name}",
+                            os.path.join(path.relative_to(docs_dir), entry.name),
                             src_dir=self.src_dir.name,
                             dest_dir=config["site_dir"],
                             use_directory_urls=config["use_directory_urls"],
@@ -48,7 +49,7 @@ class GeneratedFiles(BasePlugin):
 class TestGeneratedFiles(E2ETestCase):
     """See https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin/issues/78."""
 
-    PLUGINS = [GeneratedFiles]
+    PLUGINS = (GeneratedFiles,)
 
     def test_mixed(self):
         navigation = self.mkdocs(

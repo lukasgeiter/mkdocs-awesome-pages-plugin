@@ -1,5 +1,3 @@
-import os.path
-from pathlib import Path
 import warnings
 
 import mkdocs.utils
@@ -277,8 +275,7 @@ class NavigationMeta:
         paths: List[str] = []
         for item in items:
             if isinstance(item, Page):
-                if item.file.src_path in self.files.src_paths:
-                    paths.append(item.file.src_path)
+                paths.append(item.file.src_path)
             elif isinstance(item, Section):
                 section_meta = self._gather_metadata(item.children)
 

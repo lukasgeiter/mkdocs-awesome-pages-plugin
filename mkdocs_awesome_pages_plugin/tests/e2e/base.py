@@ -1,7 +1,7 @@
 import os
 import tempfile
 import warnings
-from typing import Iterable, Optional, List, Tuple, Union, Dict
+from typing import Iterable, Optional, List, Tuple, Union, Dict, TypeVar
 from unittest import TestCase
 
 import yaml
@@ -13,10 +13,13 @@ from mkdocs.config import load_config
 
 from ...utils import cd
 
+PluginBaseT = TypeVar("PluginBaseT", bound=plugins.BasePlugin)
+
 
 class E2ETestCase(TestCase):
     MIN_ROOT_ITEMS = 2
     DUMMY_NAME = "__dummy__"
+    PLUGINS: Tuple[PluginBaseT] = ()
 
     def setUp(self):
         self.config = self.createConfig()
@@ -176,8 +179,7 @@ class E2ETestCase(TestCase):
         def _patched_get_plugins():
             result = _original_get_plugins()
 
-            class_plugins = getattr(cls, "PLUGINS", [])
-            for class_plugin in class_plugins:
+            for class_plugin in cls.PLUGINS:
                 name = class_plugin.__name__.lower()
                 result[name] = EntryPoint(
                     name=name,
