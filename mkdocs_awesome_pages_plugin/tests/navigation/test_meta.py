@@ -61,11 +61,11 @@ class TestMeta(NavigationTestCase):
 
         def populate_config_dirs(items: List[NavigationItem]):
             for item in items:
-                if isinstance(item, Page) and not item.url.startswith("/"):
+                if isinstance(item, Page):
                     config_dirs.add(
                         (
                             os.path.dirname(item.file.src_path),
-                            os.path.dirname(item.file.abs_src_path),
+                            item.file.abs_src_path[: -len(item.file.src_path)],
                         )
                     )
                     files.append(item.file)
@@ -74,11 +74,11 @@ class TestMeta(NavigationTestCase):
 
         populate_config_dirs(items)
 
-        for rel_path, abs_path in config_dirs:
+        for rel_config_dir, abs_docs_dir in config_dirs:
             files.append(
                 File(
-                    os.path.join(rel_path, options.filename),
-                    src_dir=abs_path,
+                    os.path.join(rel_config_dir, options.filename),
+                    src_dir=abs_docs_dir,
                     dest_dir="",
                     use_directory_urls=False,
                 )

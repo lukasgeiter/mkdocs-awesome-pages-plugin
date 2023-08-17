@@ -1,4 +1,4 @@
-import os
+import os.path
 from typing import List, Union, Optional
 from unittest import TestCase, mock
 
@@ -25,8 +25,8 @@ class NavigationMetaMock:
 
 class NavigationTestCase(TestCase):
     @staticmethod
-    def page(title: str, path: Optional[str] = None, docs_dir: str = "") -> Page:
-        return Page(title, File(path or title + ".md", docs_dir, "", False), {})
+    def page(title: str, path: Optional[str] = None) -> Page:
+        return Page(title, File(path or title + ".md", os.path.abspath("docs"), "", False), {})
 
     @staticmethod
     def link(title: str, url: Optional[str] = None):
