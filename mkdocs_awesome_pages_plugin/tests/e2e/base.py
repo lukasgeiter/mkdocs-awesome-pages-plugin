@@ -1,7 +1,7 @@
 import os
 import tempfile
 import warnings
-from typing import Optional, List, Tuple, Union, Dict
+from typing import Iterable, Optional, List, Tuple, Union, Dict, TypeVar
 from unittest import TestCase
 
 import yaml
@@ -13,10 +13,13 @@ from mkdocs.config import load_config
 
 from ...utils import cd
 
+PluginBaseT = TypeVar("PluginBaseT", bound=plugins.BasePlugin)
+
 
 class E2ETestCase(TestCase):
     MIN_ROOT_ITEMS = 2
     DUMMY_NAME = "__dummy__"
+    PLUGINS: Tuple[PluginBaseT] = ()
 
     def setUp(self):
         self.config = self.createConfig()
@@ -72,13 +75,17 @@ class E2ETestCase(TestCase):
         plugins_entry = "awesome-pages"
         if plugin_options:
             plugins_entry = {plugins_entry: plugin_options}
+        plugins = [
+            plugins_entry,
+            *[class_plugin.__name__.lower() for class_plugin in getattr(type(self), "PLUGINS", [])],
+        ]
 
         if mkdocs_nav is not None:
             # mkdocs requires a minimum amount of top-level items to render the navigation properly
             # ensure that this requirement is met by adding dummy pages
             self._addDummyPages(mkdocs_nav, self.MIN_ROOT_ITEMS - len(mkdocs_nav))
 
-        return {"plugins": [plugins_entry], "nav": mkdocs_nav}
+        return {"plugins": plugins, "nav": mkdocs_nav}
 
     def mkdocs(
         self,
@@ -165,12 +172,20 @@ class E2ETestCase(TestCase):
 
         return pages
 
-    @staticmethod
-    def _patchGetPlugins():
+    @classmethod
+    def _patchGetPlugins(cls):
         _original_get_plugins = plugins.get_plugins
 
         def _patched_get_plugins():
             result = _original_get_plugins()
+
+            for class_plugin in cls.PLUGINS:
+                name = class_plugin.__name__.lower()
+                result[name] = EntryPoint(
+                    name=name,
+                    value=f"{class_plugin.__module__}:{class_plugin.__name__}",
+                    group="mkdocs.plugins",
+                )
             result["awesome-pages"] = EntryPoint(
                 name="awesome-pages",
                 value="mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin",

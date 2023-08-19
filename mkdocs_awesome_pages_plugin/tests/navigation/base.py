@@ -1,8 +1,8 @@
-import os
+import os.path
 from typing import List, Union, Optional
 from unittest import TestCase, mock
 
-from mkdocs.structure.files import File
+from mkdocs.structure.files import File, Files
 from mkdocs.structure.nav import (
     Navigation as MkDocsNavigation,
     Section,
@@ -25,8 +25,8 @@ class NavigationMetaMock:
 
 class NavigationTestCase(TestCase):
     @staticmethod
-    def page(title: str, path: Optional[str] = None, docs_dir: str = "") -> Page:
-        return Page(title, File(path or title + ".md", docs_dir, "", False), {})
+    def page(title: str, path: Optional[str] = None) -> Page:
+        return Page(title, File(path or title + ".md", os.path.abspath("docs"), "", False), {})
 
     @staticmethod
     def link(title: str, url: Optional[str] = None):
@@ -75,7 +75,7 @@ class NavigationTestCase(TestCase):
                 collapse_single_pages=collapse_single_pages,
                 strict=strict,
             ),
-            docs_dir="",
+            files=Files([]),
             explicit_sections=set(),
         )
 

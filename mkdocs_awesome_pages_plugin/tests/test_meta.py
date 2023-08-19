@@ -1,4 +1,7 @@
+from pathlib import Path
 from unittest import TestCase, mock
+
+from mkdocs.structure.files import File, Files
 
 from ..meta import Meta, DuplicateRestItemError, MetaNavItem, MetaNavRestItem
 from .file_mock import FileMock
@@ -190,16 +193,19 @@ class TestLoadFrom(TestCase):
 
 @mock.patch("builtins.open", new_callable=FileMock)
 class TestTryLoadFrom(TestCase):
-    def test(self, file_mock: FileMock):
-        file_mock[".pages"].read_data = "title: Section Title\n"
+    def test_in_docs_dir(self, file_mock: FileMock):
+        docs_path = Path("docs").resolve()
+        file_mock[str(docs_path / ".pages")].read_data = "title: Section Title\n"
+        files = Files([File(".pages", str(docs_path), "", False)])
 
-        meta = Meta.try_load_from(".pages")
+        meta = Meta.try_load_from_files(".pages", files)
         self.assertEqual(meta.title, "Section Title")
+        self.assertEqual(meta.path, ".pages")
 
     def test_file_not_found(self, file_mock: FileMock):
-        meta = Meta.try_load_from(".pages")
+        meta = Meta.try_load_from_files(".pages", Files([]))
         self.assertIsInstance(meta, Meta)
 
     def test_none_path(self, file_mock: FileMock):
-        meta = Meta.try_load_from(None)
+        meta = Meta.try_load_from_files(None, Files([]))
         self.assertIsInstance(meta, Meta)

@@ -4,6 +4,7 @@ from enum import Enum
 from pathlib import PurePath
 from typing import Optional, List, Union, Any, Iterator
 
+from mkdocs.structure.files import Files
 import yaml
 from wcmatch import glob
 
@@ -147,13 +148,20 @@ class Meta:
         self.order_by = order_by
 
     @staticmethod
-    def try_load_from(path: Optional[str]) -> "Meta":
-        if path is None:
+    def try_load_from_files(rel_path: Optional[str], files: "Files") -> "Meta":
+        if rel_path is None:
             return Meta()
+
+        file = files.src_paths.get(rel_path)
+        if file is None:
+            return Meta(path=rel_path)
+
         try:
-            return Meta.load_from(path)
+            meta = Meta.load_from(file.abs_src_path)
+            meta.path = file.src_path  # Use the relative path
+            return meta
         except FileNotFoundError:
-            return Meta(path=path)
+            return Meta(path=file.src_path)
 
     @staticmethod
     def load_from(path: str) -> "Meta":

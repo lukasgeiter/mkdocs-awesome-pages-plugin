@@ -1,5 +1,4 @@
 import warnings
-from pathlib import Path
 
 import mkdocs.utils
 import mkdocs.utils.meta
@@ -13,6 +12,7 @@ from mkdocs.structure.nav import (
     _add_parent_links,
     _add_previous_and_next_links,
 )
+from mkdocs.structure.files import Files
 from mkdocs.structure.pages import Page
 
 from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
@@ -50,13 +50,13 @@ class AwesomeNavigation:
         self,
         items: List[NavigationItem],
         options: Options,
-        docs_dir: str,
+        files: Files,
         explicit_sections: Set[Section],
     ):
         self.options = options
         self.explicit_sections = explicit_sections
 
-        self.meta = NavigationMeta(items, options, docs_dir, explicit_sections)
+        self.meta = NavigationMeta(items, options, files, explicit_sections)
 
         if self.meta.root.title is not None:
             warnings.warn(TitleInRootHasNoEffect(self.options.filename))
@@ -193,7 +193,7 @@ class AwesomeNavigation:
         if isinstance(item, Section):
             return dirname(self.meta.sections[item].path)
         elif isinstance(item, Page):
-            return item.file.abs_src_path
+            return item.file.src_path
 
     def _get_item_title(self, item: NavigationItem) -> str:
         # Handle custom section titles in the ".pages" file
@@ -261,12 +261,12 @@ class NavigationMeta:
         self,
         items: List[NavigationItem],
         options: Options,
-        docs_dir: str,
+        files: Files,
         explicit_sections: Set[Section],
     ):
         self.options = options
         self.sections: Dict[Section, Meta] = {}
-        self.docs_dir = docs_dir
+        self.files = files
         self.explicit_sections = explicit_sections
 
         self.root: Meta = self._gather_metadata(items)
@@ -275,8 +275,7 @@ class NavigationMeta:
         paths: List[str] = []
         for item in items:
             if isinstance(item, Page):
-                if Path(self.docs_dir) in Path(item.file.abs_src_path).parents:
-                    paths.append(item.file.abs_src_path)
+                paths.append(item.file.src_path)
             elif isinstance(item, Section):
                 section_meta = self._gather_metadata(item.children)
 
@@ -289,7 +288,8 @@ class NavigationMeta:
 
                 self.sections[item] = section_meta
 
-        return Meta.try_load_from(join_paths(self._common_dirname(paths), self.options.filename))
+        rel_config_path = join_paths(self._common_dirname(paths), self.options.filename)
+        return Meta.try_load_from_files(rel_config_path, self.files)
 
     @staticmethod
     def _common_dirname(paths: List[str]) -> Optional[str]:
