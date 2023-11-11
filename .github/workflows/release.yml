@@ -7,6 +7,9 @@ on:
         description: Version (format 1.2.3)
         required: true
 
+env:
+  POETRY_VERSION: 1.4.0
+
 jobs:
   tag:
     name: Tag
@@ -32,6 +35,8 @@ jobs:
         uses: actions/setup-python@v2
       - name: Install poetry
         uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
       - name: Build
         run: poetry build
       - name: Publish
