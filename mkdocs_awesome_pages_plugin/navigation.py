@@ -82,7 +82,7 @@ class AwesomeNavigation:
                 items = self._process_section(item, collapse)
                 result.extend(items)
             else:
-                result.append(item)  
+                result.append(item)
         return result
 
     def _order(self, items: List[NavigationItem], meta: Meta):
@@ -241,36 +241,17 @@ class AwesomeNavigation:
             section.title = meta.title
 
     @staticmethod
-    def _collapse(section: Section, collapse: Optional[bool], collapse_recursive: bool, force_collapse: bool=False) -> List[NavigationItem]:
-        # if collapse is None:
-        #     collapse = collapse_recursive
-
-        # if collapse and len(section.children) == 1:
-        #     return section.children[0]
-        # return section
-    
-        # if collapse is None:
-        #     if collapse_recursive and len(section.children) == 1:
-        #         return [section.children[0]]
-        #     else:
-        #         return [section]
-            
-        # elif collapse:
-        #     return section.children
-
-        # return [section]
-
-
+    def _collapse(
+        section: Section, collapse: Optional[bool], collapse_recursive: bool, force_collapse: bool = False
+    ) -> List[NavigationItem]:
         if collapse is None:
             collapse = collapse_recursive
 
-        if  collapse:
+        if collapse:
             if force_collapse or len(section.children) == 1:
                 return section.children
-        
-        return [section]
 
-        
+        return [section]
 
     def to_mkdocs(self) -> MkDocsNavigation:
         pages = get_by_type(self.items, Page)

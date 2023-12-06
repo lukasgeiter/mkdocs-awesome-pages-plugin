@@ -236,7 +236,7 @@ class Meta:
                             context=path,
                         )
                     )
-                
+
             if force_collapse is not None:
                 if not isinstance(force_collapse, bool):
                     raise TypeError(
@@ -246,7 +246,7 @@ class Meta:
                             context=path,
                         )
                     )
-                    
+
             if hide is not None:
                 if not isinstance(hide, bool):
                     raise TypeError(
