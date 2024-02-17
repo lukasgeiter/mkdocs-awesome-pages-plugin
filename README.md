@@ -262,9 +262,9 @@ If you wanted `introduction.md`, `page1.md` and `page2.md` to appear under their
 ```yaml
 nav:
     - Start:
+        - introduction.md
         - page1.md
         - page2.md
-        - summary.md
     - ...
 ```
 
