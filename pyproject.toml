@@ -24,10 +24,10 @@ wcmatch = ">=7"
 natsort = ">=8.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^6.2.5"
-beautifulsoup4 = "^4.10.0"
+pytest = "^8.1.1"
+beautifulsoup4 = "^4.12.3"
 mock-open = "^1.4.0"
-black = { extras = ["d"], version = "^23.1.0" }
+black = { extras = ["d"], version = "^24.2.0" }
 
 [tool.black]
 line-length = 120
