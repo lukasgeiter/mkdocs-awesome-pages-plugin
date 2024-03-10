@@ -2,7 +2,7 @@ import warnings
 
 import mkdocs.utils
 import mkdocs.utils.meta
-from natsort import natsort_keygen
+from natsort import natsort_keygen, ns
 from typing import List, Optional, Union, Set, Dict
 
 from mkdocs.structure.nav import (
@@ -102,7 +102,7 @@ class AwesomeNavigation:
             key = lambda i: basename(self._get_item_path(i))
 
         if sort_type == Meta.SORT_NATURAL:
-            key = natsort_keygen(key)
+            key = natsort_keygen(key, alg=ns.IGNORECASE | ns.INT)
 
         items.sort(key=key, reverse=order == Meta.ORDER_DESC)
 
