@@ -5,11 +5,7 @@ from unittest import TestCase, mock
 from mkdocs.structure.files import File, Files
 from mkdocs.structure.nav import Link
 from mkdocs.structure.nav import Navigation as MkDocsNavigation
-from mkdocs.structure.nav import (
-    Section,
-    _add_parent_links,
-    _add_previous_and_next_links,
-)
+from mkdocs.structure.nav import Section
 from mkdocs.structure.pages import Page
 
 from ...meta import Meta

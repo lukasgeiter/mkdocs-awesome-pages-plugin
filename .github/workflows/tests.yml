@@ -38,6 +38,8 @@ jobs:
         run: poetry run black --check .
       - name: Check import order
         run: poetry run isort --check-only .
+      - name: Check code style
+        run: poetry run flake8 .
   test:
     name: Test
     runs-on: ${{ matrix.os }}

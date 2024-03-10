@@ -18,7 +18,7 @@ exclude = ["mkdocs_awesome_pages_plugin/tests"]
 awesome-pages = "mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8.1"
 mkdocs = ">=1"
 wcmatch = ">=7"
 natsort = ">=8.1.0"
@@ -29,6 +29,7 @@ beautifulsoup4 = "^4.12.3"
 mock-open = "^1.4.0"
 black = { extras = ["d"], version = "^24.2.0" }
 isort = "^5.13.2"
+flake8 = "^7.0.0"
 
 [tool.black]
 line-length = 120
