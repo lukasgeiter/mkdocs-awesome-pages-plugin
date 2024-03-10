@@ -2,10 +2,10 @@ import collections.abc
 import re
 from enum import Enum
 from pathlib import PurePath
-from typing import Optional, List, Union, Any, Iterator
+from typing import Any, Iterator, List, Optional, Union
 
-from mkdocs.structure.files import Files
 import yaml
+from mkdocs.structure.files import Files
 from wcmatch import glob
 
 

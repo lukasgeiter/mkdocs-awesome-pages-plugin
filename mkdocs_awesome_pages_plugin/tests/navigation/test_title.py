@@ -1,6 +1,6 @@
-from .base import NavigationTestCase
 from ...meta import Meta
 from ...navigation import TitleInRootHasNoEffect
+from .base import NavigationTestCase
 
 
 class TestTitle(NavigationTestCase):

@@ -1,7 +1,7 @@
 import os
 import tempfile
 import warnings
-from typing import Iterable, Optional, List, Tuple, Union, Dict, TypeVar
+from typing import Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 from unittest import TestCase
 
 import yaml

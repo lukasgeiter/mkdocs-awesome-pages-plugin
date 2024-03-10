@@ -1,9 +1,9 @@
 import pytest
 from mkdocs import __version__ as mkdocs_version
 
-from .base import E2ETestCase
 from ...meta import DuplicateRestItemError
 from ...navigation import NavEntryNotFound
+from .base import E2ETestCase
 
 
 class TestMkdocsNav(E2ETestCase):

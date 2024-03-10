@@ -1,6 +1,6 @@
-from .base import NavigationTestCase
 from ...meta import Meta
 from ...navigation import NavEntryNotFound
+from .base import NavigationTestCase
 
 
 class TestArrange(NavigationTestCase):

@@ -1,4 +1,5 @@
 from mkdocs_awesome_pages_plugin.navigation import HideInRootHasNoEffect
+
 from .base import E2ETestCase
 
 

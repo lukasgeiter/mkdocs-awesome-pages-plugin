@@ -1,5 +1,5 @@
-from .base import NavigationTestCase
 from ...meta import Meta, MetaNavItem, MetaNavRestItem
+from .base import NavigationTestCase
 
 
 class TestOrderAndSort(NavigationTestCase):

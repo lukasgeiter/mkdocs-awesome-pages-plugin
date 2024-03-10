@@ -6,11 +6,11 @@ from mkdocs.structure.files import File, Files
 from mkdocs.structure.nav import Section
 from mkdocs.structure.pages import Page
 
-from .base import NavigationTestCase
 from ...meta import Meta, MetaNavRestItem, RestType
 from ...navigation import NavigationItem, NavigationMeta
 from ...options import Options
 from ...utils import normpath
+from .base import NavigationTestCase
 
 
 class TestCommonDirname(TestCase):

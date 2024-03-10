@@ -1,21 +1,18 @@
+import glob
 import os.path
 import warnings
-import glob
-from typing import List, Dict
+from typing import Dict, List
 
-from mkdocs.config import config_options, Config
+from mkdocs.config import Config, config_options
 from mkdocs.plugins import BasePlugin
-from mkdocs.structure.files import Files, File
-from mkdocs.structure.nav import (
-    Navigation as MkDocsNavigation,
-    get_navigation,
-    Section,
-    Link,
-)
+from mkdocs.structure.files import File, Files
+from mkdocs.structure.nav import Link
+from mkdocs.structure.nav import Navigation as MkDocsNavigation
+from mkdocs.structure.nav import Section, get_navigation
 from mkdocs.structure.pages import Page
 
 from .meta import DuplicateRestItemError, MetaNavRestItem, RestItemList
-from .navigation import AwesomeNavigation, get_by_type, NavigationItem
+from .navigation import AwesomeNavigation, NavigationItem, get_by_type
 from .options import Options
 
 

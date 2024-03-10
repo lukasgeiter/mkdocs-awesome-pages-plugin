@@ -1,23 +1,22 @@
 import warnings
+from typing import Dict, List, Optional, Set, Union
 
 import mkdocs.utils
 import mkdocs.utils.meta
-from natsort import natsort_keygen
-from typing import List, Optional, Union, Set, Dict
-
+from mkdocs.structure.files import Files
+from mkdocs.structure.nav import Link
+from mkdocs.structure.nav import Navigation as MkDocsNavigation
 from mkdocs.structure.nav import (
-    Navigation as MkDocsNavigation,
     Section,
-    Link,
     _add_parent_links,
     _add_previous_and_next_links,
 )
-from mkdocs.structure.files import Files
 from mkdocs.structure.pages import Page
+from natsort import natsort_keygen
 
 from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
 from .options import Options
-from .utils import dirname, basename, join_paths
+from .utils import basename, dirname, join_paths
 
 NavigationItem = Union[Page, Section, Link]
 

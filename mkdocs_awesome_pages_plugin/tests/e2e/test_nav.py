@@ -1,6 +1,6 @@
-from .base import E2ETestCase
 from ...meta import DuplicateRestItemError
 from ...navigation import NavEntryNotFound
+from .base import E2ETestCase
 
 
 class TestNav(E2ETestCase):

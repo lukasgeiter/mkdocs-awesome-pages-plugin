@@ -1,5 +1,5 @@
-from .base import E2ETestCase
 from ...navigation import NavEntryNotFound
+from .base import E2ETestCase
 
 
 class TestArrange(E2ETestCase):

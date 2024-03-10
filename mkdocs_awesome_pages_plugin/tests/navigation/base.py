@@ -1,19 +1,19 @@
 import os.path
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 from unittest import TestCase, mock
 
 from mkdocs.structure.files import File, Files
+from mkdocs.structure.nav import Link
+from mkdocs.structure.nav import Navigation as MkDocsNavigation
 from mkdocs.structure.nav import (
-    Navigation as MkDocsNavigation,
     Section,
-    Link,
     _add_parent_links,
     _add_previous_and_next_links,
 )
 from mkdocs.structure.pages import Page
 
 from ...meta import Meta
-from ...navigation import NavigationItem, AwesomeNavigation, get_by_type
+from ...navigation import AwesomeNavigation, NavigationItem, get_by_type
 from ...options import Options
 
 

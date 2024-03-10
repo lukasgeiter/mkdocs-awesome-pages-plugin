@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 
 from mkdocs.structure.files import File, Files
 
-from ..meta import Meta, DuplicateRestItemError, MetaNavItem, MetaNavRestItem
+from ..meta import DuplicateRestItemError, Meta, MetaNavItem, MetaNavRestItem
 from .file_mock import FileMock
 
 

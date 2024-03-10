@@ -36,6 +36,8 @@ jobs:
         run: poetry install
       - name: Check formatting
         run: poetry run black --check .
+      - name: Check import order
+        run: poetry run isort --check-only .
   test:
     name: Test
     runs-on: ${{ matrix.os }}

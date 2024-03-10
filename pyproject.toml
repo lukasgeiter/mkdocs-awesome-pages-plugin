@@ -28,9 +28,13 @@ pytest = "^8.1.1"
 beautifulsoup4 = "^4.12.3"
 mock-open = "^1.4.0"
 black = { extras = ["d"], version = "^24.2.0" }
+isort = "^5.13.2"
 
 [tool.black]
 line-length = 120
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,5 +1,5 @@
-from .base import E2ETestCase
 from ...navigation import TitleInRootHasNoEffect
+from .base import E2ETestCase
 
 
 class TestPageTitle(E2ETestCase):

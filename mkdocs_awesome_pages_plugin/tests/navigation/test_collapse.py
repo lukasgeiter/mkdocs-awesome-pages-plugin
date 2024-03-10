@@ -1,5 +1,5 @@
-from .base import NavigationTestCase
 from ...meta import Meta
+from .base import NavigationTestCase
 
 
 class TestCollapseGlobalDisabled(NavigationTestCase):
