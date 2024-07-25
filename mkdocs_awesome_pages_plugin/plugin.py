@@ -65,6 +65,8 @@ class AwesomePagesPlugin(BasePlugin):
 
         if self.nav_config_with_rest:
             # restore explicit config with rest placeholder and build nav
+            for file in files.documentation_pages():
+                file.page = None  # clear all pages, so mkdocs actually generates the pages based on the nav config
             config["nav"] = self.nav_config_with_rest
             explicit_nav = get_navigation(files, config)
 
@@ -121,6 +123,7 @@ class AwesomePagesPlugin(BasePlugin):
         for item in items[:]:  # loop over a shallow copy of items so removing items doesn't break iteration
             if isinstance(item, Page):
                 if item.file not in exclude_files:
+                    item.file.page = item  # restore previously cleared page on the file (line 69)
                     for rest_item in self.rest_items:
                         if rest_item.matches(item.file.src_path):
                             items.remove(item)

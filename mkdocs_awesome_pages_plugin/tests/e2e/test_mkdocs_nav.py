@@ -107,13 +107,29 @@ class TestMkdocsNavRest(E2ETestCase):
 
         self.assertEqual(navigation, [("2", "/2"), ("1", "/1"), ("3", "/3")])
 
-    def test_duplicate_item(self):
+    @pytest.mark.skipif(
+        mkdocs_version >= "1.6.0",
+        reason="Handling of duplicates changed with version 1.6",
+    )
+    def test_duplicate_item_old(self):
         navigation = self.mkdocs(
             self.createConfig(mkdocs_nav=[{"2a": "2.md"}, {"2b": "2.md"}, "1.md", "..."]),
             ["1.md", "2.md", "3.md"],
         )
 
         self.assertEqual(navigation, [("2a", "/2"), ("2b", "/2"), ("1", "/1"), ("3", "/3")])
+
+    @pytest.mark.skipif(
+        mkdocs_version < "1.6.0",
+        reason="Handling of duplicates changed with version 1.6",
+    )
+    def test_duplicate_item_new(self):
+        navigation = self.mkdocs(
+            self.createConfig(mkdocs_nav=[{"2a": "2.md"}, {"2b": "2.md"}, "1.md", "..."]),
+            ["1.md", "2.md", "3.md"],
+        )
+
+        self.assertEqual(navigation, [("2a", "/2"), ("2a", "/2"), ("1", "/1"), ("3", "/3")])
 
     def test_duplicate_rest_token(self):
         with self.assertRaises(DuplicateRestItemError):

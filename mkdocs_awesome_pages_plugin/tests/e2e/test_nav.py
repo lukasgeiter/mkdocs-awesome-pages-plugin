@@ -1,3 +1,6 @@
+import pytest
+from mkdocs import __version__ as mkdocs_version
+
 from ...meta import DuplicateRestItemError
 from ...navigation import NavEntryNotFound
 from .base import E2ETestCase
@@ -344,7 +347,11 @@ class TestNav(E2ETestCase):
 
         self.assertEqual(navigation, [("1", "/b/1"), ("A", [("1", "/a/1"), ("2", "/a/2")])])
 
-    def test_duplicate_file(self):
+    @pytest.mark.skipif(
+        mkdocs_version >= "1.6.0",
+        reason="Handling of duplicates changed with version 1.6",
+    )
+    def test_duplicate_file_old(self):
         navigation = self.mkdocs(
             self.createConfig(mkdocs_nav=[{"1a": "1.md"}, {"2": "2.md"}, {"1b": "1.md"}]),
             ["1.md", "2.md", self.pagesFile(nav=["2.md", "1.md"])],
@@ -352,13 +359,41 @@ class TestNav(E2ETestCase):
 
         self.assertEqual(navigation, [("2", "/2"), ("1b", "/1")])
 
-    def test_duplicate_file_rest(self):
+    @pytest.mark.skipif(
+        mkdocs_version < "1.6.0",
+        reason="Handling of duplicates changed with version 1.6",
+    )
+    def test_duplicate_file_new(self):
+        navigation = self.mkdocs(
+            self.createConfig(mkdocs_nav=[{"1a": "1.md"}, {"2": "2.md"}, {"1b": "1.md"}]),
+            ["1.md", "2.md", self.pagesFile(nav=["2.md", "1.md"])],
+        )
+
+        self.assertEqual(navigation, [("2", "/2"), ("1a", "/1")])
+
+    @pytest.mark.skipif(
+        mkdocs_version >= "1.6.0",
+        reason="Handling of duplicates changed with version 1.6",
+    )
+    def test_duplicate_file_rest_old(self):
         navigation = self.mkdocs(
             self.createConfig(mkdocs_nav=[{"1a": "1.md"}, {"2": "2.md"}, {"1b": "1.md"}]),
             ["1.md", "2.md", self.pagesFile(nav=["2.md", "..."])],
         )
 
         self.assertEqual(navigation, [("2", "/2"), ("1a", "/1"), ("1b", "/1")])
+
+    @pytest.mark.skipif(
+        mkdocs_version < "1.6.0",
+        reason="Handling of duplicates changed with version 1.6",
+    )
+    def test_duplicate_file_rest_new(self):
+        navigation = self.mkdocs(
+            self.createConfig(mkdocs_nav=[{"1a": "1.md"}, {"2": "2.md"}, {"1b": "1.md"}]),
+            ["1.md", "2.md", self.pagesFile(nav=["2.md", "..."])],
+        )
+
+        self.assertEqual(navigation, [("2", "/2"), ("1a", "/1"), ("1a", "/1")])
 
     def test_duplicate_entry(self):
         navigation = self.mkdocs(

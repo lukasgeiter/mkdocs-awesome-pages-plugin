@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 import warnings
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
@@ -6,12 +7,17 @@ from unittest import TestCase
 
 import yaml
 from bs4 import BeautifulSoup
-from importlib_metadata import EntryPoint
+from mkdocs import __version__ as mkdocs_version
 from mkdocs import plugins
 from mkdocs.commands.build import build
 from mkdocs.config import load_config
 
 from ...utils import cd
+
+if sys.version_info >= (3, 10):
+    from importlib.metadata import EntryPoint
+else:
+    from importlib_metadata import EntryPoint
 
 PluginBaseT = TypeVar("PluginBaseT", bound=plugins.BasePlugin)
 
@@ -134,7 +140,7 @@ class E2ETestCase(TestCase):
                 self._createFiles(path, contents)
 
     def _mkdocsBuild(self, **options):
-        self._patchGetPlugins()
+        self._patchInstalledPlugins()
 
         with warnings.catch_warnings():
             # ignore deprecation warnings within mkdocs
@@ -173,27 +179,36 @@ class E2ETestCase(TestCase):
         return pages
 
     @classmethod
-    def _patchGetPlugins(cls):
-        _original_get_plugins = plugins.get_plugins
-
-        def _patched_get_plugins():
-            result = _original_get_plugins()
-
-            for class_plugin in cls.PLUGINS:
-                name = class_plugin.__name__.lower()
-                result[name] = EntryPoint(
-                    name=name,
-                    value=f"{class_plugin.__module__}:{class_plugin.__name__}",
-                    group="mkdocs.plugins",
-                )
-            result["awesome-pages"] = EntryPoint(
+    def _patchInstalledPlugins(cls):
+        entry_points = {
+            "awesome-pages": EntryPoint(
                 name="awesome-pages",
                 value="mkdocs_awesome_pages_plugin.plugin:AwesomePagesPlugin",
                 group="mkdocs.plugins",
             )
-            return result
+        }
 
-        plugins.get_plugins = _patched_get_plugins
+        for class_plugin in cls.PLUGINS:
+            name = class_plugin.__name__.lower()
+            entry_points[name] = EntryPoint(
+                name=name,
+                value=f"{class_plugin.__module__}:{class_plugin.__name__}",
+                group="mkdocs.plugins",
+            )
+
+        if mkdocs_version >= "1.4.0":
+            from mkdocs.config.defaults import MkDocsConfig
+
+            MkDocsConfig.plugins.installed_plugins.update(entry_points)
+        else:
+            _original_get_plugins = plugins.get_plugins
+
+            def _patched_get_plugins():
+                result = _original_get_plugins()
+                result.update(entry_points)
+                return result
+
+            plugins.get_plugins = _patched_get_plugins
 
     @staticmethod
     def _writeToFile(path: str, content: str):
