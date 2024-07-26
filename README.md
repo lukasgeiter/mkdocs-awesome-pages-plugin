@@ -191,6 +191,15 @@ If you want to enable or disable collapsing of a single page, without applying t
 collapse: true
 ```
 
+If you want to force the section to collapse even when having multiple children, add the flag `force_collapse`:
+
+```yaml
+collapse: true
+force_collapse: true
+```
+
+Note that setting `collapse: false` will ignore `force_collapse`
+
 ### Hide Directory
 
 Create a file named `.pages` in a directory and set the `hide` attribute to `true` to hide the directory, including all sub-pages and sub-sections, from the navigation:

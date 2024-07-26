@@ -76,12 +76,12 @@ class AwesomeNavigation:
         for item in children:
             if isinstance(item, VirtualSection):
                 item.children = self._process_child_sections(item.children, collapse)
+                result.append(item)
             elif isinstance(item, Section):
-                item = self._process_section(item, collapse)
-                if item is None:
-                    continue
-            result.append(item)
-
+                items = self._process_section(item, collapse)
+                result.extend(items)
+            else:
+                result.append(item)
         return result
 
     def _order(self, items: List[NavigationItem], meta: Meta):
@@ -167,11 +167,11 @@ class AwesomeNavigation:
 
         return result
 
-    def _process_section(self, section: Section, collapse_recursive: bool) -> Optional[NavigationItem]:
+    def _process_section(self, section: Section, collapse_recursive: bool) -> List[NavigationItem]:
         meta = self.meta.sections[section]
 
         if meta.hide is True:
-            return None
+            return []
 
         if meta.collapse_single_pages is not None:
             collapse_recursive = meta.collapse_single_pages
@@ -181,12 +181,12 @@ class AwesomeNavigation:
         section.children = self._process_children(section.children, collapse_recursive, meta)
 
         if section in self.explicit_sections:
-            return section
+            return [section]
 
         if not section.children:
-            return None
+            return []
 
-        return self._collapse(section, meta.collapse, collapse_recursive)
+        return self._collapse(section, meta.collapse, collapse_recursive, force_collapse=meta.force_collapse)
 
     def _get_item_path(self, item: NavigationItem) -> Optional[str]:
         if isinstance(item, Section):
@@ -240,13 +240,17 @@ class AwesomeNavigation:
             section.title = meta.title
 
     @staticmethod
-    def _collapse(section: Section, collapse: Optional[bool], collapse_recursive: bool) -> NavigationItem:
+    def _collapse(
+        section: Section, collapse: Optional[bool], collapse_recursive: bool, force_collapse: bool = False
+    ) -> List[NavigationItem]:
         if collapse is None:
             collapse = collapse_recursive
 
-        if collapse and len(section.children) == 1:
-            return section.children[0]
-        return section
+        if collapse:
+            if force_collapse or len(section.children) == 1:
+                return section.children
+
+        return [section]
 
     def to_mkdocs(self) -> MkDocsNavigation:
         pages = get_by_type(self.items, Page)

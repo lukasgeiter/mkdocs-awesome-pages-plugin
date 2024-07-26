@@ -107,6 +107,7 @@ class Meta:
     ARRANGE_REST_TOKEN = "..."
     COLLAPSE_ATTRIBUTE = "collapse"
     COLLAPSE_SINGLE_PAGES_ATTRIBUTE = "collapse_single_pages"
+    FORCE_COLLAPSE_ATTRIBUTE = "force_collapse"
     HIDE_ATTRIBUTE = "hide"
     ORDER_ATTRIBUTE = "order"
     SORT_TYPE_ATTRIBUTE = "sort_type"
@@ -125,9 +126,10 @@ class Meta:
         arrange: Optional[List[str]] = None,
         nav: Optional[List[MetaNavItem]] = None,
         path: Optional[str] = None,
-        collapse: bool = None,
-        collapse_single_pages: bool = None,
-        hide: bool = None,
+        collapse: Optional[bool] = None,
+        collapse_single_pages: Optional[bool] = None,
+        force_collapse: Optional[bool] = None,
+        hide: Optional[bool] = None,
         order: Optional[str] = None,
         sort_type: Optional[str] = None,
         order_by: Optional[str] = None,
@@ -142,6 +144,7 @@ class Meta:
         self.path = path
         self.collapse = collapse
         self.collapse_single_pages = collapse_single_pages
+        self.force_collapse = force_collapse
         self.hide = hide
         self.order = order
         self.sort_type = sort_type
@@ -172,6 +175,7 @@ class Meta:
             nav = contents.get(Meta.NAV_ATTRIBUTE)
             collapse = contents.get(Meta.COLLAPSE_ATTRIBUTE)
             collapse_single_pages = contents.get(Meta.COLLAPSE_SINGLE_PAGES_ATTRIBUTE)
+            force_collapse = contents.get(Meta.FORCE_COLLAPSE_ATTRIBUTE)
             hide = contents.get(Meta.HIDE_ATTRIBUTE)
             order = contents.get(Meta.ORDER_ATTRIBUTE)
             sort_type = contents.get(Meta.SORT_TYPE_ATTRIBUTE)
@@ -232,6 +236,17 @@ class Meta:
                             context=path,
                         )
                     )
+
+            if force_collapse is not None:
+                if not isinstance(force_collapse, bool):
+                    raise TypeError(
+                        'Expected "{attribute}" attribute to be a boolean - got {type} [{context}]'.format(
+                            attribute=Meta.FORCE_COLLAPSE_ATTRIBUTE,
+                            type=type(force_collapse),
+                            context=path,
+                        )
+                    )
+
             if hide is not None:
                 if not isinstance(hide, bool):
                     raise TypeError(
@@ -277,6 +292,7 @@ class Meta:
                 path=path,
                 collapse=collapse,
                 collapse_single_pages=collapse_single_pages,
+                force_collapse=force_collapse,
                 hide=hide,
                 order=order,
                 sort_type=sort_type,
