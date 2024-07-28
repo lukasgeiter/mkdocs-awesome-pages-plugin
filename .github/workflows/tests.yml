@@ -51,9 +51,11 @@ jobs:
           - 'windows-latest'
         python:
           - '3.8'
-          - '3.9'
-          - '3.10'
           - '3.11'
+        mkdocs:
+          - '1.3'
+          - '1.4'
+          - '1.6'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -67,5 +69,7 @@ jobs:
           version: ${{ env.POETRY_VERSION }}
       - name: Install dependencies
         run: poetry install
+      - name: Install specific mkdocs version
+        run: poetry add mkdocs@${{ matrix.mkdocs }}
       - name: Run tests
         run: poetry run pytest
