@@ -15,6 +15,38 @@ class TestCollapseGlobalDisabled(E2ETestCase):
 
         self.assertEqual(navigation, [("A", [("C", [("Page", "/a/b/c/page")])])])
 
+    def test_local_multichildren(self):
+        navigation = self.mkdocs(
+            self.config,
+            [("a", [("b", [("c", ["page.md"]), ("d", ["page2.md"]), self.pagesFile(collapse=True)])])],
+        )
+
+        self.assertEqual(
+            navigation, [("A", [("B", [("C", [("Page", "/a/b/c/page")]), ("D", [("Page2", "/a/b/d/page2")])])])]
+        )
+
+    def test_local_multichildren_force_collapse(self):
+        navigation = self.mkdocs(
+            self.config,
+            [
+                (
+                    "a",
+                    [
+                        (
+                            "b",
+                            [
+                                ("c", ["page.md"]),
+                                ("d", ["page2.md"]),
+                                self.pagesFile(collapse=True, force_collapse=True),
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+
+        self.assertEqual(navigation, [("A", [("C", [("Page", "/a/b/c/page")]), ("D", [("Page2", "/a/b/d/page2")])])])
+
     def test_local_recursively(self):
         navigation = self.mkdocs(
             self.config,
@@ -79,6 +111,29 @@ class TestCollapseGlobalDisabled(E2ETestCase):
 
         self.assertEqual(navigation, [("A", [("C", [("1", "/a/b/c/1")])])])
 
+    def test_local_with_hide_multichildren_force_collapse(self):
+        navigation = self.mkdocs(
+            self.config,
+            [
+                (
+                    "a",
+                    [
+                        (
+                            "b",
+                            [
+                                ("c", ["1.md"]),
+                                ("d", ["2.md", self.pagesFile(hide=True)]),
+                                ("e", ["3.md"]),
+                                self.pagesFile(collapse=True, force_collapse=True),
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+
+        self.assertEqual(navigation, [("A", [("C", [("1", "/a/b/c/1")]), ("E", [("3", "/a/b/e/3")])])])
+
 
 class TestCollapseGlobalEnabled(E2ETestCase):
     def setUp(self):
@@ -98,6 +153,15 @@ class TestCollapseGlobalEnabled(E2ETestCase):
         navigation = self.mkdocs(
             self.config,
             [("a", [("b", [("c", ["page.md"]), self.pagesFile(collapse=False)])])],
+        )
+
+        self.assertEqual(navigation, [("B", [("Page", "/a/b/c/page")])])
+
+    def test_override_local_force_collapse(self):
+        # force_collapse is only effective if when collapse is active
+        navigation = self.mkdocs(
+            self.config,
+            [("a", [("b", [("c", ["page.md"]), self.pagesFile(collapse=False, force_collapse=True)])])],
         )
 
         self.assertEqual(navigation, [("B", [("Page", "/a/b/c/page")])])

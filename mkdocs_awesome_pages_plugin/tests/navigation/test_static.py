@@ -31,45 +31,56 @@ class TestCollapse(TestCase):
     def test_default(self):
         self.assertEqual(
             AwesomeNavigation._collapse(self.parent, collapse=None, collapse_recursive=False),
-            self.parent,
+            [self.parent],
         )
 
     def test_local_false(self):
         self.assertEqual(
             AwesomeNavigation._collapse(self.parent, collapse=False, collapse_recursive=False),
-            self.parent,
+            [self.parent],
         )
 
     def test_explicit(self):
         self.assertEqual(
             AwesomeNavigation._collapse(self.parent, collapse=True, collapse_recursive=False),
-            self.child,
+            [self.child],
         )
 
     def test_explicit_and_recursive(self):
         self.assertEqual(
             AwesomeNavigation._collapse(self.parent, collapse=True, collapse_recursive=True),
-            self.child,
+            [self.child],
         )
 
     def test_recursive(self):
         self.assertEqual(
             AwesomeNavigation._collapse(self.parent, collapse=None, collapse_recursive=True),
-            self.child,
+            [self.child],
         )
 
     def test_local_override_false(self):
         self.assertEqual(
             AwesomeNavigation._collapse(self.parent, collapse=False, collapse_recursive=True),
-            self.parent,
+            [self.parent],
         )
 
     def test_multiple_children(self):
         section = Section("Parent", [Section("Child 1", []), Section("Child 2", [])])
 
-        self.assertEqual(AwesomeNavigation._collapse(section, None, False), section)
-        self.assertEqual(AwesomeNavigation._collapse(section, None, True), section)
-        self.assertEqual(AwesomeNavigation._collapse(section, False, False), section)
-        self.assertEqual(AwesomeNavigation._collapse(section, True, False), section)
-        self.assertEqual(AwesomeNavigation._collapse(section, True, True), section)
-        self.assertEqual(AwesomeNavigation._collapse(section, False, True), section)
+        self.assertEqual(AwesomeNavigation._collapse(section, None, False), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, None, True), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, False, False), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, True, False), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, True, True), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, False, True), [section])
+
+    def test_multiple_children_force_collapse(self):
+        children = [Section("Child 1", []), Section("Child 2", [])]
+        section = Section("Parent", children)
+
+        self.assertEqual(AwesomeNavigation._collapse(section, None, False, True), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, None, True, True), children)
+        self.assertEqual(AwesomeNavigation._collapse(section, False, False, True), [section])
+        self.assertEqual(AwesomeNavigation._collapse(section, True, False, True), children)
+        self.assertEqual(AwesomeNavigation._collapse(section, True, True, True), children)
+        self.assertEqual(AwesomeNavigation._collapse(section, False, True, True), [section])
