@@ -95,13 +95,20 @@ class AwesomeNavigation:
         if order is None and sort_type is None and order_by is None:
             return
 
+        ignore_case = meta.ignore_case or self.options.ignore_case
+
         if order_by == Meta.ORDER_BY_TITLE:
             key = lambda i: self._get_item_title(i)
         else:
             key = lambda i: basename(self._get_item_path(i))
 
         if sort_type == Meta.SORT_NATURAL:
-            key = natsort_keygen(key)
+            if ignore_case:
+                key = natsort_keygen(key, alg=ns.IGNORECASE)
+            else:
+                key = natsort_keygen(key)
+        elif ignore_case:
+            key = lambda i: key(i).casefold()
 
         items.sort(key=key, reverse=order == Meta.ORDER_DESC)
 
