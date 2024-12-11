@@ -180,7 +180,7 @@ class Meta:
             order = contents.get(Meta.ORDER_ATTRIBUTE)
             sort_type = contents.get(Meta.SORT_TYPE_ATTRIBUTE)
             order_by = contents.get(Meta.ORDER_BY_ATTRIBUTE)
-            
+
             if title is not None:
                 if not isinstance(title, str):
                     raise TypeError(
