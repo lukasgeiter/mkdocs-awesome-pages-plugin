@@ -12,7 +12,7 @@ from mkdocs.structure.nav import (
     _add_previous_and_next_links,
 )
 from mkdocs.structure.pages import Page
-from natsort import natsort_keygen
+from natsort import natsort_keygen, ns
 
 from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
 from .options import Options
