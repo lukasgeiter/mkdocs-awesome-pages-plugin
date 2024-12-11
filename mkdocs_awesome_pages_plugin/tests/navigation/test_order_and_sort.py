@@ -289,3 +289,91 @@ class TestOrderAndSort(NavigationTestCase):
             [self.page("30"), self.page("1000"), self.page("200"), self.page("4")],
         )
         self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_section_asc_ignore_case(self):
+        navigation = self.createAwesomeNavigation(
+            [
+                self.page("B"),
+                self.page("a"),
+                self.page("C"),
+                Meta(ignore_case=True, order=Meta.ORDER_ASC),
+            ]
+        )
+
+        self.assertNavigationEqual(
+            navigation.items,
+            [
+                self.page("a"),
+                self.page("B"),
+                self.page("C"),
+            ],
+        )
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_section_asc_natural_ignore_case(self):
+        navigation = self.createAwesomeNavigation(
+            [
+                self.page("B"),
+                self.page("a"),
+                self.page("C"),
+                Meta(
+                    ignore_case=True,
+                    order=Meta.ORDER_ASC,
+                    sort_type=Meta.SORT_NATURAL,
+                ),
+            ]
+        )
+
+        self.assertNavigationEqual(
+            navigation.items,
+            [
+                self.page("a"),
+                self.page("B"),
+                self.page("C"),
+            ],
+        )
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_section_desc_ignore_case(self):
+        navigation = self.createAwesomeNavigation(
+            [
+                self.page("B"),
+                self.page("a"),
+                self.page("C"),
+                Meta(ignore_case=True, order=Meta.ORDER_DESC),
+            ]
+        )
+
+        self.assertNavigationEqual(
+            navigation.items,
+            [
+                self.page("C"),
+                self.page("B"),
+                self.page("a"),
+            ],
+        )
+        self.assertValidNavigation(navigation.to_mkdocs())
+
+    def test_section_desc_natural_ignore_case(self):
+        navigation = self.createAwesomeNavigation(
+            [
+                self.page("B"),
+                self.page("a"),
+                self.page("C"),
+                Meta(
+                    ignore_case=True,
+                    order=Meta.ORDER_DESC,
+                    sort_type=Meta.SORT_NATURAL,
+                ),
+            ]
+        )
+
+        self.assertNavigationEqual(
+            navigation.items,
+            [
+                self.page("C"),
+                self.page("B"),
+                self.page("a"),
+            ],
+        )
+        self.assertValidNavigation(navigation.to_mkdocs())
