@@ -126,6 +126,14 @@ This can be combined with `order` above.
 sort_type: natural
 ```
 
+### Sorting Case Sensitivity
+
+Sorting is case-sensitive by default. To change that, set `ignore_case` to `true`.
+
+```yaml
+ignore_case: true
+```
+
 ### Order Navigation By Preference
 
 Create a file named `.pages` in a directory and set the `order_by` attribute to `filename` or `title` to change the order of navigation items.
@@ -393,6 +401,7 @@ plugins:
         order: asc
         sort_type: natural
         order_by: title
+        ignore_case: true
 ```
 
 ### `filename`
@@ -412,7 +421,7 @@ Raise errors instead of warnings when:
 
 Default is `true`
 
-### `order`, `sort_type` and `order_by`
+### `order`, `sort_type`, `ignore_case` and `order_by`
 
 Global fallback values for the Meta attributes. Default is `None` or `filename`.
 
