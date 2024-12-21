@@ -108,6 +108,7 @@ class Meta:
     COLLAPSE_ATTRIBUTE = "collapse"
     COLLAPSE_SINGLE_PAGES_ATTRIBUTE = "collapse_single_pages"
     HIDE_ATTRIBUTE = "hide"
+    IGNORE_CASE_ATTRIBUTE = "ignore_case"
     ORDER_ATTRIBUTE = "order"
     SORT_TYPE_ATTRIBUTE = "sort_type"
     ORDER_BY_ATTRIBUTE = "order_by"
@@ -128,6 +129,7 @@ class Meta:
         collapse: bool = None,
         collapse_single_pages: bool = None,
         hide: bool = None,
+        ignore_case: bool = None,
         order: Optional[str] = None,
         sort_type: Optional[str] = None,
         order_by: Optional[str] = None,
@@ -143,6 +145,7 @@ class Meta:
         self.collapse = collapse
         self.collapse_single_pages = collapse_single_pages
         self.hide = hide
+        self.ignore_case = ignore_case
         self.order = order
         self.sort_type = sort_type
         self.order_by = order_by
@@ -173,6 +176,7 @@ class Meta:
             collapse = contents.get(Meta.COLLAPSE_ATTRIBUTE)
             collapse_single_pages = contents.get(Meta.COLLAPSE_SINGLE_PAGES_ATTRIBUTE)
             hide = contents.get(Meta.HIDE_ATTRIBUTE)
+            ignore_case = contents.get(Meta.IGNORE_CASE_ATTRIBUTE)
             order = contents.get(Meta.ORDER_ATTRIBUTE)
             sort_type = contents.get(Meta.SORT_TYPE_ATTRIBUTE)
             order_by = contents.get(Meta.ORDER_BY_ATTRIBUTE)
@@ -241,6 +245,15 @@ class Meta:
                             context=path,
                         )
                     )
+            if ignore_case is not None:
+                if not isinstance(ignore_case, bool):
+                    raise TypeError(
+                        'Expected "{attribute}" attribute to be a boolean - got {type} [{context}]'.format(
+                            attribute=Meta.IGNORE_CASE_ATTRIBUTE,
+                            type=type(ignore_case),
+                            context=path,
+                        )
+                    )
             if order is not None:
                 if order != Meta.ORDER_ASC and order != Meta.ORDER_DESC:
                     raise TypeError(
@@ -278,6 +291,7 @@ class Meta:
                 collapse=collapse,
                 collapse_single_pages=collapse_single_pages,
                 hide=hide,
+                ignore_case=ignore_case,
                 order=order,
                 sort_type=sort_type,
                 order_by=order_by,

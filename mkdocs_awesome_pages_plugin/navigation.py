@@ -12,7 +12,7 @@ from mkdocs.structure.nav import (
     _add_previous_and_next_links,
 )
 from mkdocs.structure.pages import Page
-from natsort import natsort_keygen
+from natsort import natsort_keygen, ns
 
 from .meta import Meta, MetaNavItem, MetaNavRestItem, RestItemList
 from .options import Options
@@ -95,13 +95,19 @@ class AwesomeNavigation:
         if order is None and sort_type is None and order_by is None:
             return
 
+        ignore_case = meta.ignore_case or self.options.ignore_case
+
         if order_by == Meta.ORDER_BY_TITLE:
-            key = lambda i: self._get_item_title(i)
+            item_key = lambda i: self._get_item_title(i)
         else:
-            key = lambda i: basename(self._get_item_path(i))
+            item_key = lambda i: basename(self._get_item_path(i))
 
         if sort_type == Meta.SORT_NATURAL:
-            key = natsort_keygen(key)
+            key = natsort_keygen(item_key, alg=ns.IGNORECASE if ignore_case else ns.DEFAULT)
+        elif ignore_case:
+            key = lambda i: item_key(i).casefold()
+        else:
+            key = item_key
 
         items.sort(key=key, reverse=order == Meta.ORDER_DESC)
 
